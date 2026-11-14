@@ -1,5 +1,5 @@
 /* Expanded Term 03 lexicon from the first-page new-word lists and lesson texts.
-   Entries are source-tagged; repeated vocabulary across books is stored once. */
+   Entries are source-tagged; only identical lexical entries are merged. */
 (()=>{
  const rows=[];
  const N=(unit,source,fa,tr,en,...args)=>{
@@ -2197,11 +2197,26 @@
  A(1,"WR3-02","مسئولانه","mas'ulāne","responsibly; responsible","باید با اطلاعات و منابع به‌صورت مسئولانه رفتار کنیم.","Bāyad bā ettelā'āt va manābe' be-surat-e mas'ulāne raftār konim.","We should handle information and sources responsibly.");
  A(1,"WR3-02","تاریخی","tārikhi","historical","این شهر آثار تاریخی فراوانی دارد.","In shahr āsār-e tārikhi-ye farāvāni dārad.","This city has many historical sites.");
  A(1,"WR3-02","فرهنگی","farhangi","cultural","آشنایی با میراث فرهنگی به شناخت هویت کمک می‌کند.","Āshenāyi bā mirās-e farhangi be shenākht-e hoviyat komak mikonad.","Learning about cultural heritage helps us understand identity.");
- // Deduplicate against the curated base and within this file by Persian headword.
- const norm=x=>String(x||"").replace(/[\u200c\sـ]/g,"");
- const byKey=new Map((window.TERM3_DATA||[]).map(x=>[norm(x.fa),x]));
+ // Deduplicate only genuinely identical lexical entries.
+ // Keep complete Persian expressions (including word boundaries), transliteration,
+ // and English sense in the identity key. Thus a shared headword with a different
+ // phrase, pronunciation, or meaning remains a separate learnable entry.
+ const norm=x=>String(x||"").normalize("NFKC")
+  .replace(/[يى]/g,"ی").replace(/ك/g,"ک")
+  .replace(/[\u064B-\u065F\u0670\u0640]/g,"")
+  .replace(/[\u200c\s]+/g," ").trim().toLocaleLowerCase();
+ const key=x=>[norm(x.fa),norm(x.tr),norm(x.en)].join("|");
+ const byKey=new Map((window.TERM3_DATA||[]).map(x=>[key(x),x]));
  const additions=[];
- for(const x of rows){const k=norm(x.fa),prior=byKey.get(k);if(prior){prior.sources=Array.from(new Set([...(prior.sources||[prior.source]).filter(Boolean),x.source].filter(Boolean)));prior.units=Array.from(new Set([...(prior.units||[prior.unit]),x.unit]));}else{x.sources=[x.source];x.units=[x.unit];additions.push(x);byKey.set(k,x)}}
+ for(const x of rows){
+  const k=key(x),prior=byKey.get(k);
+  if(prior){
+   prior.sources=Array.from(new Set([...(prior.sources||[prior.source]).filter(Boolean),x.source].filter(Boolean)));
+   prior.units=Array.from(new Set([...(prior.units||[prior.unit]),x.unit]));
+  }else{
+   x.sources=[x.source];x.units=[x.unit];additions.push(x);byKey.set(k,x);
+  }
+ }
  window.TERM3_DATA=(window.TERM3_DATA||[]).concat(additions);
  window.TERM3_ADDITIONS_COUNT=additions.length;
 })();
