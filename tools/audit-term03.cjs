@@ -65,6 +65,7 @@ for (const item of entries) {
   for (const source of linkedSources) {
     let expected = global.TERM3_CHAPTER_MAPPING[source];
     if (source === "KH3-11") expected = [Number(item.unit) === 17 ? 17 : 11];
+    if (source.startsWith("WR3-")) expected = [Number(item.unit)]; // Writing-only sources retain their existing placement.
     assert(expected, "Missing TSV mapping for source " + source);
     for (const chapter of expected) assert(item.units.includes(chapter),
       "Wrong chapter mapping for " + item.fa + " from " + source + "; expected unit " + chapter);
