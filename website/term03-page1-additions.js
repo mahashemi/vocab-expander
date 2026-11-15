@@ -60,6 +60,7 @@
   {"unit":19,"source":"SH3-07","fa":"آپارتمان","tr":"āpārtemān","en":"apartment","pos":"اسم — ism (noun)","ex":["ما یک آپارتمان دوخوابه در هتل رزرو کردیم.","Mā yek āpārtemān-e do-khābe dar hotel rezerv kardim.","We booked a two-bedroom apartment at the hotel."],"sources":["SH3-07"],"units":[19]},
   {"unit":20,"source":"FA3-20","fa":"دوش (دیشب)","tr":"dush (dishab)","en":"last night (archaic/poetic)","pos":"قید — qeyd (adverb)","ex":["در شعر کهن، «دوش» یعنی دیشب.","Dar she'r-e kohan, «dush» ya'ni dishab.","In classical poetry, «dush» means last night."],"sources":["FA3-20"],"units":[20]},
   {"unit":2,"source":"SH3-08","fa":"درس گذراندن","tr":"dars gozarāndan","en":"to pass (a course); to complete (a course)","pos":"فعل مرکب — compound verb","ms":"درس گذراندن","amr":"—","m":["درس گذراندن در ترم اول برای او آسان نبود.","Dars gozarāndan dar term-e avval barāye u āsān nabud.","Passing the course in the first term was not easy for him."],"a":null,"note":"معمولاً امر مستقیم ندارد؛ برای دستور از «درس را پاس کن» استفاده می‌شود.","sources":["SH3-08"],"units":[2]}
+  {"unit":9,"source":"KH3-09","fa":"مصرف کردن","tr":"masraf kardan","en":"to consume; to use","pos":"فعل مرکب — compound verb","ex":["افرادی که غذاهایی مانند انواع ماهی‌ها، سبزی‌ها، آجیل و میوه‌های دارای ویتامین C را بیشتر مصرف می‌کنند، استرس و نگرانی کمتری دارند و بیشتر از دیگران شاد و خوشحال هستند.","Afrādi ke ghazāhāyi mānand-e anvā'-e māhi-hā, sabzi-hā, ājil va mivehā-ye dārā-ye vitāmin-e C rā bishtar masraf mikonand, estres va negarāni-ye kamtari dārand va bishtar az digarān shād-o khoshhāl hastand.","People who consume more foods such as fish, vegetables, nuts and vitamin-C-rich fruits have less stress and worry and are happier than others."],"note":"این فعل در فهرست واژگان صفحهٔ اول و متن اصلی درس KH3-09 آمده است.","sources":["KH3-09"],"units":[9]},
  ];
  let added=0;
  for(const c of CARDS){
@@ -196,6 +197,7 @@
   "آپارتمان":["واحد مسکونی در ساختمانی چندطبقه که چند خانوار در آن زندگی می‌کنند.","Apartment; a residential unit in a multi-storey building.","شقّة؛ وحدة سكنية في بناية متعددة الطوابق."],
   "دوش (دیشب)":["در شعر و نثر کهن، شب گذشته؛ دیشب.","Last night (archaic/poetic); the night just past.","الليلة الماضية (بلفظ شعري قديم)؛ البارحة."],
   "درس گذراندن":["یک درس دانشگاهی را با موفقیت به پایان رساندن و نمرهٔ قبولی گرفتن؛ پاس کردن.","To pass or complete a university course successfully and obtain a passing grade.","اجتاز المقرَّر الدراسي؛ أنهى مادة جامعية بنجاح ونال درجة النجاح."]
+  "مصرف کردن":["چیزی را به کار بردن یا استفاده کردن؛ به‌ویژه خوردن یا استفاده از غذا، انرژی و منابع.","To consume or use something, especially food, energy, or other resources.","استهلك شيئاً أو استخدمه، ولا سيّما الطعام أو الطاقة أو الموارد."],
  };
  for(const [fa,v] of Object.entries(ROWS)) S[fa]={...(S[fa]||{}),faMeaning:v[0],enMeaning:v[1],arMeaning:v[2],faSynonyms:(S[fa]||{}).faSynonyms||[],enSynonyms:(S[fa]||{}).enSynonyms||[],arSynonyms:(S[fa]||{}).arSynonyms||[]};
  window.TERM03_PAGE1_ADDITIONS={newCards:added,linkedCards:linked,linkedEntries,missingLinks,meanings:Object.keys(ROWS).length};
