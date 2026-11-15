@@ -31,6 +31,9 @@
   if(item.en!==desc.en || item.pos!==desc.pos) return false;
   return true;
  }
+ function diagnosticCandidates(desc,headword){
+  return D.filter(x=>!removed.has(x)&&norm(x.fa)===norm(headword)).map(x=>({id:oldId(x),unit:x.unit,source:x.source,sources:x.sources,tr:x.tr,en:x.en,pos:x.pos}));
+ }
  function findCard(desc,headword,exclude){
   let found=D.find(x=>!removed.has(x)&&x!==exclude&&oldId(x)===desc.id&&matches(x,desc,headword));
   if(found) return found;
@@ -92,10 +95,10 @@
   const finals=[];
   for(const cluster of group.clusters){
    const keeper=findCard(cluster.keep,group.headword,null);
-   if(!keeper){missing.push({headword:group.headword,kind:"keep",id:cluster.keep.id});finals.push(null);continue;}
+   if(!keeper){missing.push({headword:group.headword,kind:"keep",id:cluster.keep.id,candidates:diagnosticCandidates(cluster.keep,group.headword)});finals.push(null);continue;}
    for(const merge of cluster.merges){
     const duplicate=findCard(merge.card,group.headword,keeper);
-    if(!duplicate){missing.push({headword:group.headword,kind:"merge",id:merge.card.id,en:merge.card.en});continue;}
+    if(!duplicate){missing.push({headword:group.headword,kind:"merge",id:merge.card.id,en:merge.card.en,candidates:diagnosticCandidates(merge.card,group.headword)});continue;}
     mergeCard(keeper,duplicate,merge.proposed);
     removed.add(duplicate);
     approvedMerges++;
