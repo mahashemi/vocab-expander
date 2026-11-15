@@ -133,7 +133,7 @@ def test_term03_deduplication_plan_and_runtime_audit_are_wired_before_mapping() 
 
 def test_term03_dedup_plan_contains_all_approved_merges_and_manual_decisions() -> None:
     dedup = read("term03-dedup.js")
-    plan_match = re.search(r"const PLAN=(\\{.*?\\});\\n const EXPECTED=", dedup, flags=re.DOTALL)
+    plan_match = re.search(r"const PLAN=(\{.*?\});\n const EXPECTED=", dedup, flags=re.DOTALL)
     assert plan_match, "the reviewed deduplication plan must be embedded in the runtime script"
     plan = json.loads(plan_match.group(1))
     approved = sum(len(cluster["merges"]) for group in plan["groups"] for cluster in group["clusters"])
