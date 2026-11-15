@@ -170,6 +170,42 @@ main{max-width:1120px;padding:28px 24px 16px}.site-head{margin-bottom:26px}.bran
 .global-result-meaning{font-size:13px}
 .global-result-source{font-size:10px;color:var(--mut)}
 @media(max-width:650px){.global-search-results{grid-template-columns:1fr}.global-search-box{gap:6px;padding-left:10px}.global-search-box input{font-size:15px}}
+
+/* Refined Term 03 Khulasa and Sukhanrani pages */
+.writing-wrap .khulasa-hero,.writing-wrap .speech-hero{padding:clamp(20px,3.5vw,34px);margin:0 0 16px;border:1px solid rgba(39,102,91,.18);border-radius:22px;background:radial-gradient(circle at 92% 8%,rgba(189,149,80,.18),transparent 34%),linear-gradient(135deg,var(--card),var(--soft));box-shadow:var(--shadow)}
+.writing-wrap .khulasa-hero h2,.writing-wrap .speech-hero h2{color:var(--ink);margin:7px 0;font-size:clamp(25px,3.6vw,34px)}
+.writing-wrap .khulasa-hero>p,.writing-wrap .speech-hero>p{max-width:760px;color:var(--mut);line-height:1.9;margin:6px 0}
+.kh ulasa-hero-meta,.khulasa-hero-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.kh ulasa-hero-meta span,.khulasa-hero-meta span{border:1px solid var(--bd);background:rgba(255,255,255,.55);padding:6px 11px;border-radius:999px;font-size:12px;color:var(--ac);font-weight:700}
+.writing-wrap .khulasa-selector{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.writing-wrap .khulasa-selector label{margin:0}
+.writing-wrap .khulasa-content{padding:clamp(17px,3vw,28px)}
+.kh ulasa-chapter-title,.khulasa-chapter-title{padding:4px 2px 14px;border-bottom:1px solid var(--bd);margin-bottom:14px}
+.kh ulasa-chapter-title>span,.khulasa-chapter-title>span{font-size:12px;color:var(--ac);font-weight:800}
+.kh ulasa-chapter-title h2,.khulasa-chapter-title h2{margin:5px 0 0;color:var(--ink)}
+.writing-wrap .khulasa-lines{list-style:none;padding:0;counter-reset:none}
+.writing-wrap .khulasa-lines li{display:grid;grid-template-columns:38px minmax(0,1fr);align-items:start;gap:12px;padding:13px 14px;margin:9px 0;border:1px solid var(--bd);border-right:3px solid var(--ac);border-radius:13px;background:linear-gradient(110deg,rgba(39,102,91,.045),transparent 75%);line-height:2.1}
+.kh ulasa-number,.khulasa-number{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--soft);color:var(--ac);font-weight:800;font-size:12px;direction:ltr}
+.kh ulasa-practice,.khulasa-practice{margin:22px 0;padding:clamp(15px,2.6vw,24px);border:1px solid rgba(189,149,80,.4);border-radius:18px;background:linear-gradient(145deg,rgba(189,149,80,.08),var(--card) 70%)}
+.kh ulasa-practice-head,.khulasa-practice-head{text-align:right}
+.kh ulasa-practice-head>span,.khulasa-practice-head>span{font-size:12px;color:var(--gold);font-weight:800}
+.kh ulasa-practice-head h3,.khulasa-practice-head h3{color:var(--ink);margin:4px 0}
+.kh ulasa-practice-head p,.khulasa-practice-head p{color:var(--mut);margin:4px 0 14px}
+.kh ulasa-steps,.khulasa-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kh ulasa-step,.khulasa-step{display:flex;gap:11px;align-items:flex-start;padding:13px;border:1px solid var(--bd);border-radius:13px;background:rgba(255,255,255,.65)}
+.kh ulasa-step>span,.khulasa-step>span{flex:0 0 32px;height:32px;display:grid;place-items:center;border-radius:10px;background:var(--ink);color:#fff;font-weight:800}
+.kh ulasa-step b,.khulasa-step b{color:var(--ink)}
+.kh ulasa-step p,.khulasa-step p{margin:3px 0 0;color:var(--mut);line-height:1.8;font-size:14px}
+.kh ulasa-practice-note,.khulasa-practice-note{margin:13px 0 0;padding:11px 13px;border-right:3px solid var(--gold);background:rgba(189,149,80,.08);border-radius:8px;line-height:1.9}
+.writing-wrap .speech-selector{align-items:center}
+.writing-wrap .speech-verse-panel{border-top:3px solid var(--gold);background:linear-gradient(145deg,var(--card),rgba(39,102,91,.045))}
+.writing-wrap .speech-verse-panel>h2{color:var(--ink)}
+.writing-wrap .speech-verse-panel>h3{color:var(--ac)}
+.writing-wrap .speech-timing-panel{background:linear-gradient(135deg,var(--soft),var(--card))}
+.writing-wrap .speech-points-panel{border-right:3px solid var(--ac)}
+.writing-wrap .speech-model-panel .model-sample{background:linear-gradient(135deg,rgba(39,102,91,.07),rgba(189,149,80,.06));border-right:4px solid var(--gold);padding:clamp(15px,2.5vw,24px)}
+.writing-wrap .speech-editor-panel textarea{min-height:125px}
+@media(max-width:650px){.writing-wrap .khulasa-steps{grid-template-columns:1fr}.writing-wrap .khulasa-selector{align-items:stretch;flex-direction:column}.writing-wrap .khulasa-lines li{grid-template-columns:30px minmax(0,1fr);gap:9px;padding:11px}.writing-wrap .khulasa-number{width:29px;height:29px}}
 </style></head>
 <body><main>
 <div class="bismillah-wrap"><img src="bismillah_text_green.png" alt="بسم الله الرحمن الرحیم" class="bismillah-image"><div class="bismillah-rule"><span>✦</span></div></div>
@@ -1558,8 +1594,9 @@ function khulasa(){
    return '<a class="quran-ref" href="https://mahashemi.github.io/QuranMemorizer/#/surah/'+sn+'/ayah/'+an+'" target="_blank" rel="noopener noreferrer">'+esc(label)+'</a>';
   });
  }
- const lines=item.lines.map(x=>'<li>'+linkQuran(linkLine(x))+'</li>').join('');
- v.innerHTML='<section class="writing-wrap"><div class="mut">TERM 0'+term+' · FARSI UMOOMI · KHULASA NAVEESI</div><h2>خلاصه‌نویسی فصل‌های فارسی عمومی</h2><p>واژه‌های زیرخط‌دار را انتخاب کنید تا کارت واژگان سه‌زبانه باز شود. برای هر واژه می‌توانید کارت را برگردانید و مثال را ببینید.</p><div class="panel no-print"><label for="khulasaChapter">انتخاب فصل</label><select id="khulasaChapter">'+opts+'</select></div><article class="panel"><div class="mut">FA'+term+' · CHAPTER '+item.ch+'</div><h2 class="fa-block">'+esc(item.title)+'</h2><ol class="khulasa-lines">'+lines+'</ol><div class="chapter-summary"><b>روش تمرین</b>کتاب را ببندید و نکته‌های اصلی را با زبان خودتان در یک بند پیوسته بازنویسی کنید.</div></article><div class="panel no-print"><h3>خلاصهٔ خودم</h3><textarea id="myKhulasa" rows="8" placeholder="خلاصه را با زبان خودتان بنویسید. این متن در این مرورگر ذخیره می‌شود."></textarea><div class="row"><button class="pri" id="printKhulasa">چاپ برگهٔ خلاصه</button></div><p class="mut">یادداشت‌ها فقط در همین مرورگر ذخیره می‌شوند.</p></div><div id="khWordModal" class="kh-word-modal" hidden aria-hidden="true" aria-modal="true" role="dialog" aria-label="Vocabulary flashcard"><div class="kh-word-dialog"><button type="button" class="kh-word-close" data-kh-close aria-label="Close">×</button><div class="mut">TRILINGUAL VOCABULARY CARD</div><div id="khWordCard" class="kh-word-card"></div><div class="kh-word-actions"><button type="button" class="pri" id="khWordFlip">Flip card</button><button type="button" data-kh-close>Close</button></div></div></div></section>';
+ const lines=item.lines.map((x,i)=>'<li><span class="khulasa-number">'+String(i+1).padStart(2,'0')+'</span><div>'+linkQuran(linkLine(x))+'</div></li>').join('');
+ const practice=item.practice?'<section class="khulasa-practice"><div class="khulasa-practice-head"><span>خلاصهٔ کاربردی</span><h3>'+esc(item.practiceTitle||'گام‌های عملی')+'</h3><p>این پنج گام را برای تنظیم بودجهٔ ماهانه به کار ببرید.</p></div><div class="khulasa-steps">'+item.practice.map(x=>'<article class="khulasa-step"><span>'+esc(x[0])+'</span><div><b>'+esc(x[1])+'</b><p>'+esc(x[2])+'</p></div></article>').join('')+'</div>'+(item.practiceNote?'<p class="khulasa-practice-note">'+esc(item.practiceNote)+'</p>':'')+'</section>':'';
+ v.innerHTML='<section class="writing-wrap khulasa-page"><header class="khulasa-hero"><div class="mut">TERM 0'+term+' · FARSI UMOOMI · KHULASA NAVEESI</div><h2>خلاصه‌نویسی فصل‌های فارسی عمومی</h2><p>نکته‌های اصلی را مرور کنید، واژگان زیرخط‌دار را باز کنید و در پایان، خلاصه را با زبان خودتان بنویسید.</p><div class="khulasa-hero-meta"><span>FA'+term+' · CHAPTER '+item.ch+'</span><span>'+item.lines.length+' نکتهٔ کلیدی</span></div></header><div class="panel no-print khulasa-selector"><label for="khulasaChapter">انتخاب فصل</label><select id="khulasaChapter">'+opts+'</select></div><article class="panel khulasa-content"><div class="khulasa-chapter-title"><span>درس و نکته‌های اصلی</span><h2 class="fa-block">'+esc(item.title)+'</h2></div><ol class="khulasa-lines">'+lines+'</ol>'+practice+'<div class="chapter-summary"><b>روش تمرین</b>کتاب را ببندید و نکته‌های اصلی را با زبان خودتان در یک بند پیوسته بازنویسی کنید.</div></article><div class="panel no-print"><h3>خلاصهٔ خودم</h3><textarea id="myKhulasa" rows="8" placeholder="خلاصه را با زبان خودتان بنویسید. این متن در این مرورگر ذخیره می‌شود."></textarea><div class="row"><button class="pri" id="printKhulasa">چاپ برگهٔ خلاصه</button></div><p class="mut">یادداشت‌ها فقط در همین مرورگر ذخیره می‌شوند.</p></div><div id="khWordModal" class="kh-word-modal" hidden aria-hidden="true" aria-modal="true" role="dialog" aria-label="Vocabulary flashcard"><div class="kh-word-dialog"><button type="button" class="kh-word-close" data-kh-close aria-label="Close">×</button><div class="mut">TRILINGUAL VOCABULARY CARD</div><div id="khWordCard" class="kh-word-card"></div><div class="kh-word-actions"><button type="button" class="pri" id="khWordFlip">Flip card</button><button type="button" data-kh-close>Close</button></div></div></div></section>';
  const key='term0'+term+'-khulasa-drafts-v1',saved=(()=>{try{return JSON.parse(localStorage.getItem(key)||'{}')}catch(e){return {}}})();
  const area=$('#myKhulasa');area.value=saved[chosen]||'';
  area.oninput=()=>{saved[chosen]=area.value;try{localStorage.setItem(key,JSON.stringify(saved))}catch(e){}};
@@ -1665,17 +1702,17 @@ function speeches(){
  if(activeTerm===1){v.innerHTML='<section class="writing-wrap"><h2>سخنرانی · Term 01</h2><p>موضوع‌ها و نمونه‌سخنرانی‌های Term 01 پس از بررسی متن‌های شنیداری و گفتاری همان ترم آماده خواهند شد.</p></section>';return}
  const speechRows=activeTerm===2?(window.TERM2_SPEECHES||[]):(window.TERM3_SPEECHES||[]), speechKey=activeTerm===2?'t2-'+speechCh:speechCh, item=speechRows.find(x=>x.ch===speechCh)||speechRows[0],saved=speechDrafts[speechKey]||{};
  v.innerHTML=`<section class="writing-wrap">
- <div class="no-print"><div class="mut">Term 0${activeTerm||3} · Farsi Umumi · chapter-linked talks</div><h2>سخنرانی پنج‌دقیقه‌ای / Five-minute Sukhanrani</h2><p>Prepare one short talk connected to each FA chapter. Use the verse as the central anchor, then explain its meaning and connect it to the chapter and daily life. Do not merely recite the verse.</p>
- <div class="row"><label for="speechChapter">Farsi Umumi chapter</label><select id="speechChapter">${speechRows.map(x=>`<option value="${x.ch}" ${x.ch===speechCh?"selected":""}>FA ${String(x.ch).padStart(2,"0")} · ${esc(x.title)}</option>`).join("")}</select></div></div>
- <div class="panel"><div class="mut">FA CHAPTER ${item.ch}</div><h2 class="fa-block">${esc(item.title)}</h2><h3 class="fa-block">${esc(item.topic)}</h3>
+ <div class="speech-hero no-print"><div class="mut">TERM 0${activeTerm||3} · FARSI UMOOMI · SUKHANRANI</div><h2>سخنرانی پنج‌دقیقه‌ای</h2><p>موضوع هر فصل را به یک پیام روشن، یک آیهٔ مرتبط و یک اقدام عملی برای زندگی روزمره پیوند دهید.</p><p>Prepare one short talk connected to each FA chapter. Use the verse as the central anchor, then explain its meaning and connect it to the chapter and daily life. Do not merely recite the verse.</p>
+ <div class="row speech-selector"><label for="speechChapter">انتخاب فصل فارسی عمومی</label><select id="speechChapter">${speechRows.map(x=>`<option value="${x.ch}" ${x.ch===speechCh?"selected":""}>FA ${String(x.ch).padStart(2,"0")} · ${esc(x.title)}</option>`).join("")}</select></div></div>
+ <div class="panel speech-verse-panel"><div class="mut">FA CHAPTER ${item.ch}</div><h2 class="fa-block">${esc(item.title)}</h2><h3 class="fa-block">${esc(item.topic)}</h3>
  <div class="fa-block" style="font-size:24px;margin:14px 0">${esc(item.arabic)}</div><b>Qur'anic anchor: ${quranVerseLink(item.verse)}</b><p class="fa-block">${esc(item.meaning)}</p>
  <p class="mut">Check the verse in your own Mushaf/tafsir before quoting it publicly; this page gives the reference and a concise working translation.</p>
  </div>
- <div class="panel"><h3>Five-minute structure</h3><div class="timerline"><span>Opening · 30 sec</span><span>Verse and explanation · 60 sec</span><span>Main points · 2 min 30 sec</span><span>Application · 45 sec</span><span>Conclusion · 15 sec</span></div>
+ <div class="panel speech-timing-panel"><h3>ساختار پنج دقیقه‌ای سخنرانی</h3><div class="timerline"><span>Opening · 30 sec</span><span>Verse and explanation · 60 sec</span><span>Main points · 2 min 30 sec</span><span>Application · 45 sec</span><span>Conclusion · 15 sec</span></div>
  <ol class="hint-list"><li><b>Khudba / opening (30 sec):</b> Begin with بسم الله الرحمن الرحیم, حمد خدا, صلوات بر محمد و آل محمد, then greet the audience and announce the topic.</li><li><b>Connect to the ayah (60 sec):</b> Recite the verse accurately, name the surah and ayah, give its meaning, and explain why it relates to the topic.</li><li><b>Develop the message (2 min 30 sec):</b> Explain the three pointers below. Give one concrete example rather than repeating general statements.</li><li><b>Practical application (45 sec):</b> Give the audience one action they can take today.</li><li><b>Close (15 sec):</b> Summarise the message in one sentence, offer a brief dua, and end with salawat.</li></ol></div>
- <div class="panel"><h3>Three points to develop</h3><ol class="hint-list">${item.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ol><p><b>Suggested audience action:</b> ${esc(item.action)}</p></div>
- <div class="panel"><h3>Developed model speech · نمونهٔ سخنرانی</h3><div class="fa-block model-sample">${item.sample?esc(item.sample):"A complete model speech for this chapter is being prepared. Develop each point above with an explanation and a concrete example."}</div></div>
- <div class="panel"><h3>Prepare your own speech</h3>
+ <div class="panel speech-points-panel"><h3>سه محور اصلی سخنرانی</h3><ol class="hint-list">${item.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ol><p><b>Suggested audience action:</b> ${esc(item.action)}</p></div>
+ <div class="panel speech-model-panel"><h3>متن نمونهٔ توسعه‌یافته</h3><div class="fa-block model-sample">${item.sample?esc(item.sample):"A complete model speech for this chapter is being prepared. Develop each point above with an explanation and a concrete example."}</div></div>
+ <div class="panel speech-editor-panel"><h3>طرح سخنرانی خودتان را آماده کنید</h3>
  <label>Opening and greeting / مقدمه و خطبه</label><textarea data-speech="opening" placeholder="بسم الله، حمد، صلوات، سلام و معرفی موضوع...">${esc(saved.opening||"")}</textarea>
  <label>Explanation of the ayah / شرح آیه</label><textarea data-speech="verse" placeholder="معنای آیه و ارتباط آن با موضوع فصل...">${esc(saved.verse||"")}</textarea>
  <label>My examples and supporting points / نکته‌ها و مثال‌ها</label><textarea data-speech="body" class="essay-draft" placeholder="سه نکته را با مثال‌های روشن گسترش دهید...">${esc(saved.body||"")}</textarea>
