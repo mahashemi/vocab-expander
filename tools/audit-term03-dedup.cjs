@@ -45,6 +45,34 @@ assert.ok(consumption && consumption.sources.includes("KH3-09") && consumption.u
 assert.ok((consumption.extraExamples || []).some(x => x.fa.includes("میوه‌های دارای ویتامین C")), "the KH3-09 source example must be retained rather than discarded");
 
 const rows = window.TERM3_DATA;
+const distinctSenses = {
+  "ردیف": ["ردیف (شعر)", "ردیف (صف)"],
+  "فرا رسیدن": ["فرا رسیدن (فعل)", "فرا رسیدن (اسم)"],
+  "قابل حمل": ["قابل حمل (صفت)", "قابل حمل (کاربرد اسمی)"],
+  "روبوسی کردن": ["روبوسی کردن (سلام و احوال‌پرسی)", "روبوسی کردن (بوسیدن گونه‌ها)"],
+  "هوای کسی را داشتن": ["هوای کسی را داشتن (حمایت و پشتیبانی)", "هوای کسی را داشتن (مراقبت و همراهی)"],
+  "خدمت رسیدن": ["خدمت رسیدن (عبارت محترمانه)", "خدمت رسیدن (دیدار محترمانه)", "خدمت رسیدن (خدمت‌رسانی)"],
+  "جهیزیه": ["جهیزیه (جهیزیهٔ عروس)", "جهیزیه (لوازم خانهٔ عروس)"],
+  "به هیچ‌وجه": ["به هیچ‌وجه (قید)", "به هیچ‌وجه (کاربرد اسمی)"],
+  "پاس کردن": ["پاس کردن (چک)", "پاس کردن (درس و امتحان)"],
+  "خون‌سرد": ["خون‌سرد (جانورشناسی)", "خون‌سرد (ویژگی شخصیتی)"],
+  "ولیمه": ["ولیمه (مراسم ازدواج)", "ولیمه (مناسبت ویژه)"],
+  "فدای سرت": ["فدای سرت (دلجویی)", "فدای سرت (محبت و دلگرمی)"],
+  "نقش": ["نقش (طرح و نگار)", "نقش (جایگاه و وظیفه)"],
+  "روایت": ["روایت (حدیث)", "روایت (گزارش و داستان)"],
+  "مخفیانه": ["مخفیانه (قید)", "مخفیانه (صفت)"]
+};
+assert.equal(Object.keys(distinctSenses).length, audit.distinctHeadwordGroups, "all retained sense groups must be explicitly labelled");
+for (const [headword, labels] of Object.entries(distinctSenses)) {
+  const cards = rows.filter(x => labels.includes(x.fa));
+  assert.deepEqual(cards.map(x => x.fa).sort(), labels.slice().sort(), headword + " must retain every reviewed sense");
+  assert.equal(new Set(cards.map(x => x.id)).size, labels.length, headword + " senses must have unique IDs");
+  for (const card of cards) {
+    const meaning = window.PERSIAN_SEMANTICS[card.fa];
+    assert.ok(meaning && meaning.faMeaning && meaning.enMeaning && meaning.arMeaning, headword + " sense needs a trilingual semantic record");
+  }
+}
+assert.ok(rows.some(x => (x.extraExamples || []).length > 0), "merged examples must be preserved and rendered");
 const poetry = rows.find(x => x.fa === "ردیف (شعر)");
 const rowSense = rows.find(x => x.fa === "ردیف (صف)");
 assert.ok(poetry && rowSense, "distinct senses must have visible Persian labels");
