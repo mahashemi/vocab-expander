@@ -119,8 +119,8 @@ def test_term03_deduplication_plan_and_runtime_audit_are_wired_before_mapping() 
     index = read("index.html")
     page1 = read("term03-page1-additions.js")
     dedup = read("term03-dedup.js")
-    assert index.index('src="term03-page1-additions.js"') < index.index('src="term03-dedup.js"')
-    assert index.index('src="term03-dedup.js"') < index.index('src="term03-chapter-mapping.js"')
+    assert index.index('src="term03-page1-additions.js"') < index.index('src="term03-chapter-mapping.js"')
+    assert index.index('src="term03-chapter-mapping.js"') < index.index('src="term03-dedup.js"')
     assert "replace(/[\\u064B-\\u065F\\u0670\\u0640]/g" in page1
     assert "replace(/[\\u200c\\s]+/g" in page1
     assert "expectedApprovedMerges:EXPECTED.approvedMerges" in dedup
