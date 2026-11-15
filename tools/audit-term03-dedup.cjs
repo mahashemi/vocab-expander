@@ -19,8 +19,8 @@ assert.equal(page1.newCards, 39, "all 39 page-one cards should be present");
 console.log("Term 03 page-one link diagnostics:", JSON.stringify(page1));
 assert.equal(page1.missingLinks.length, 0, "no page-one lesson links may be missing");
 
-load("term03-dedup.js");
 load("term03-chapter-mapping.js");
+load("term03-dedup.js");
 
 const audit = window.TERM03_DEDUP_AUDIT;
 assert.ok(audit, "deduplication audit must be exposed");
