@@ -112,3 +112,32 @@ def test_all_curated_verb_examples_match_their_masdar_and_imperative() -> None:
             assert _normalise_persian_form(imperative) in _normalise_persian_form(args[9]), ("term03-source-audit.js", args[1], imperative)
         else:
             assert re.search(r"[\u0600-\u06ff]", args[-1]), ("term03-source-audit.js", args[1], "missing no-imperative explanation")
+
+
+def test_term03_deduplication_plan_and_runtime_audit_are_wired_before_mapping() -> None:
+    index = read("index.html")
+    page1 = read("term03-page1-additions.js")
+    dedup = read("term03-dedup.js")
+    assert index.index('src="term03-page1-additions.js"') < index.index('src="term03-dedup.js"')
+    assert index.index('src="term03-dedup.js"') < index.index('src="term03-chapter-mapping.js"')
+    assert "replace(/[\\u064B-\\u065F\\u0670\\u0640]/g" in page1
+    assert "replace(/[\\u200c\\s]+/g" in page1
+    assert "expectedApprovedMerges:EXPECTED.approvedMerges" in dedup
+    assert "expectedDecisionMerges:EXPECTED.decisionMerges" in dedup
+    assert "persian_done_v1" in dedup and "term03_dedup_migration_v1" in dedup
+    assert "duplicateIds" in dedup and "duplicateHeadwordPos" in dedup
+    assert "extraExamples" in dedup and "extraNotes" in dedup
+    assert "id:a.id||" in index
+
+
+def test_term03_dedup_plan_contains_all_approved_merges_and_manual_decisions() -> None:
+    dedup = read("term03-dedup.js")
+    plan_match = re.search(r"const PLAN=(\\{.*?\\});\\n const EXPECTED=", dedup, flags=re.DOTALL)
+    assert plan_match, "the reviewed deduplication plan must be embedded in the runtime script"
+    plan = json.loads(plan_match.group(1))
+    approved = sum(len(cluster["merges"]) for group in plan["groups"] for cluster in group["clusters"])
+    decisions = [decision for group in plan["groups"] for decision in group["decisions"]]
+    assert approved == 124
+    assert len(decisions) == 46
+    assert all(group["hasSemanticRecord"] for group in plan["groups"])
+    assert "window.TERM03_DEDUP_AUDIT" in dedup
