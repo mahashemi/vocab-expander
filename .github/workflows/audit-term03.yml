@@ -8,6 +8,7 @@ on:
       - "website/index.html"
       - "study-materials/dars/term-03/**"
       - "tools/audit-term03.cjs"
+      - "tools/audit-term03-dedup.cjs"
       - "tests/test_term03_content.py"
       - "TERM03_FIRST_PAGE_AUDIT.md"
       - ".github/workflows/audit-term03.yml"
@@ -18,6 +19,7 @@ on:
       - "website/index.html"
       - "study-materials/dars/term-03/**"
       - "tools/audit-term03.cjs"
+      - "tools/audit-term03-dedup.cjs"
       - "tests/test_term03_content.py"
       - "TERM03_FIRST_PAGE_AUDIT.md"
       - ".github/workflows/audit-term03.yml"
@@ -46,6 +48,9 @@ jobs:
 
       - name: Run Term 03 deployment audit
         run: node tools/audit-term03.cjs
+
+      - name: Run Term 03 deduplication runtime audit
+        run: node tools/audit-term03-dedup.cjs
 
       - name: Set up Python
         uses: actions/setup-python@v5
