@@ -15,6 +15,7 @@ load("term03-data.js");
 load("term03-lexicon-additions.js");
 load("term03-matn-verbs.js");
 load("term03-source-audit.js");
+load("semantic-meanings.js");
 load("term03-core-semantics.js");
 for (let i = 1; i <= 45; i++) load("term03-additional-semantics-" + String(i).padStart(2, "0") + ".js");
 load("term03-page1-additions.js");
