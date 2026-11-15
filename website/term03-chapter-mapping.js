@@ -51,6 +51,7 @@
   for(const source of sources){
    let chapters=MAP[source];
    if(source==="KH3-11") chapters=[Number(item.unit)===17?17:11];
+   if(source.startsWith("WR3-")) chapters=[Number(item.unit)]; // Writing-course vocabulary is outside the supplied FA/KH/N/SH TSV; preserve its existing chapter.
    if(chapters) linked.push(...chapters);
   }
   const units=Array.from(new Set(linked)).sort((a,b)=>a-b);
