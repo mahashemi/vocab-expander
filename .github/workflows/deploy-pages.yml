@@ -151,6 +151,7 @@ jobs:
           node --check website/term03-khulasa.js
           node --check website/term03-lexicon-additions.js
           node --check website/term03-source-audit.js
+          node --check website/term03-chapter-mapping.js
           node --check website/verb-treasury.js
           node --check website/semantic-meanings.js
           node --check website/term-portal.js
