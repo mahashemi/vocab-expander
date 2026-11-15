@@ -317,8 +317,8 @@
   missing,duplicateIds,duplicateHeadwordPos,missingSemantics,sourceLoss
  };
  window.TERM03_DEDUP_APPLIED=true;
- console.info("Term 03 deduplication",window.TERM03_DEDUP_AUDIT);
+ console.info("Term 03 deduplication",JSON.stringify(window.TERM03_DEDUP_AUDIT));
  if(approvedMerges!==EXPECTED.approvedMerges||decisionMerges!==EXPECTED.decisionMerges||D.length!==EXPECTED.after||missing.length||duplicateIds.length||duplicateHeadwordPos.length||missingSemantics.length||sourceLoss.length){
-  console.error("Term 03 deduplication audit requires attention",window.TERM03_DEDUP_AUDIT);
+  console.error("Term 03 deduplication audit requires attention",JSON.stringify(window.TERM03_DEDUP_AUDIT));
  }
 })();
