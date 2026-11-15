@@ -151,6 +151,7 @@ jobs:
           node --check website/term03-khulasa.js
           node --check website/term03-lexicon-additions.js
           node --check website/term03-source-audit.js
+          node --check website/term03-dedup.js
           node --check website/term03-chapter-mapping.js
           node --check website/verb-treasury.js
           node --check website/semantic-meanings.js
@@ -203,6 +204,7 @@ jobs:
           node --check website/term03-additional-semantics-44.js
           node --check website/term03-additional-semantics-45.js
           node tools/audit-term03.cjs
+          node tools/audit-term03-dedup.cjs
           node --check tools/audit-trilingual-meanings.cjs
           node tools/audit-trilingual-meanings.cjs
 
