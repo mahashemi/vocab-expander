@@ -15,8 +15,9 @@ load("term03-page1-additions.js");
 
 const page1 = window.TERM03_PAGE1_ADDITIONS;
 assert.ok(page1, "page-one additions must run before deduplication");
-assert.equal(page1.newCards, 39, "all 39 page-one cards should be present");
-console.log("Term 03 page-one link diagnostics:", JSON.stringify(page1));
+assert.equal(page1.newCards, 40, "39 reference cards plus the OCR-supported missing KH3-09 verb should be present");
+assert.equal(page1.linkedCards, 77, "all 77 lesson links should be applied");
+assert.equal(page1.missingLinks.length, 0, "no page-one lesson links may be missing");
 assert.equal(page1.missingLinks.length, 0, "no page-one lesson links may be missing");
 
 load("term03-chapter-mapping.js");
@@ -24,10 +25,10 @@ load("term03-dedup.js");
 
 const audit = window.TERM03_DEDUP_AUDIT;
 assert.ok(audit, "deduplication audit must be exposed");
-assert.equal(audit.before, 2092, "expected pre-deduplication card count");
+assert.equal(audit.before, 2093, "expected pre-deduplication card count, including the OCR-supported KH3-09 verb");
 assert.equal(audit.approvedMerges, 124, "all approved merges must be applied");
 assert.equal(audit.decisionMerges, 29, "all adjudicated duplicate-sense merges must be applied");
-assert.equal(audit.after, 1939, "expected final Term 03 card count");
+assert.equal(audit.after, 1940, "expected final Term 03 card count");
 assert.equal(audit.idAliasCount, 54, "all planned legacy ID aliases must be handled");
 assert.deepEqual(audit.missing, [], "every planned card descriptor must match exactly");
 assert.deepEqual(audit.duplicateIds, [], "no surviving cards may share an ID");
