@@ -59,6 +59,8 @@
   const primary=MAP[item.source]||units;
   item.unit=sourceList(item).includes("KH3-11")&&Number(item.unit)===17?17:(primary[0]||units[0]);
   item.units=units;
+  item.ch=item.unit;
+  item.id="3|"+item.unit+"|"+(item.source||"")+"|"+item.fa;
  }
  const prior=window.TERM3_UNIT_META||{};
  window.TERM3_UNIT_META=Object.fromEntries(Array.from({length:20},(_,i)=>{
