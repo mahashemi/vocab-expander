@@ -56,6 +56,31 @@ const expectedSources = [
 ];
 const presentSources = new Set(entries.flatMap(item => (item.sources || [item.source]).filter(Boolean)));
 for (const source of expectedSources) assert(presentSources.has(source), "No lexicon entry linked to " + source);
+
+// TSV-based chapter mapping: each source must appear in every assigned FA unit.
+assert(global.TERM3_CHAPTER_MAPPING_VERSION === "2026-11-15-tsv", "Term 03 TSV chapter mapping was not loaded");
+for (const item of entries) {
+  const linkedSources = Array.from(new Set([item.source, ...(item.sources || [])].filter(Boolean)));
+  assert(Array.isArray(item.units) && item.units.length > 0, "Missing mapped chapter list: " + item.fa);
+  for (const source of linkedSources) {
+    let expected = global.TERM3_CHAPTER_MAPPING[source];
+    if (source === "KH3-11") expected = [Number(item.unit) === 17 ? 17 : 11];
+    assert(expected, "Missing TSV mapping for source " + source);
+    for (const chapter of expected) assert(item.units.includes(chapter),
+      "Wrong chapter mapping for " + item.fa + " from " + source + "; expected unit " + chapter);
+  }
+}
+for (const [chapter, meta] of Object.entries(global.TERM3_UNIT_META || {})) {
+  assert(meta.base.startsWith("FA3-" + String(chapter).padStart(2, "0")), "Incorrect FA base chapter for unit " + chapter);
+  assert(Array.isArray(meta.mappedSources) && meta.mappedSources.length > 0, "Missing mapped-source list for unit " + chapter);
+}
+assert(entries.some(x => x.source === "N3-01" && x.units.includes(3) && x.units.includes(19)),
+  "N3-01 must be shared between FA3-03 and FA3-19");
+assert(entries.some(x => x.source === "SH3-03" && x.units.includes(5) && x.units.includes(7) && x.units.includes(10)),
+  "SH3-03 must be shared between FA3-05, FA3-07 and FA3-10");
+assert(entries.some(x => x.source === "N3-10" && [9,14,20].every(u => x.units.includes(u))),
+  "N3-10 must be shared between FA3-09, FA3-14 and FA3-20");
+
 const writingLexicon = entries.filter(item => (item.sources || [item.source]).includes("WR3-02"));
 assert(writingLexicon.length >= 50, "Expected at least 50 source-tagged writing/speaking vocabulary cards");
 const requiredWritingWords = ["احترام","زندگی","استفاده","توضیح","بررسی","معرفی","نتیجه","نمونه","مسئولیت","اهمیت","حفظ","آیه","معنا","توصیف","سوره","هدف","جامعه","آموزش","خدمت","شناخت","محیط","تجربه","تفاوت","مقایسه","انرژی","علت","مقدمه","تلاش","پیشنهاد","کاهش","ارزش","مراسم","مسیر","پیوند","طبیعت","ارزیابی","پرسش","مصرف","ترتیب","تصویر","نقش","یادگیری","موفقیت","پیام","اصلاح","علم","نیاز","پاسخ","منبع","تحقیق","روشن","دقیق","ارزشمند","مسئولانه","تاریخی","فرهنگی"];
