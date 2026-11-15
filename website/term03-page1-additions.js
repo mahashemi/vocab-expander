@@ -1,13 +1,13 @@
 /* Term 03 — page-1 additions (one self-contained file).
    Adds 39 new flashcards with Persian / English / Arabic meanings, and links 77 existing cards to the lesson
-   whose page 1 lists them. Load it AFTER term03-source-audit.js (and after the semantics files).
+   whose page 1 lists them. Load it after all Term 03 card sources and semantics, before term03-dedup.js and chapter mapping.
    Safe to load twice: cards and links are merged by headword, nothing is duplicated. */
 (()=>{
  const D=window.TERM3_DATA; if(!D) return;
  const norm=x=>String(x||"").normalize("NFKC")
   .replace(/[يى]/g,"ی").replace(/ك/g,"ک")
-  .replace(/[\\u064B-\\u065F\\u0670\\u0640]/g,"")
-  .replace(/[\\u200c\\s]+/g," ").trim();
+  .replace(/[\u064B-\u065F\u0670\u0640]/g,"")
+  .replace(/[\u200c\s]+/g," ").trim();
  const byHeadword=new Map();
  for(const item of D){
   const key=norm(item.fa);
