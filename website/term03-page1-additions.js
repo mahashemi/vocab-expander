@@ -15,9 +15,26 @@
   byHeadword.get(key).push(item);
  }
  const matchesFor=fa=>byHeadword.get(norm(fa))||[];
- const merge=(prior,sources,units)=>{
+ const merge=(prior,sources,units,card)=>{
   prior.sources=Array.from(new Set([...(prior.sources||[prior.source]).filter(Boolean),...sources].filter(Boolean)));
   prior.units=Array.from(new Set([...(prior.units||[prior.unit]),...units].filter(x=>x!==undefined&&x!==null)));
+  if(card&&Array.isArray(card.ex)&&card.ex.length===3){
+   const base=prior.ex||[];
+   const duplicate=base.length===3&&base.every((v,i)=>String(v||"")===String(card.ex[i]||""));
+   if(!duplicate){
+    prior.extraExamples=prior.extraExamples||[];
+    if(!prior.extraExamples.some(x=>x.fa===card.ex[0]&&x.tr===card.ex[1]&&x.en===card.ex[2])){
+     prior.extraExamples.push({kind:"Additional page-one example",fa:card.ex[0],tr:card.ex[1],en:card.ex[2]});
+    }
+   }
+  }
+  if(card&&card.note){
+   if(!prior.note) prior.note=card.note;
+   else if(prior.note!==card.note){
+    prior.extraNotes=prior.extraNotes||[];
+    if(!prior.extraNotes.includes(card.note)) prior.extraNotes.push(card.note);
+   }
+  }
  };
  /* 1. new cards */
  const CARDS=[
@@ -65,7 +82,7 @@
  let added=0;
  for(const c of CARDS){
   const matches=matchesFor(c.fa);
-  if(matches.length) matches.forEach(prior=>merge(prior,c.sources,c.units));
+  if(matches.length) matches.forEach(prior=>merge(prior,c.sources,c.units,c));
   else {D.push(c);byHeadword.set(norm(c.fa),[c]);added++}
  }
  /* 2. existing cards that also appear on page 1 of another lesson: [headword, lesson, unit] */
