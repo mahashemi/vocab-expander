@@ -11,6 +11,7 @@ global.localStorage = {
   removeItem(key) { store.delete(key); }
 };
 const load = file => require(path.join(__dirname, "..", "website", file));
+load("term03-source-audit.js");
 load("term03-page1-additions.js");
 
 const page1 = window.TERM03_PAGE1_ADDITIONS;
