@@ -1,13 +1,13 @@
 /* Term 03 — page-1 additions (one self-contained file).
    Adds 39 new flashcards with Persian / English / Arabic meanings, and links 77 existing cards to the lesson
-   whose page 1 lists them. Load it AFTER term03-source-audit.js (and after the semantics files).
+   whose page 1 lists them. Load it after all Term 03 card sources and semantics, before term03-dedup.js and chapter mapping.
    Safe to load twice: cards and links are merged by headword, nothing is duplicated. */
 (()=>{
  const D=window.TERM3_DATA; if(!D) return;
  const norm=x=>String(x||"").normalize("NFKC")
   .replace(/[يى]/g,"ی").replace(/ك/g,"ک")
-  .replace(/[\\u064B-\\u065F\\u0670\\u0640]/g,"")
-  .replace(/[\\u200c\\s]+/g," ").trim();
+  .replace(/[\u064B-\u065F\u0670\u0640]/g,"")
+  .replace(/[\u200c\s]+/g," ").trim();
  const byHeadword=new Map();
  for(const item of D){
   const key=norm(item.fa);
@@ -15,9 +15,26 @@
   byHeadword.get(key).push(item);
  }
  const matchesFor=fa=>byHeadword.get(norm(fa))||[];
- const merge=(prior,sources,units)=>{
+ const merge=(prior,sources,units,card)=>{
   prior.sources=Array.from(new Set([...(prior.sources||[prior.source]).filter(Boolean),...sources].filter(Boolean)));
   prior.units=Array.from(new Set([...(prior.units||[prior.unit]),...units].filter(x=>x!==undefined&&x!==null)));
+  if(card&&Array.isArray(card.ex)&&card.ex.length===3){
+   const base=prior.ex||[];
+   const duplicate=base.length===3&&base.every((v,i)=>String(v||"")===String(card.ex[i]||""));
+   if(!duplicate){
+    prior.extraExamples=prior.extraExamples||[];
+    if(!prior.extraExamples.some(x=>x.fa===card.ex[0]&&x.tr===card.ex[1]&&x.en===card.ex[2])){
+     prior.extraExamples.push({kind:"Additional page-one example",fa:card.ex[0],tr:card.ex[1],en:card.ex[2]});
+    }
+   }
+  }
+  if(card&&card.note){
+   if(!prior.note) prior.note=card.note;
+   else if(prior.note!==card.note){
+    prior.extraNotes=prior.extraNotes||[];
+    if(!prior.extraNotes.includes(card.note)) prior.extraNotes.push(card.note);
+   }
+  }
  };
  /* 1. new cards */
  const CARDS=[
@@ -59,12 +76,13 @@
   {"unit":15,"source":"SH3-05","fa":"پخت‌وپز","tr":"pokht-o-paz","en":"cooking","pos":"اسم — ism (noun)","ex":["مادرم عاشق پخت‌وپز است.","Mādaram 'āsheq-e pokht-o-paz ast.","My mother loves cooking."],"sources":["SH3-05"],"units":[15]},
   {"unit":19,"source":"SH3-07","fa":"آپارتمان","tr":"āpārtemān","en":"apartment","pos":"اسم — ism (noun)","ex":["ما یک آپارتمان دوخوابه در هتل رزرو کردیم.","Mā yek āpārtemān-e do-khābe dar hotel rezerv kardim.","We booked a two-bedroom apartment at the hotel."],"sources":["SH3-07"],"units":[19]},
   {"unit":20,"source":"FA3-20","fa":"دوش (دیشب)","tr":"dush (dishab)","en":"last night (archaic/poetic)","pos":"قید — qeyd (adverb)","ex":["در شعر کهن، «دوش» یعنی دیشب.","Dar she'r-e kohan, «dush» ya'ni dishab.","In classical poetry, «dush» means last night."],"sources":["FA3-20"],"units":[20]},
-  {"unit":2,"source":"SH3-08","fa":"درس گذراندن","tr":"dars gozarāndan","en":"to pass (a course); to complete (a course)","pos":"فعل مرکب — compound verb","ms":"درس گذراندن","amr":"—","m":["درس گذراندن در ترم اول برای او آسان نبود.","Dars gozarāndan dar term-e avval barāye u āsān nabud.","Passing the course in the first term was not easy for him."],"a":null,"note":"معمولاً امر مستقیم ندارد؛ برای دستور از «درس را پاس کن» استفاده می‌شود.","sources":["SH3-08"],"units":[2]}
+  {"unit":2,"source":"SH3-08","fa":"درس گذراندن","tr":"dars gozarāndan","en":"to pass (a course); to complete (a course)","pos":"فعل مرکب — compound verb","ms":"درس گذراندن","amr":"—","m":["درس گذراندن در ترم اول برای او آسان نبود.","Dars gozarāndan dar term-e avval barāye u āsān nabud.","Passing the course in the first term was not easy for him."],"a":null,"note":"معمولاً امر مستقیم ندارد؛ برای دستور از «درس را پاس کن» استفاده می‌شود.","sources":["SH3-08"],"units":[2]},
+  {"unit":9,"source":"KH3-09","fa":"مصرف کردن","tr":"masraf kardan","en":"to consume; to use","pos":"فعل مرکب — compound verb","ex":["افرادی که غذاهایی مانند انواع ماهی‌ها، سبزی‌ها، آجیل و میوه‌های دارای ویتامین C را بیشتر مصرف می‌کنند، استرس و نگرانی کمتری دارند و بیشتر از دیگران شاد و خوشحال هستند.","Afrādi ke ghazāhāyi mānand-e anvā'-e māhi-hā, sabzi-hā, ājil va mivehā-ye dārā-ye vitāmin-e C rā bishtar masraf mikonand, estres va negarāni-ye kamtari dārand va bishtar az digarān shād-o khoshhāl hastand.","People who consume more foods such as fish, vegetables, nuts and vitamin-C-rich fruits have less stress and worry and are happier than others."],"note":"این فعل در فهرست واژگان صفحهٔ اول و متن اصلی درس KH3-09 آمده است.","sources":["KH3-09"],"units":[9]},
  ];
  let added=0;
  for(const c of CARDS){
   const matches=matchesFor(c.fa);
-  if(matches.length) matches.forEach(prior=>merge(prior,c.sources,c.units));
+  if(matches.length) matches.forEach(prior=>merge(prior,c.sources,c.units,c));
   else {D.push(c);byHeadword.set(norm(c.fa),[c]);added++}
  }
  /* 2. existing cards that also appear on page 1 of another lesson: [headword, lesson, unit] */
@@ -195,7 +213,8 @@
   "پخت‌وپز":["کار آماده کردن غذا با پختن؛ آشپزی.","Cooking; the activity of preparing food by heating it.","الطبخ؛ إعداد الطعام بالطهي."],
   "آپارتمان":["واحد مسکونی در ساختمانی چندطبقه که چند خانوار در آن زندگی می‌کنند.","Apartment; a residential unit in a multi-storey building.","شقّة؛ وحدة سكنية في بناية متعددة الطوابق."],
   "دوش (دیشب)":["در شعر و نثر کهن، شب گذشته؛ دیشب.","Last night (archaic/poetic); the night just past.","الليلة الماضية (بلفظ شعري قديم)؛ البارحة."],
-  "درس گذراندن":["یک درس دانشگاهی را با موفقیت به پایان رساندن و نمرهٔ قبولی گرفتن؛ پاس کردن.","To pass or complete a university course successfully and obtain a passing grade.","اجتاز المقرَّر الدراسي؛ أنهى مادة جامعية بنجاح ونال درجة النجاح."]
+  "درس گذراندن":["یک درس دانشگاهی را با موفقیت به پایان رساندن و نمرهٔ قبولی گرفتن؛ پاس کردن.","To pass or complete a university course successfully and obtain a passing grade.","اجتاز المقرَّر الدراسي؛ أنهى مادة جامعية بنجاح ونال درجة النجاح."],
+  "مصرف کردن":["چیزی را به کار بردن یا استفاده کردن؛ به‌ویژه خوردن یا استفاده از غذا، انرژی و منابع.","To consume or use something, especially food, energy, or other resources.","استهلك شيئاً أو استخدمه، ولا سيّما الطعام أو الطاقة أو الموارد."],
  };
  for(const [fa,v] of Object.entries(ROWS)) S[fa]={...(S[fa]||{}),faMeaning:v[0],enMeaning:v[1],arMeaning:v[2],faSynonyms:(S[fa]||{}).faSynonyms||[],enSynonyms:(S[fa]||{}).enSynonyms||[],arSynonyms:(S[fa]||{}).arSynonyms||[]};
  window.TERM03_PAGE1_ADDITIONS={newCards:added,linkedCards:linked,linkedEntries,missingLinks,meanings:Object.keys(ROWS).length};
