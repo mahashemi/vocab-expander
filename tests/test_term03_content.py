@@ -142,3 +142,13 @@ def test_term03_dedup_plan_contains_all_approved_merges_and_manual_decisions() -
     assert len(decisions) == 46
     assert all(group["hasSemanticRecord"] for group in plan["groups"])
     assert "window.TERM03_DEDUP_AUDIT" in dedup
+
+
+def test_term03_dedup_runtime_audit_is_part_of_ci() -> None:
+    audit_workflow = (ROOT / ".github" / "workflows" / "audit-term03.yml").read_text(encoding="utf-8")
+    deploy_workflow = (ROOT / ".github" / "workflows" / "deploy-pages.yml").read_text(encoding="utf-8")
+    runtime_audit = (ROOT / "tools" / "audit-term03-dedup.cjs").read_text(encoding="utf-8")
+    assert "node tools/audit-term03-dedup.cjs" in audit_workflow
+    assert "node tools/audit-term03-dedup.cjs" in deploy_workflow
+    assert "all approved merges" in runtime_audit
+    assert "memorisation progress must migrate" in runtime_audit
