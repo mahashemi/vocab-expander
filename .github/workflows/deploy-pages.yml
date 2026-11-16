@@ -216,6 +216,7 @@ jobs:
           node --check website/newestan-writing-ui.js
           node --check website/term03-newestan-teaching.js
           node --check website/term03-newestan-teaching-ui.js
+          node --check website/term03-newestan-standalone.js
           node --check tools/audit-newestan-writing.cjs
           node tools/audit-newestan-writing.cjs
 
