@@ -43,6 +43,15 @@ for(let i=1;i<=9;i++){
  for(const field of ["muqaddama","band1","band2","natija"])assert(row.model[field],"Incomplete Term 03 model: N3-"+i+"/"+field);
 }
 assert(t3["N3-10"].skill.includes("Research writing"),"N3-10 must retain research-writing genre");
+const bio=t3["N3-02"];
+assert(bio.model.muqaddama.includes("علامه سید محمدحسین طباطبایی"),"Dars 02 model must be about Allameh Tabataba'i");
+assert(bio.model.band1.includes("۱۳۰۴")&&bio.model.band1.includes("۱۳۱۳"),"Dars 02 model must include key education and return dates");
+assert(bio.model.band2.includes("المیزان")&&bio.model.band2.includes("۲۴ آبان ۱۳۶۰"),"Dars 02 model must include major work and death date");
+assert(bio.timeline.length>=5,"Dars 02 must provide a chronological timeline");
+assert.equal(bio.examRubric.reduce((sum,x)=>sum+x.points,0),20,"Dars 02 rubric must total 20 points");
+assert(bio.examRubric.some(x=>x.points===6&&x.label==="زبان"),"Dars 02 rubric must retain the 6-point language criterion");
+assert(bio.steps.some(x=>x.includes("بند دوم")),"Dars 02 steps must explain the middle section");
+
 const index=require("node:fs").readFileSync(path.join(__dirname,"../website/index.html"),"utf8");
 for(const script of ["newestan-writing-library.js","newestan-writing-ui.js","term03-newestan-teaching.js","term03-newestan-teaching-ui.js"])assert(index.includes(script),"Missing script include: "+script);
 assert(index.includes("window.renderNewestanTerm1()"),"Term 01 Newestan view is not wired");
