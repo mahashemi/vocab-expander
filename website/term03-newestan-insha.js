@@ -1,5 +1,5 @@
 /* Term 03 · Newestan end-of-dars insha tamrin (one record per lesson).
-   Lessons are matched to writing chapters through window.TERM3_CHAPTER_MAPPING (first number = home unit). */
+   Lessons are matched to every writing chapter listed in window.TERM3_CHAPTER_MAPPING. */
 (()=>{
  const R={
   "N3-01":{source:"N3-01 · p7",topics:[{no:1,fa:"علت موفقیت شما در زندگی",en:"The reason for your success in life"}],ocr:["موضوع اول: علت موفقیت شما در زندگی"],note:"Only one topic is readable in the OCR."},
@@ -14,9 +14,9 @@
   "N3-10":{source:"N3-10 · pp5–6",topics:[],researchForm:true,exampleResearchTopics:[{fa:"وظایف دانشجو در برابر استاد از نظر دانشمندان اخلاق",en:"A student's duties toward the teacher according to scholars of ethics"},{fa:"جشن‌ها و مراسم کشور هند",en:"Festivals and ceremonies of India"}],ocr:["موضوع اول: وظایف دانشجو در برابر استاد از نظر دانشمندان اخلاق.","موضوع دوم؛ جشن‌ها و مراسم کشور هند"],note:"No numbered topics: the lesson ends with the research form (موضوع تحقیق، سؤال اصلی، سؤال‌های فرعی)."}
  };
  window.TERM3_NEWESTAN_INSHA=R;
- /* Newestan lessons whose home unit is this writing chapter, sorted by lesson id. Derived from the chapter mapping only. */
+ /* Include both primary and secondary mapped chapters; keep lesson order stable. */
  window.term3InshaForChapter=ch=>{
   const M=window.TERM3_CHAPTER_MAPPING||{};
-  return Object.keys(R).filter(l=>M[l]&&M[l][0]===ch).sort().map(l=>({lesson:l,...R[l]}));
+  return Object.keys(R).filter(l=>Array.isArray(M[l])&&M[l].includes(Number(ch))).sort().map(l=>({lesson:l,...R[l]}));
  };
 })();
