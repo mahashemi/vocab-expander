@@ -22,6 +22,17 @@ for(const term of [1,2]){
   }
  }
 }
+assert.equal(library[1][2].prompt,"با توجه به تصویرها، خانهٔ پدربزرگ پروین را در متن توصیف کنید.");
+assert.equal(library[1][5].prompt,"دربارهٔ سفر به یک مکان تاریخی یا زیارتی انشایی بنویسید.");
+assert.equal(library[1][6].prompt,"با استفاده از واژه‌های بالا انشایی دربارهٔ خرید از بازار بنویسید.");
+assert.equal(library[1][7].prompt,"دربارهٔ پختن یک غذای ایرانی یا غذای کشورتان انشا بنویسید.");
+assert.equal(library[1][8].prompt,"دربارهٔ یک جشن (مراسم عید) در کشور خود یا کشور دیگر انشایی بنویسید.");
+assert.equal(library[1][9].prompt,"با استفاده از واژه‌های بالا انشایی دربارهٔ آب‌وهوای کشور خود بنویسید.");
+assert.equal(library[2][2].prompt,"شرح حالی از بیماری خود یا یکی از اعضای خانواده‌تان بنویسید.");
+assert.equal(library[2][3].prompt,"با استفاده از مدل خورشیدی دربارهٔ یک مکان تاریخی ایران یا کشور خود که به آن سفر کرده‌اید، انشا/گزارش بنویسید.");
+assert.equal(library[2][6].prompt,"یکی از اتفاق‌هایی را که هنگام رانندگی برای خودتان یا دوستتان افتاده است، بنویسید.");
+assert.equal(library[2][7].prompt,"دربارهٔ روش پختن یکی از غذاهای خوشمزهٔ کشورتان به صورت پلکانی انشایی بنویسید.");
+assert.equal(library[2][9].format,"letter");
 const t3=global.TERM3_NEWESTAN_TEACHING;
 assert.equal(Object.keys(t3).length,10,"Term 03 must have ten lesson teaching records");
 for(let i=1;i<=9;i++){
