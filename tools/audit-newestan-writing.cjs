@@ -49,7 +49,10 @@ assert(index.includes("window.renderNewestanWorkshop()"),"Term 02 Newestan view 
 assert(index.includes("window.renderTerm3LessonTeaching(lesson)"),"Term 03 lesson teaching is not wired");
 assert(!index.includes("پس از تطبیق کامل با درس‌های منبع"),"Term 01 placeholder must be removed");
 assert(index.includes('const lessons=activeTerm===3&&window.term3InshaForChapter?window.term3InshaForChapter(essayCh):[];'),"Term 03 chapter mapping must remain term-specific");
+assert.deepEqual(global.term3InshaForChapter(2).map(x=>x.lesson),["N3-02","N3-04"]);
 assert.deepEqual(global.term3InshaForChapter(3).map(x=>x.lesson),["N3-01","N3-07"]);
+assert.deepEqual(global.term3InshaForChapter(9).map(x=>x.lesson),["N3-04","N3-10"]);
+assert.deepEqual(global.term3InshaForChapter(14).map(x=>x.lesson),["N3-10"]);
 assert.deepEqual(global.term3InshaForChapter(16).map(x=>x.lesson),["N3-06","N3-09"]);
 assert.deepEqual(global.term3InshaForChapter(20).map(x=>x.lesson),["N3-02","N3-10"]);
 console.log(JSON.stringify({term01:library[1].length,term02:library[2].length,term03:Object.keys(t3).length,term03Essays:9,term03ResearchLessons:1},null,2));
