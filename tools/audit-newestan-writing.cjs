@@ -51,6 +51,14 @@ assert(bio.timeline.length>=5,"Dars 02 must provide a chronological timeline");
 assert.equal(bio.examRubric.reduce((sum,x)=>sum+x.points,0),20,"Dars 02 rubric must total 20 points");
 assert(bio.examRubric.some(x=>x.points===6&&x.label==="زبان"),"Dars 02 rubric must retain the 6-point language criterion");
 assert(bio.steps.some(x=>x.includes("بند دوم")),"Dars 02 steps must explain the middle section");
+for(let i=1;i<=10;i++){
+ const row=t3["N3-"+String(i).padStart(2,"0")];
+ assert(row.bilingual?.en&&row.bilingual?.ar,"Term 03 lesson must include English and Arabic explanation: N3-"+i);
+}
+assert(t3["N3-07"].skill.includes("short- and long-term planning"),"Dars 07 must teach planning, not be reduced to trip planning");
+assert(t3["N3-07"].model.band2.includes("روز هفتم"),"Dars 07 trip model must cover the full one-week itinerary");
+assert(t3["N3-06"].modelInternet?.band2,"Dars 06 must model the internet benefits/harms prompt as well as book critique");
+
 
 const index=require("node:fs").readFileSync(path.join(__dirname,"../website/index.html"),"utf8");
 for(const script of ["newestan-writing-library.js","newestan-writing-ui.js","term03-newestan-teaching.js","term03-newestan-teaching-ui.js"])assert(index.includes(script),"Missing script include: "+script);
