@@ -3,13 +3,13 @@ const assert = require("node:assert/strict");
 const path = require("node:path");
 
 global.window = {};
-require("./audit-trilingual-meanings.cjs");
 const store = new Map([["persian_done_v1", JSON.stringify(["3|4|KH3-04|اختراع"])]]);
 global.localStorage = {
   getItem(key) { return store.has(key) ? store.get(key) : null; },
   setItem(key, value) { store.set(key, String(value)); },
   removeItem(key) { store.delete(key); }
 };
+require("./audit-trilingual-meanings.cjs");
 const load = file => require(path.join(__dirname, "..", "website", file));
 load("term03-source-audit.js");
 load("term03-page1-additions.js");

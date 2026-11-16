@@ -1,6 +1,14 @@
 /* Read-only audit of trilingual semantic coverage across the three terms.
    Run with: node tools/audit-trilingual-meanings.cjs */
 global.window = {};
+if (!global.localStorage) {
+  const auditStorage = new Map();
+  global.localStorage = {
+    getItem(key) { return auditStorage.has(key) ? auditStorage.get(key) : null; },
+    setItem(key, value) { auditStorage.set(key, String(value)); },
+    removeItem(key) { auditStorage.delete(key); }
+  };
+}
 const load = (p) => require(require('path').resolve(__dirname, '..', p));
 [
   'website/term01-data.js',
@@ -12,6 +20,7 @@ const load = (p) => require(require('path').resolve(__dirname, '..', p));
   'website/term03-data.js',
   'website/term03-lexicon-additions.js',
   'website/term03-matn-verbs.js',
+  'website/term03-source-audit.js',
   'website/semantic-meanings.js',
   'website/term01-semantic-additions.js',
   'website/term01-amr-verbs.js',
@@ -73,7 +82,11 @@ const load = (p) => require(require('path').resolve(__dirname, '..', p));
   'website/term03-additional-semantics-43.js',
   'website/term03-additional-semantics-44.js',
   'website/term03-additional-semantics-45.js',
-  'website/term03-additional-semantics-46.js'
+  'website/term03-additional-semantics-46.js',
+  'website/term03-page1-additions.js',
+  'website/term03-chapter-mapping.js',
+  'website/term03-newestan-insha.js',
+  'website/term03-dedup.js'
 ].forEach(load);
 
 const requiredCounts = [
@@ -151,6 +164,23 @@ const books = {
 const semantics = window.PERSIAN_SEMANTICS || {};
 let total = 0, complete = 0;
 for (const [term, rows] of Object.entries(books)) {
+  if (term === 'Term 03') {
+    const headwords = [...new Set(rows.filter(row => row.fa).map(row => row.fa))];
+    const missing = [...new Set(rows.filter(row => !row.fa || !rowSemantic(row.fa)).map(row => row.fa || '(missing headword)'))];
+    const missingCards = rows.filter(row => !row.fa || !rowSemantic(row.fa));
+    total += headwords.length;
+    complete += headwords.length - missing.length;
+    console.log('Term 03: ' + rows.length + ' cards / ' + headwords.length + ' headwords, ' + missing.length + ' missing');
+    if (rows.length !== 1939 || headwords.length !== 1939) {
+      throw new Error('Term 03 expected 1939 cards and 1939 exact headwords; got ' + rows.length + ' cards and ' + headwords.length + ' headwords');
+    }
+    if (missingCards.length) {
+      console.log('  Missing exact card-headword keys: ' + missingCards.map(row => row.fa || '(missing headword)').join('، '));
+      throw new Error('Term 03 has ' + missingCards.length + ' card(s) without a complete trilingual record under the exact card headword key');
+    }
+    if (missing.length) throw new Error('Term 03 has missing trilingual headwords: ' + missing.join('، '));
+    continue;
+  }
   const byWord = new Map();
   for (const row of rows) if (row.fa) byWord.set(norm(row.fa), row.fa);
   const missing = [];

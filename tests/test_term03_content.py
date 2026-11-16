@@ -163,6 +163,7 @@ def test_newestan_insha_picker_uses_home_unit_mapping_and_is_term03_only() -> No
     assert 'lessons.some(x=>x.lesson==="N3-01")' in index
     assert 'lessons.some(x=>x.lesson==="N3-10")' in index
     assert 'Practice prompt (not from the book)' in index
+    assert '<label for="essayTopic">${activeTerm===3?"Practice prompt (not from the book)":"Choose your writing prompt"}</label>' in index
     assert 'NEWESTAN · DARS ' in index and 'lesson.topics.map' in index
     assert 'if(activeTerm===1)' in index
     assert 'const data=activeTerm===2?' in index
@@ -171,3 +172,25 @@ def test_newestan_insha_picker_uses_home_unit_mapping_and_is_term03_only() -> No
     assert 'global.term3InshaForChapter(16)' in audit
     assert 'global.term3InshaForChapter(20)' in audit
     assert 'global.term3InshaForChapter(1)' in audit
+
+
+def test_trilingual_audit_loads_complete_term03_pipeline_and_checks_exact_card_keys() -> None:
+    audit = (ROOT / "tools" / "audit-trilingual-meanings.cjs").read_text(encoding="utf-8")
+    ordered = [
+        "'website/term03-data.js'",
+        "'website/term03-lexicon-additions.js'",
+        "'website/term03-matn-verbs.js'",
+        "'website/term03-source-audit.js'",
+        "'website/term03-page1-additions.js'",
+        "'website/term03-chapter-mapping.js'",
+        "'website/term03-dedup.js'",
+    ]
+    positions = [audit.index(item) for item in ordered]
+    assert positions == sorted(positions)
+    assert "'website/term03-additional-semantics-46.js'" in audit
+    assert "window.TERM3_ADDITIONAL_SEMANTICS_BATCH46" in audit
+    assert "rows.filter(row => !row.fa || !rowSemantic(row.fa))" in audit
+    assert "1939 cards and 1939 exact headwords" in audit
+    assert "complete trilingual record under the exact card headword key" in audit
+    runtime_dedup = (ROOT / "tools" / "audit-term03-dedup.cjs").read_text(encoding="utf-8")
+    assert runtime_dedup.index("global.localStorage =") < runtime_dedup.index('require("./audit-trilingual-meanings.cjs")')
