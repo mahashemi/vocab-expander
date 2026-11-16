@@ -206,6 +206,7 @@ main{max-width:1120px;padding:28px 24px 16px}.site-head{margin-bottom:26px}.bran
 .writing-wrap .speech-model-panel .model-sample{background:linear-gradient(135deg,rgba(39,102,91,.07),rgba(189,149,80,.06));border-right:4px solid var(--gold);padding:clamp(15px,2.5vw,24px)}
 .writing-wrap .speech-editor-panel textarea{min-height:125px}
 @media(max-width:650px){.writing-wrap .khulasa-steps{grid-template-columns:1fr}.writing-wrap .khulasa-selector{align-items:stretch;flex-direction:column}.writing-wrap .khulasa-lines li{grid-template-columns:30px minmax(0,1fr);gap:9px;padding:11px}.writing-wrap .khulasa-number{width:29px;height:29px}}
+.newestan-model-section{border-top:1px solid var(--bd);padding:12px 0;margin-top:8px}.newestan-model-section>b{display:block;color:var(--ac);margin-bottom:6px}.newestan-workshop{margin:16px 0}.newestan-workshop .row{align-items:center}.newestan-workshop .row label{margin:0}.newestan-workshop select{min-width:min(100%,280px)}
 </style></head>
 <body><main>
 <div class="bismillah-wrap"><img src="bismillah_text_green.png" alt="بسم الله الرحمن الرحیم" class="bismillah-image"><div class="bismillah-rule"><span>✦</span></div></div>
@@ -1639,8 +1640,8 @@ function essays(){
  v.innerHTML=`<section class="writing-wrap">
  <div class="no-print"><div class="mut">Term 0${activeTerm||3} · Term-linked writing practice</div><h2>Essay writing workshop</h2>
  <p>Work through the chapter skill, plan your response, write a complete draft and print a clean practice sheet. Your work is saved only in this browser.</p>
-  ${activeTerm===2?window.renderNewestanWorkshop():""}
  <div class="row"><label for="essayChapter">Writing unit</label><select id="essayChapter">${data.chapters.map(x=>`<option value="${x.ch}" ${x.ch===essayCh?"selected":""}>Chapter ${x.ch} · ${esc(x.title)}</option>`).join("")}</select></div></div>
+ ${activeTerm===2?window.renderNewestanWorkshop():""}
  <div class="panel"><div class="mut">CHAPTER ${item.ch} · ${esc(item.title)}</div><h2 class="fa-block">${esc(item.topic)}</h2>
  <label for="essayTopic">${activeTerm===3?"Practice prompt (not from the book)":"Choose your writing prompt"}</label><select id="essayTopic">${topics.map(([k,t])=>`<option value="${k}" ${topic===k?"selected":""}>${esc(t)}</option>`).join("")}</select>
  <p class="mut">Main question to answer: ${esc(item.question)}</p>
