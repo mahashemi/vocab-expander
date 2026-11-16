@@ -291,6 +291,7 @@ main{max-width:1120px;padding:28px 24px 16px}.site-head{margin-bottom:26px}.bran
 <script src="term03-additional-semantics-45.js"></script>
 <script src="term03-page1-additions.js"></script>
 <script src="term03-chapter-mapping.js"></script>
+<script src="term03-newestan-insha.js"></script>
 <script src="term03-dedup.js"></script>
 <script>
 // ===== BOOK 2 DATA: [chapter, persian, transliteration, meaning, sentence fa, sentence translit, sentence en] =====
@@ -1627,17 +1628,25 @@ function essays(){
  const data=activeTerm===2?(window.TERM2_WRITING||window.TERM3_WRITING):window.TERM3_WRITING, item=data.chapters.find(x=>x.ch===essayCh)||data.chapters[0], saved=essayDrafts[activeTerm===2?'t2-'+essayCh:essayCh]||{};
  const topic=saved.topic||"main";
  const topics=[["main",item.topic],["alternate",item.alternate]];
- const newestanExample=activeTerm===3?window.TERM3_NEWESTAN_EXAMPLE:null;
+ const lessons=activeTerm===3&&window.term3InshaForChapter?window.term3InshaForChapter(essayCh):[];
+ const newestanExample=lessons.some(x=>x.lesson==="N3-01")?window.TERM3_NEWESTAN_EXAMPLE:null;
+ const newestanFinalInsha=lessons.some(x=>x.lesson==="N3-10")?window.TERM3_NEWESTAN_FINAL_INSHA:null;
  v.innerHTML=`<section class="writing-wrap">
  <div class="no-print"><div class="mut">Term 0${activeTerm||3} · Term-linked writing practice</div><h2>Essay writing workshop</h2>
  <p>Work through the chapter skill, plan your response, write a complete draft and print a clean practice sheet. Your work is saved only in this browser.</p>
  <div class="row"><label for="essayChapter">Writing unit</label><select id="essayChapter">${data.chapters.map(x=>`<option value="${x.ch}" ${x.ch===essayCh?"selected":""}>Chapter ${x.ch} · ${esc(x.title)}</option>`).join("")}</select></div></div>
  <div class="panel"><div class="mut">CHAPTER ${item.ch} · ${esc(item.title)}</div><h2 class="fa-block">${esc(item.topic)}</h2>
- <label for="essayTopic">Choose your writing prompt</label><select id="essayTopic">${topics.map(([k,t])=>`<option value="${k}" ${topic===k?"selected":""}>${esc(t)}</option>`).join("")}</select>
+ <label for="essayTopic">${activeTerm===3?"Practice prompt (not from the book)":"Choose your writing prompt"}</label><select id="essayTopic">${topics.map(([k,t])=>`<option value="${k}" ${topic===k?"selected":""}>${esc(t)}</option>`).join("")}</select>
  <p class="mut">Main question to answer: ${esc(item.question)}</p>
  <details><summary><b>Chapter insight — what the lesson is teaching</b></summary><div class="dc">${esc(item.insight)}</div></details>
  <details><summary><b>Writing hints and useful expressions</b></summary><div class="dc"><ul class="hint-list">${item.hints.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div></details>
  <details><summary><b>Suggested essay structure</b></summary><div class="dc"><ol>${item.outline.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></div></details>
+ ${lessons.map(lesson=>`<article class="panel newestan-example newestan-source-insha">
+ <div class="mut">NEWESTAN · DARS ${lesson.lesson.slice(-2)} · ${esc(lesson.source)}</div>
+ ${lesson.researchForm?`<p class="mut fa-block">${esc(lesson.note||"")}</p>
+ <div class="newestan-part"><b>نمونه موضوع‌های تحقیق / Example research topics</b><ol class="newestan-support">${(lesson.exampleResearchTopics||[]).map(x=>`<li><div class="fa-block">${esc(x.fa)}</div><div class="mut">${esc(x.en)}</div></li>`).join("")}</ol></div>`:
+ `<ol class="newestan-support">${lesson.topics.map(x=>`<li><div class="fa-block">${esc(x.fa)}</div><div class="mut">${esc(x.en)}</div></li>`).join("")}</ol>`}
+ </article>`).join("")}
  <details><summary><b>Developed model response · نمونهٔ توسعه‌یافته</b></summary><div class="dc fa-block model-sample">${item.sample?esc(item.sample):"A developed sample for this chapter is being prepared. Use the outline above to build your own response."}</div></details>
  ${newestanExample ? `<article class="panel newestan-example">
  <div class="mut">NEWESTAN · DARS 01 · N3-01</div>
@@ -1649,7 +1658,7 @@ function essays(){
  <details><summary><b>متن کامل نمونه / Complete model paragraph</b></summary><div class="dc fa-block model-sample">${esc(newestanExample.sample)}</div></details>
  <div class="newestan-part"><b>واژگان درس اول / Dars 01 vocabulary</b><p class="fa-block newestan-vocabulary">${newestanExample.vocabulary.map(x=>esc(x)).join(" · ")}</p></div>
  </article>` : ""}
- ${activeTerm===3&&window.TERM3_NEWESTAN_FINAL_INSHA ? (()=>{const m=window.TERM3_NEWESTAN_FINAL_INSHA;return `<article class="panel newestan-example newestan-final-insha">
+ ${newestanFinalInsha ? (()=>{const m=newestanFinalInsha;return `<article class="panel newestan-example newestan-final-insha">
  <div class="mut">NEWESTAN · DARS 10 · ${esc(m.source)}</div>
  <h3>${esc(m.title)}</h3>
  <p class="mut fa-block">${esc(m.method)}</p>

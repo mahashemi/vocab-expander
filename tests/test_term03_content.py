@@ -152,3 +152,22 @@ def test_term03_dedup_runtime_audit_is_part_of_ci() -> None:
     assert "node tools/audit-term03-dedup.cjs" in deploy_workflow
     assert "all approved merges" in runtime_audit
     assert "memorisation progress must migrate" in runtime_audit
+
+
+def test_newestan_insha_picker_uses_home_unit_mapping_and_is_term03_only() -> None:
+    index = read("index.html")
+    picker = read("term03-newestan-insha.js")
+    audit = (ROOT / "tools" / "audit-term03.cjs").read_text(encoding="utf-8")
+    assert index.index('src="term03-chapter-mapping.js"') < index.index('src="term03-newestan-insha.js"')
+    assert 'const lessons=activeTerm===3&&window.term3InshaForChapter?window.term3InshaForChapter(essayCh):[];' in index
+    assert 'lessons.some(x=>x.lesson==="N3-01")' in index
+    assert 'lessons.some(x=>x.lesson==="N3-10")' in index
+    assert 'Practice prompt (not from the book)' in index
+    assert 'NEWESTAN · DARS ' in index and 'lesson.topics.map' in index
+    assert 'if(activeTerm===1)' in index
+    assert 'const data=activeTerm===2?' in index
+    assert 'window.TERM3_CHAPTER_MAPPING' in picker
+    assert 'global.term3InshaForChapter(3)' in audit
+    assert 'global.term3InshaForChapter(16)' in audit
+    assert 'global.term3InshaForChapter(20)' in audit
+    assert 'global.term3InshaForChapter(1)' in audit

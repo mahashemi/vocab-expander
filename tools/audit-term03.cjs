@@ -7,6 +7,7 @@ require("../website/term03-lexicon-additions.js");
 require("../website/term03-matn-verbs.js");
 require("../website/term03-source-audit.js");
 require("../website/term03-chapter-mapping.js");
+require("../website/term03-newestan-insha.js");
 require("../website/term03-khulasa.js");
 require("../website/term03-writing.js");
 const entries = global.TERM3_DATA || [];
@@ -138,6 +139,14 @@ assert(appSource.includes("units:Array.isArray(a.units)"), "Chapter items must p
 assert(appSource.includes("(i.units||[i.ch]).includes(Number(c))"), "Chapter filters must include shared vocabulary in every linked unit");
 assert(appSource.includes("flatMap(i=>(i.units||[i.ch])"), "Chapter navigation must include shared vocabulary units");
 
+assert.deepEqual(global.term3InshaForChapter(3).map(x => x.lesson), ["N3-01", "N3-07"]);
+assert.deepEqual(global.term3InshaForChapter(16).map(x => x.lesson), ["N3-06", "N3-09"]);
+assert.deepEqual(global.term3InshaForChapter(20).map(x => x.lesson), ["N3-02", "N3-10"]);
+assert.deepEqual(global.term3InshaForChapter(1), []);
+for (const chapter of [3, 16, 1]) {
+  const lessons = global.term3InshaForChapter(chapter);
+  console.log("Newestan chapter " + chapter + ": " + (lessons.length ? lessons.map(x => x.lesson + " [" + (x.researchForm ? x.note : x.topics.map(t => t.fa + " / " + t.en).join("; ")) + "]").join(" | ") : "(no Newestan panel)"));
+}
 assert(Object.keys(global.TERM3_UNIT_META || {}).length === 20, "Expected 20 FA chapter summaries");
 for (const [unit, meta] of Object.entries(global.TERM3_UNIT_META)) assert(meta.summary, "Missing chapter summary for FA3-" + unit);
 assert(Array.isArray(global.TERM3_KHULASA) && global.TERM3_KHULASA.length === 20, "Expected a dedicated Khulasa summary for all 20 FA chapters");

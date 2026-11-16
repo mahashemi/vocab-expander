@@ -153,6 +153,7 @@ jobs:
           node --check website/term03-source-audit.js
           node --check website/term03-dedup.js
           node --check website/term03-chapter-mapping.js
+          node --check website/term03-newestan-insha.js
           node --check website/verb-treasury.js
           node --check website/semantic-meanings.js
           node --check website/term-portal.js

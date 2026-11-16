@@ -1,0 +1,22 @@
+/* Term 03 · Newestan end-of-dars insha tamrin (one record per lesson).
+   Lessons are matched to writing chapters through window.TERM3_CHAPTER_MAPPING (first number = home unit). */
+(()=>{
+ const R={
+  "N3-01":{source:"N3-01 · p7",topics:[{no:1,fa:"علت موفقیت شما در زندگی",en:"The reason for your success in life"}],ocr:["موضوع اول: علت موفقیت شما در زندگی"],note:"Only one topic is readable in the OCR."},
+  "N3-02":{source:"N3-02 · p7",topics:[{no:1,fa:"زندگی‌نامهٔ خود، خانواده یا فامیل",en:"The biography of yourself, your family or a relative"}],ocr:["موضوع۱: زندگی‌نامة خود. خانواده با فامیل"],note:"Only one topic is readable in the OCR."},
+  "N3-03":{source:"N3-03 · p7",topics:[{no:1,fa:"توصیف خانهٔ خود با استفاده از «زاویهٔ دید درونی»",en:"Describe your house from an inner point of view"},{no:2,fa:"توصیف خانهٔ خود با استفاده از «زاویهٔ دید بیرونی»",en:"Describe your house from an outer point of view"}],ocr:["موضوع ۱: توصیف خانهةّ خود با استفاده از «زاویة دید درونی»","موضوع ۲: توصیف خانةٌ خود با استفاده از «زاویة دید بیرونی»"]},
+  "N3-04":{source:"N3-04 · p7",topics:[{no:1,fa:"مشکلات اجتماعی جهانی: علت‌ها، تأثیرات و راه‌حل‌های آن",en:"Global social problems: causes, effects and solutions"},{no:2,fa:"مشکل اجتماعی کشور خود: علت‌ها، تأثیرات و راه‌حل‌های آن",en:"A social problem of your country: causes, effects and solutions"}],ocr:["موضوع ۱: «مشکلات اجتماعی جهانی». علّت‌هاء تآثیرات و راه‌حل‌های آن","موضوع ۲: مشکل اجتماعی کشور خود. علّت‌ها, تأثیرات و راه‌حل‌های آن"]},
+  "N3-05":{source:"N3-05 · p7",topics:[{no:1,fa:"توصیف یکی از مکان‌های دیدنی کشور خود",en:"Describe one of the sights of your country"},{no:2,fa:"توصیف یکی از فصل‌های سال",en:"Describe one of the seasons of the year"}],ocr:["موضوع ۱: توصیف یکی از مکان‌های دیدنی کشور خود","موضوع ۲: توصیف یکی از فصل‌های سال"]},
+  "N3-06":{source:"N3-06 · p7",topics:[{no:1,fa:"فایده و ضرر استفاده از اینترنت",en:"The benefits and harms of using the internet"},{no:2,fa:"نقد کتاب خوانده‌شده (ضعف‌ها و قوت‌های کتاب)",en:"Critique a book you have read (its weaknesses and strengths)"}],ocr:["موضو ع۱: فایده و ضرر استفاده از اینترنت","موضوع ۲: نفد کتاب خوانده شده (ضعف‌ها 9 قوت‌های کتاب)"]},
+  "N3-07":{source:"N3-07 · p7",topics:[{no:1,fa:"برنامه‌ریزی برای مسافرت",en:"Planning a trip"},{no:2,fa:"برنامه‌ریزی برای تعطیلات یک‌هفته‌ای در سال جدید",en:"Planning a one-week New Year holiday"}],ocr:["موضوع ۱: برنامه‌ریزی برای مسافرت","موضوع۲: برنامه‌ریزی برای تعطیلات یک‌هفته‌ای در سال جدید"]},
+  "N3-08":{source:"N3-08 · p7",topics:[{no:1,fa:"توصیف مردم کشورتان",en:"Describe the people of your country"},{no:2,fa:"آداب و رسوم خودتان در یکی از مراسم تولد نوزاد یا ازدواج و …",en:"Your own customs at a ceremony such as a baby's birth or a wedding"}],ocr:["موضوع۱: توصیف مردم کشورتان","موضوع۲: آداب و رسوم خودتان در یکی از مراسم تولد نوزاد پا ازدواج و ... ."]},
+  "N3-09":{source:"N3-09 · p7",topics:[{no:1,fa:"رشتهٔ تحصیلی من",en:"My field of study"},{no:2,fa:"راه‌های موفقیت در تحصیل",en:"Ways to succeed in study"}],ocr:["ضوع ۱: رشتة تحصیلی من","موضوع ۲: راه‌های موفقبت در تحصیل"]},
+  "N3-10":{source:"N3-10 · pp5–6",topics:[],researchForm:true,exampleResearchTopics:[{fa:"وظایف دانشجو در برابر استاد از نظر دانشمندان اخلاق",en:"A student's duties toward the teacher according to scholars of ethics"},{fa:"جشن‌ها و مراسم کشور هند",en:"Festivals and ceremonies of India"}],ocr:["موضوع اول: وظایف دانشجو در برابر استاد از نظر دانشمندان اخلاق.","موضوع دوم؛ جشن‌ها و مراسم کشور هند"],note:"No numbered topics: the lesson ends with the research form (موضوع تحقیق، سؤال اصلی، سؤال‌های فرعی)."}
+ };
+ window.TERM3_NEWESTAN_INSHA=R;
+ /* Newestan lessons whose home unit is this writing chapter, sorted by lesson id. Derived from the chapter mapping only. */
+ window.term3InshaForChapter=ch=>{
+  const M=window.TERM3_CHAPTER_MAPPING||{};
+  return Object.keys(R).filter(l=>M[l]&&M[l][0]===ch).sort().map(l=>({lesson:l,...R[l]}));
+ };
+})();
