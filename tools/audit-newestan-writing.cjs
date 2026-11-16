@@ -52,4 +52,7 @@ assert(index.includes('const lessons=activeTerm===3&&window.term3InshaForChapter
 assert.deepEqual(global.term3InshaForChapter(3).map(x=>x.lesson),["N3-01","N3-07"]);
 assert.deepEqual(global.term3InshaForChapter(16).map(x=>x.lesson),["N3-06","N3-09"]);
 assert.deepEqual(global.term3InshaForChapter(20).map(x=>x.lesson),["N3-02","N3-10"]);
-console.log(JSON.stringify({term01:library[1].length,term02:library[2].length,term03:Object.keys(t3).length,term03Essays:9,term03ResearchLessons:1},null,2));
+assert.deepEqual(global.term3InshaForChapter(2).map(x=>x.lesson),["N3-02","N3-04"],"Secondary chapter links must show Newestan exercises too");
+assert.deepEqual(global.term3InshaForChapter(9).map(x=>x.lesson),["N3-04","N3-10"],"All mapped chapters must expose linked Newestan exercises");
+assert.deepEqual(global.term3InshaForChapter(14).map(x=>x.lesson),["N3-10"],"Research writing must appear in its secondary mapped chapter");
+console.log(JSON.stringify({term01:library[1].length,term02:library[2].length,term03:Object.keys(t3).length,term03Essays:9,term03ResearchLessons:1,secondaryChapterMappings:"passed"},null,2));
