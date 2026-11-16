@@ -31,8 +31,8 @@
   const sourceNote=teach.sourceNote?'<p class="mut">'+escText(teach.sourceNote)+'</p>':'';
   const model=teach.model?'<details open><summary><b>Model essay · نمونهٔ انشا</b></summary><div class="dc">'+
    '<div class="newestan-model-section"><b>مقدمه</b><p class="fa-block">'+escText(teach.model.muqaddama)+'</p></div>'+
-   '<div class="newestan-model-section"><b>متن · بند اول</b><p class="fa-block">'+escText(teach.model.band1)+'</p></div>'+
-   '<div class="newestan-model-section"><b>متن · بند دوم</b><p class="fa-block">'+escText(teach.model.band2)+'</p></div>'+
+   '<div class="newestan-model-section"><b>بخش میانی · بند اول</b><p class="fa-block">'+escText(teach.model.band1)+'</p></div>'+
+   '<div class="newestan-model-section"><b>بخش میانی · بند دوم</b><p class="fa-block">'+escText(teach.model.band2)+'</p></div>'+
    '<div class="newestan-model-section"><b>نتیجه</b><p class="fa-block">'+escText(teach.model.natija)+'</p></div></div></details>':'';
   const research=lesson==="N3-10"&&window.TERM3_NEWESTAN_FINAL_INSHA?'<details open><summary><b>Developed research model · نمونهٔ تحقیق</b></summary><div class="dc fa-block model-sample">'+escText(window.TERM3_NEWESTAN_FINAL_INSHA.sample)+'</div></details>':'';
   return '<section class="writing-wrap"><div class="mut">TERM 03 · NEWESTAN · INDEPENDENT WRITING CURRICULUM</div><h2>کارگاه نوشتن · Term 03</h2><p>Choose a Newestan lesson. This selector and its exercises are independent of Farsi Umumi (FA) chapters.</p>'+
