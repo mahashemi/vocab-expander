@@ -298,6 +298,7 @@ main{max-width:1120px;padding:28px 24px 16px}.site-head{margin-bottom:26px}.bran
 <script src="term03-newestan-teaching-ui.js"></script>
 <script src="newestan-writing-library.js"></script>
 <script src="newestan-writing-ui.js"></script>
+<script src="term03-newestan-standalone.js"></script>
 <script src="term03-dedup.js"></script>
 <script>
 // ===== BOOK 2 DATA: [chapter, persian, transliteration, meaning, sentence fa, sentence translit, sentence en] =====
@@ -1630,7 +1631,8 @@ function writeLocal(key,obj){try{localStorage.setItem(key,JSON.stringify(obj))}c
 let essayDrafts=readLocal(essayStoreKey),speechDrafts=readLocal(speechStoreKey),essayCh=1,speechCh=20;
 function printCurrent(){document.body.classList.add("printing");window.onafterprint=()=>document.body.classList.remove("printing");window.print()}
 function essays(){
- if(activeTerm===1){v.innerHTML=window.renderNewestanTerm1();window.bindNewestanWorkshop();return}
+ if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1();window.bindNewestanWorkshop();return}
+ if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3();window.bindNewestanTerm3();return}
  const data=activeTerm===2?(window.TERM2_WRITING||window.TERM3_WRITING):window.TERM3_WRITING, item=data.chapters.find(x=>x.ch===essayCh)||data.chapters[0], saved=essayDrafts[activeTerm===2?'t2-'+essayCh:essayCh]||{};
  const topic=saved.topic||"main";
  const topics=[["main",item.topic],["alternate",item.alternate]];
