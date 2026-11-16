@@ -293,6 +293,8 @@ main{max-width:1120px;padding:28px 24px 16px}.site-head{margin-bottom:26px}.bran
 <script src="term03-page1-additions.js"></script>
 <script src="term03-chapter-mapping.js"></script>
 <script src="term03-newestan-insha.js"></script>
+<script src="newestan-writing-library.js"></script>
+<script src="newestan-writing-ui.js"></script>
 <script src="term03-dedup.js"></script>
 <script>
 // ===== BOOK 2 DATA: [chapter, persian, transliteration, meaning, sentence fa, sentence translit, sentence en] =====
@@ -1625,7 +1627,7 @@ function writeLocal(key,obj){try{localStorage.setItem(key,JSON.stringify(obj))}c
 let essayDrafts=readLocal(essayStoreKey),speechDrafts=readLocal(speechStoreKey),essayCh=1,speechCh=20;
 function printCurrent(){document.body.classList.add("printing");window.onafterprint=()=>document.body.classList.remove("printing");window.print()}
 function essays(){
- if(activeTerm===1){v.innerHTML='<section class="writing-wrap"><h2>کارگاه نوشتن · Term 01</h2><p>تمرین‌های نوشتاری Term 01 پس از تطبیق کامل با درس‌های منبع تدوین می‌شوند؛ محتوای ترم دیگر به جای آن نمایش داده نمی‌شود.</p></section>';return}
+ if(activeTerm===1){v.innerHTML=window.renderNewestanTerm1();window.bindNewestanWorkshop();return}
  const data=activeTerm===2?(window.TERM2_WRITING||window.TERM3_WRITING):window.TERM3_WRITING, item=data.chapters.find(x=>x.ch===essayCh)||data.chapters[0], saved=essayDrafts[activeTerm===2?'t2-'+essayCh:essayCh]||{};
  const topic=saved.topic||"main";
  const topics=[["main",item.topic],["alternate",item.alternate]];
@@ -1635,6 +1637,7 @@ function essays(){
  v.innerHTML=`<section class="writing-wrap">
  <div class="no-print"><div class="mut">Term 0${activeTerm||3} · Term-linked writing practice</div><h2>Essay writing workshop</h2>
  <p>Work through the chapter skill, plan your response, write a complete draft and print a clean practice sheet. Your work is saved only in this browser.</p>
+  ${activeTerm===2?window.renderNewestanWorkshop():""}
  <div class="row"><label for="essayChapter">Writing unit</label><select id="essayChapter">${data.chapters.map(x=>`<option value="${x.ch}" ${x.ch===essayCh?"selected":""}>Chapter ${x.ch} · ${esc(x.title)}</option>`).join("")}</select></div></div>
  <div class="panel"><div class="mut">CHAPTER ${item.ch} · ${esc(item.title)}</div><h2 class="fa-block">${esc(item.topic)}</h2>
  <label for="essayTopic">${activeTerm===3?"Practice prompt (not from the book)":"Choose your writing prompt"}</label><select id="essayTopic">${topics.map(([k,t])=>`<option value="${k}" ${topic===k?"selected":""}>${esc(t)}</option>`).join("")}</select>
@@ -1705,6 +1708,7 @@ function essays(){
  <div class="row no-print"><button class="pri" id="printEssay">Print this essay sheet</button><button id="clearEssay">Clear this chapter's draft</button></div>
  </section>`;
  attachVocabularyLinks(v.querySelector(".writing-wrap"));
+ if(activeTerm===2)window.bindNewestanWorkshop();
  $("#essayChapter").onchange=e=>{essayCh=Number(e.target.value);essays()};
  const saveEssay=()=>{const draftKey=activeTerm===2?'t2-'+essayCh:essayCh;const obj={...(essayDrafts[draftKey]||{}),topic:$("#essayTopic").value,checks:[...v.querySelectorAll("[data-check]:checked")].map(x=>x.dataset.check)};v.querySelectorAll("[data-field]").forEach(el=>obj[el.dataset.field]=el.value);essayDrafts[draftKey]=obj;writeLocal(essayStoreKey,essayDrafts);$("#essaySaved").textContent="Saved locally · "+new Date().toLocaleTimeString()};
  $("#essayTopic").onchange=saveEssay;
