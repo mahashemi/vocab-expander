@@ -42,7 +42,7 @@
    '<div class="newestan-model-section"><b>نتیجه</b><p class="fa-block">'+escText(teach.modelInternet.natija)+'</p></div></div></details>':'';
   const research=lesson==="N3-10"&&window.TERM3_NEWESTAN_FINAL_INSHA?'<details open><summary><b>Developed research model · نمونهٔ تحقیق</b></summary><div class="dc fa-block model-sample">'+escText(window.TERM3_NEWESTAN_FINAL_INSHA.sample)+'</div></details>':'';
   return '<section class="writing-wrap"><div class="mut">TERM 03 · NEWESTAN · INDEPENDENT WRITING CURRICULUM</div><h2>کارگاه نوشتن · Term 03</h2><p>Choose a Newestan lesson. This selector and its exercises are independent of Farsi Umumi (FA) chapters.</p>'+
-   '<section class="panel newestan-workshop"><div class="mut">NEWESTAN · '+lesson+' · '+escText(rec.source)+'</div><div class="row"><label for="newestanLesson">Choose Newestan lesson / انتخاب درس نیوستان</label><select id="newestanLesson">'+options+'</select></div><h2>'+escText(titles[lesson])+'</h2><p class="mut">'+escText(rec.note||"")+'</p>'+
+   '<section class="panel newestan-workshop"><div class="mut">NEWESTAN · '+lesson+' · '+escText(rec.source)+'</div><div class="newestan-lesson-picker"><div class="newestan-picker-copy"><span class="newestan-picker-kicker">YOUR LEARNING PATH</span><label for="newestanLesson">Choose a Newestan lesson <span>انتخاب درس نیوستان</span></label><small>Select a lesson to open its teaching notes, language tools and writing practice.</small></div><select id="newestanLesson" aria-label="Choose a Newestan lesson">'+options+'</select></div><h2>'+escText(titles[lesson])+'</h2><p class="mut">'+escText(rec.note||"")+'</p>'+
    prompts+skill+bilingual+subs+steps+timeline+connectors+model+internetModel+rubric+examNote+research+sourceNote+
    '<div class="newestan-model-section"><b>Your own writing · تمرین شما</b><textarea id="newestanDraft" class="essay-draft" placeholder="مقدمه، بند اول، بند دوم و نتیجه را بنویسید...">'+escText(draft)+'</textarea><div class="mut" id="newestanDraftSaved">Your draft is saved locally in this browser.</div></div></section>'+
    '<div class="row no-print"><button class="pri" id="printNewestanLesson">Print this lesson</button></div></section>';
@@ -57,6 +57,7 @@
    const status=document.getElementById("newestanDraftSaved");
    if(status)status.textContent="Saved locally · "+new Date().toLocaleTimeString();
   };
+  if(typeof attachVocabularyLinks==="function"){const scope=document.querySelector(".newestan-workshop");if(scope)attachVocabularyLinks(scope)}
   const print=document.getElementById("printNewestanLesson");if(print)print.onclick=printCurrent;
  };
 })();
