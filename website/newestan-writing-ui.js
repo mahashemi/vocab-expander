@@ -19,7 +19,7 @@
   return '<section class="panel newestan-workshop">'+
    '<div class="mut">NEWESTAN · TERM 0'+activeTerm+' · DARS '+String(rec.no).padStart(2,"0")+' · '+esc(rec.source)+'</div>'+
    '<h2 class="fa-block">'+esc(rec.title)+'</h2>'+
-   '<div class="row"><label for="newestanLesson">Choose Newestan lesson / انتخاب درس نیوستان</label><select id="newestanLesson">'+rows.map(x=>'<option value="'+x.no+'" '+(x.no===rec.no?'selected':'')+'>Dars '+String(x.no).padStart(2,"0")+' · '+esc(x.title)+'</option>').join("")+'</select></div>'+
+   '<div class="newestan-lesson-picker"><div class="newestan-picker-copy"><span class="newestan-picker-kicker">YOUR LEARNING PATH</span><label for="newestanLesson">Choose a Newestan lesson <span>انتخاب درس نیوستان</span></label><small>Select a lesson to open its teaching notes, language tools and writing practice.</small></div><select id="newestanLesson" aria-label="Choose a Newestan lesson">'+rows.map(x=>'<option value="'+x.no+'" '+(x.no===rec.no?'selected':'')+'>Dars '+String(x.no).padStart(2,"0")+' · '+esc(x.title)+'</option>').join("")+'</select></div>'+
    '<div class="newestan-model-section"><b>Writing skill taught in this lesson · مهارت نوشتاری</b><p>'+esc(rec.skill)+'</p></div>'+
    '<div class="newestan-model-section"><b>تمرین واقعی درس · Textbook exercise</b><p class="fa-block">'+esc(rec.prompt)+'</p><p class="mut">'+esc(rec.promptEn)+'</p></div>'+
    '<div class="newestan-model-section"><b>ریزموضوع‌ها · Supporting subtopics</b><ol class="newestan-support">'+rec.subtopics.map(x=>'<li class="fa-block">'+esc(x)+'</li>').join("")+'</ol></div>'+
@@ -40,6 +40,7 @@
    const status=document.getElementById("newestanDraftSaved");
    if(status)status.textContent="Saved locally · "+new Date().toLocaleTimeString();
   });
+  if(typeof attachVocabularyLinks==="function"){const scope=document.querySelector(".newestan-workshop");if(scope)attachVocabularyLinks(scope)}
   const print=document.getElementById("printNewestanLesson");
   if(print)print.onclick=printCurrent;
  };
