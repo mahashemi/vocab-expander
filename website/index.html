@@ -207,6 +207,18 @@ main{max-width:1120px;padding:28px 24px 16px}.site-head{margin-bottom:26px}.bran
 .writing-wrap .speech-editor-panel textarea{min-height:125px}
 @media(max-width:650px){.writing-wrap .khulasa-steps{grid-template-columns:1fr}.writing-wrap .khulasa-selector{align-items:stretch;flex-direction:column}.writing-wrap .khulasa-lines li{grid-template-columns:30px minmax(0,1fr);gap:9px;padding:11px}.writing-wrap .khulasa-number{width:29px;height:29px}}
 .newestan-model-section{border-top:1px solid var(--bd);padding:12px 0;margin-top:8px}.newestan-model-section>b{display:block;color:var(--ac);margin-bottom:6px}.newestan-workshop{margin:16px 0}.newestan-workshop .row{align-items:center}.newestan-workshop .row label{margin:0}.newestan-workshop select{min-width:min(100%,280px)}
+
+/* Newestan lesson navigator: prominent, clear and touch-friendly across all terms. */
+.newestan-lesson-picker{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.95fr);gap:18px;align-items:center;margin:20px 0 22px;padding:clamp(17px,2.5vw,24px);border:1px solid color-mix(in srgb,var(--gold) 58%,var(--bd));border-radius:20px;background:linear-gradient(120deg,color-mix(in srgb,var(--soft) 80%,var(--card)),var(--card) 72%);box-shadow:0 12px 28px rgba(31,54,44,.08);position:relative;overflow:hidden}
+.newestan-lesson-picker:before{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--gold),var(--ac))}
+.newestan-picker-copy{min-width:0}.newestan-picker-kicker{display:block;color:var(--gold);font-size:10px;font-weight:850;letter-spacing:.17em;margin-bottom:7px}
+.newestan-picker-copy label{display:block!important;margin:0!important;color:var(--ink)!important;font-size:clamp(17px,2vw,20px)!important;font-weight:850!important;line-height:1.5}
+.newestan-picker-copy label span{display:block;color:var(--ac);font-family:var(--fa-reading-font,Tahoma,sans-serif);font-size:1.05em;margin-top:2px}
+.newestan-picker-copy small{display:block;margin-top:6px;color:var(--mut);font-size:12px;line-height:1.6}
+.newestan-lesson-picker select{width:100%;min-width:0!important;max-width:none!important;min-height:58px;padding:13px 46px 13px 15px!important;border:2px solid color-mix(in srgb,var(--ac) 42%,var(--bd))!important;border-radius:14px!important;background-color:var(--card)!important;color:var(--ink)!important;font-size:16px!important;font-weight:750!important;box-shadow:0 4px 12px rgba(31,54,44,.06);cursor:pointer;transition:border-color .18s,box-shadow .18s}
+.newestan-lesson-picker select:hover{border-color:var(--gold)!important;box-shadow:0 6px 18px rgba(31,54,44,.10)}
+.newestan-lesson-picker select:focus-visible{outline:3px solid color-mix(in srgb,var(--gold) 55%,transparent);outline-offset:3px;border-color:var(--ac)!important}
+@media(max-width:650px){.newestan-lesson-picker{grid-template-columns:1fr;gap:12px;margin:15px 0 18px;padding:17px}.newestan-lesson-picker select{min-height:56px;font-size:15px!important}}
 </style></head>
 <body><main>
 <div class="bismillah-wrap"><img src="bismillah_text_green.png" alt="بسم الله الرحمن الرحیم" class="bismillah-image"><div class="bismillah-rule"><span>✦</span></div></div>
