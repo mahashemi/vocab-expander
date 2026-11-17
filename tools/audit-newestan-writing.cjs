@@ -68,6 +68,14 @@ assert(index.includes("window.renderTerm3LessonTeaching(lesson)"),"Term 03 lesso
 assert(!index.includes("پس از تطبیق کامل با درس‌های منبع"),"Term 01 placeholder must be removed");
 assert(index.includes("if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1();window.bindNewestanWorkshop();return}"),"Terms 01 and 02 Newestan tabs must be standalone");
 assert(index.includes("if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3();window.bindNewestanTerm3();return}"),"Term 03 Newestan tab must be standalone");
+const term03Ui=require("node:fs").readFileSync(path.join(__dirname,"../website/term03-newestan-standalone.js"),"utf8");
+const term12Ui=require("node:fs").readFileSync(path.join(__dirname,"../website/newestan-writing-ui.js"),"utf8");
+assert(term03Ui.includes("newestan-lesson-picker")&&term12Ui.includes("newestan-lesson-picker"),"All Newestan terms must use the prominent lesson navigator");
+assert(term03Ui.includes("attachVocabularyLinks(scope)")&&term12Ui.includes("attachVocabularyLinks(scope)"),"All Newestan model answers must link matching vocabulary to shared flashcards");
+assert(index.includes("function attachVocabularyLinks(scope)"),"Shared exact-match vocabulary linker must be available");
+assert(index.includes("function ensureVocabularyModal(scope)"),"Shared trilingual flashcard modal must be available");
+assert(index.includes("data-vocab-id"),"Vocabulary links must use the shared flashcard identity");
+
 assert.equal(typeof global.renderNewestanTerm3,"function","Term 03 standalone renderer must be available");
 assert.equal(typeof global.bindNewestanTerm3,"function","Term 03 standalone selector must be wired");
 assert(index.includes('<script src="term03-newestan-standalone.js"></script>'),"Term 03 standalone Newestan UI must load");
