@@ -1559,12 +1559,19 @@ const curatedVocabAliases={
  "معنا":["معنای","معنایِ"],"کار":["کارها","کارهای"],"نمونه":["نمونه‌ها","نمونه‌هایی"],"کودک":["کودکان","کودک‌ها","کودکانی"],"فضا":["فضای","فضاها","فضاهای"],"گفت‌وگو":["گفت‌وگوها","گفتگو","گفتگوها"],
  "باید":["نباید"]
 };
+// Reviewed productive Persian noun/adjective suffixes: plurals, ezafe, possessives and comparison.
+const reviewedPersianSuffixes=["ها","های","یان","ان","ات","ام","ات","اش","مان","تان","شان","م","ت","ش","ی","تر","ترین"];
 function addVocabularyForms(index,item,aliasesOnly=false){
  const key=fold(item.fa);if(!key)return;
  if(!aliasesOnly){if(!index.has(key))index.set(key,item);return}
  const aliases=curatedVocabAliases[String(item.fa).trim()]||[];
  for(const alias of aliases){
   const aliasKey=fold(alias);
+  if(aliasKey&&!index.has(aliasKey))index.set(aliasKey,item);
+ }
+ const base=String(item.fa).trim();
+ if(!/[\\s]/.test(base))for(const suffix of reviewedPersianSuffixes){
+  const aliasKey=fold(base+suffix);
   if(aliasKey&&!index.has(aliasKey))index.set(aliasKey,item);
  }
 }
