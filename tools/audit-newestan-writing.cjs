@@ -68,7 +68,7 @@ assert(t3["N3-06"].modelInternet?.band2,"Dars 06 must model the internet benefit
 const index=require("node:fs").readFileSync(path.join(__dirname,"../website/index.html"),"utf8");
 for(const script of ["newestan-writing-library.js","newestan-writing-ui.js","term03-newestan-teaching.js","term03-newestan-teaching-ui.js"])assert(index.includes(script),"Missing script include: "+script);
 assert(index.includes("window.renderNewestanTerm1()"),"Term 01 Newestan view is not wired");
-assert(index.includes("window.renderNewestanWorkshop()"),"Term 02 Newestan view is not wired");
+assert(index.includes("if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1();window.bindNewestanWorkshop();return}"),"Term 01/02 Newestan view is not wired");
 assert(index.includes("window.renderTerm3LessonTeaching(lesson)"),"Term 03 lesson teaching is not wired");
 assert(!index.includes("پس از تطبیق کامل با درس‌های منبع"),"Term 01 placeholder must be removed");
 assert(index.includes("if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1();window.bindNewestanWorkshop();return}"),"Terms 01 and 02 Newestan tabs must be standalone");
