@@ -249,6 +249,11 @@
  [1,1,"علاقه","alāqe","interest; affection","تمایل و گرایش به شخص یا موضوعی.","ميل ورغبة تجاه شخص أو موضوع.","علاقه به مطالعه باعث پیشرفت می‌شود.","Alāqe be motāle'e bā'es-e pishraft mishavad.","Interest in reading leads to progress.","اسم — noun"],
  [1,1,"باغ","bāgh","garden; orchard","زمینی که در آن درخت، گل یا گیاه پرورش می‌دهند.","أرض تُزرع فيها الأشجار أو الأزهار أو النباتات.","در بهار باغ پر از گل می‌شود.","Dar bahār bāgh por az gol mishavad.","In spring, the garden fills with flowers.","اسم — noun"]
  );
+
+ items.push(
+ [1,1,"کردن","kardan","to do; to make","انجام دادن یک کار یا ایجاد کردن چیزی.","القيام بعمل أو صنع شيء.","این تمرین را در خانه انجام کردن لازم است.","In tamrin rā dar khāne anjām kardan lāzem ast.","It is necessary to do this exercise at home.","مصدر — infinitive"],
+ [1,1,"بلکه","balke","but rather; instead; on the contrary","برای اصلاح یا دقیق‌تر کردن سخن پیشین و بیان نکته‌ای در برابر آن.","لتصحيح الكلام السابق أو تدقيقه وبيان أمر مقابل له.","او تنبل نیست، بلکه بسیار پرتلاش است.","U تنبل nist, balke besyār پرتلاش ast.","He is not lazy; rather, he is very hardworking.","حرف ربط — conjunction"]
+ );
  for(const [term,lesson,fa,tr,en,faMeaning,arMeaning,exFa,exTr,exEn,pos] of items){
   const target=books[term];if(!target||!target.length)continue;
   const semantics=window.PERSIAN_SEMANTICS||(window.PERSIAN_SEMANTICS={});
