@@ -14,10 +14,4 @@
   "N3-10":{source:"N3-10 · pp5–6",topics:[],researchForm:true,exampleResearchTopics:[{fa:"وظایف دانشجو در برابر استاد از نظر دانشمندان اخلاق",en:"A student's duties toward the teacher according to scholars of ethics"},{fa:"جشن‌ها و مراسم کشور هند",en:"Festivals and ceremonies of India"}],ocr:["موضوع اول: وظایف دانشجو در برابر استاد از نظر دانشمندان اخلاق.","موضوع دوم؛ جشن‌ها و مراسم کشور هند"],note:"No numbered topics: the lesson ends with the research form (موضوع تحقیق، سؤال اصلی، سؤال‌های فرعی)."}
  };
  window.TERM3_NEWESTAN_INSHA=R;
- /* Include both primary and secondary related chapters from the reviewed TSV mapping. */
- window.term3InshaForChapter=ch=>{
-  const M=window.TERM3_CHAPTER_MAPPING||{};
-  const chapter=Number(ch);
-  return Object.keys(R).filter(l=>Array.isArray(M[l])&&M[l].includes(chapter)).sort().map(l=>({lesson:l,...R[l]}));
- };
 })();
