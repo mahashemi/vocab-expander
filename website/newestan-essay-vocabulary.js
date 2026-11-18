@@ -251,8 +251,8 @@
  );
 
  items.push(
- [1,1,"کردن","kardan","to do; to make","انجام دادن یک کار یا ایجاد کردن چیزی.","القيام بعمل أو صنع شيء.","این تمرین را در خانه انجام کردن لازم است.","In tamrin rā dar khāne anjām kardan lāzem ast.","It is necessary to do this exercise at home.","مصدر — infinitive"],
- [1,1,"بلکه","balke","but rather; instead; on the contrary","برای اصلاح یا دقیق‌تر کردن سخن پیشین و بیان نکته‌ای در برابر آن.","لتصحيح الكلام السابق أو تدقيقه وبيان أمر مقابل له.","او تنبل نیست، بلکه بسیار پرتلاش است.","U تنبل nist, balke besyār پرتلاش ast.","He is not lazy; rather, he is very hardworking.","حرف ربط — conjunction"]
+ [1,1,"کردن","kardan","to do; to make","انجام دادن یک کار یا ایجاد کردن چیزی.","القيام بعمل أو صنع شيء.","انجام دادن این تمرین در خانه لازم است.","Anjām-e in tamrin dar khāne lāzem ast.","It is necessary to do this exercise at home.","مصدر — infinitive"],
+ [1,1,"بلکه","balke","but rather; instead; on the contrary","برای اصلاح یا دقیق‌تر کردن سخن پیشین و بیان نکته‌ای در برابر آن.","لتصحيح الكلام السابق أو تدقيقه وبيان أمر مقابل له.","او تنبل نیست، بلکه بسیار پرتلاش است.","U tanbal nist, balke besyār portalāsh ast.","He is not lazy; rather, he is very hardworking.","حرف ربط — conjunction"]
  );
  for(const [term,lesson,fa,tr,en,faMeaning,arMeaning,exFa,exTr,exEn,pos] of items){
   const target=books[term];if(!target||!target.length)continue;
