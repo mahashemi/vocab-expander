@@ -8,7 +8,7 @@
   const source="N"+term+"-"+String(lesson).padStart(2,"0");
   const semantics=window.PERSIAN_SEMANTICS||(window.PERSIAN_SEMANTICS={});
   semantics[fa]={...(semantics[fa]||{}),faMeaning,enMeaning,arMeaning};
-  const target=books[term];if(!target)return;
+  const target=books[term];if(!target||!target.length)return;
   const exists=Object.values(books).filter(Boolean).some(list=>list.some(x=>norm(x.fa)===norm(fa)));
   if(exists)return;
   let unit=lesson,units=[lesson];
