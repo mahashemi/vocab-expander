@@ -52,6 +52,7 @@ jobs:
           node --check website/term01-semantic-additions.js
           node --check website/term01-core-semantics.js
           node --check website/newestan-lexicon-additions.js
+          node --check website/newestan-essay-vocabulary.js
           node <<'NODE'
           global.window = {};
           require('./website/term01-data.js');
