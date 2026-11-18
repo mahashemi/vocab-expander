@@ -1594,50 +1594,29 @@ function khulasa(){
  const chosen=Number(chSel.value)||(term===2?1:20);
  const item=rows.find(x=>x.ch===chosen)||rows[rows.length-1];
  const opts=rows.slice().sort((a,b)=>b.ch-a.ch).map(x=>'<option value="'+x.ch+'" '+(x.ch===chosen?'selected':'')+'>فصل '+x.ch+' · '+esc(x.title)+'</option>').join('');
- const words=all().filter(i=>i.fa&&i.en).sort((a,b)=>(a.bk===term?0:1)-(b.bk===term?0:1));
- const cleanKh=t=>fold(String(t).replace(/[،؛؟۔,.;:!?«»()[\\]{}…]/g,''));
- const wordIndex=new Map();
- words.forEach(i=>{addVocabularyForms(wordIndex,i)});
- const maxWords=Math.max(1,...words.map(i=>String(i.fa).trim().split(/\s+/).length));
- function linkLine(line){
-  const parts=String(line).split(/(\s+)/),out=[];
-  for(let p=0;p<parts.length;){
-   if(/^\s+$/.test(parts[p])){out.push(esc(parts[p++]));continue}
-   let found=null,span=1;
-   for(let n=Math.min(maxWords,Math.floor((parts.length-p+1)/2));n>=1;n--){
-    const end=p+(n*2-1);if(end>parts.length)continue;
-    const raw=parts.slice(p,end).join(''),key=cleanKh(raw);
-    if(key&&wordIndex.has(key)){found=wordIndex.get(key);span=n*2-1;break}
-   }
-   if(found){const raw=parts.slice(p,p+span).join('');out.push('<button type="button" class="kh-word" data-word-id="'+esc(found.id)+'" aria-label="Open vocabulary card: '+esc(found.fa)+'">'+esc(raw)+'</button>');p+=span}
-   else out.push(esc(parts[p++]));
-  }
-  return out.join('');
- }
  function linkQuran(line){
-  return String(line).replace(/\[\[QURAN:(\d{1,3}):(\d{1,3})\|([^\]]+)\]\]/g,(m,sura,aya,label)=>{
-   const sn=Number(sura),an=Number(aya);if(sn<1||sn>114||an<1)return esc(label);
-   return '<a class="quran-ref" href="https://mahashemi.github.io/QuranMemorizer/#/surah/'+sn+'/ayah/'+an+'" target="_blank" rel="noopener noreferrer">'+esc(label)+'</a>';
-  });
+  const text=String(line),re=/\\[\\[QURAN:(\\d{1,3}):(\\d{1,3})\\|([^\\]]+)\\]\\]/g;
+  let out="",last=0,m;
+  while((m=re.exec(text))){
+   out+=esc(text.slice(last,m.index));
+   const sn=Number(m[1]),an=Number(m[2]);
+   if(sn<1||sn>114||an<1)out+=esc(m[3]);
+   else out+='<a class="quran-ref" href="https://mahashemi.github.io/QuranMemorizer/#/surah/'+sn+'/ayah/'+an+'" target="_blank" rel="noopener noreferrer">'+esc(m[3])+'</a>';
+   last=re.lastIndex;
+  }
+  return out+esc(text.slice(last));
  }
- const lines=item.lines.map((x,i)=>'<li><span class="khulasa-number">'+String(i+1).padStart(2,'0')+'</span><div>'+linkQuran(linkLine(x))+'</div></li>').join('');
+ const lines=item.lines.map((x,i)=>'<li><span class="khulasa-number">'+String(i+1).padStart(2,'0')+'</span><div>'+linkQuran(x)+'</div></li>').join('');
  const practice=item.practice?'<section class="khulasa-practice"><div class="khulasa-practice-head"><span>خلاصهٔ کاربردی</span><h3>'+esc(item.practiceTitle||'گام‌های عملی')+'</h3><p>این پنج گام را برای تنظیم بودجهٔ ماهانه به کار ببرید.</p></div><div class="khulasa-steps">'+item.practice.map(x=>'<article class="khulasa-step"><span>'+esc(x[0])+'</span><div><b>'+esc(x[1])+'</b><p>'+esc(x[2])+'</p></div></article>').join('')+'</div>'+(item.practiceNote?'<p class="khulasa-practice-note">'+esc(item.practiceNote)+'</p>':'')+'</section>':'';
- const assignment=item.assignment&&item.model?'<section class="khulasa-assignment"><div class="khulasa-assignment-label">موضوع تمرین در پایان درس</div><h3>'+esc(item.assignment)+'</h3><div class="khulasa-assignment-label">نمونهٔ خلاصه‌نویسی</div><p>'+linkQuran(linkLine(item.model))+'</p></section>':'';
- v.innerHTML='<section class="writing-wrap khulasa-page"><header class="khulasa-hero"><div class="mut">TERM 0'+term+' · FARSI UMOOMI · KHULASA NAVEESI</div><h2>خلاصه‌نویسی فصل‌های فارسی عمومی</h2><p>نکته‌های اصلی را مرور کنید، واژگان زیرخط‌دار را باز کنید و در پایان، خلاصه را با زبان خودتان بنویسید.</p><div class="khulasa-hero-meta"><span>FA'+term+' · CHAPTER '+item.ch+'</span><span>'+item.lines.length+' نکتهٔ کلیدی</span></div></header><div class="panel no-print khulasa-selector"><label for="khulasaChapter">انتخاب فصل</label><select id="khulasaChapter">'+opts+'</select></div><article class="panel khulasa-content"><div class="khulasa-chapter-title"><span>درس و نکته‌های اصلی</span><h2 class="fa-block">'+esc(item.title)+'</h2></div><ol class="khulasa-lines">'+lines+'</ol>'+assignment+practice+'<div class="chapter-summary"><b>روش تمرین</b>کتاب را ببندید و نکته‌های اصلی را با زبان خودتان در یک بند پیوسته بازنویسی کنید.</div></article><div class="panel no-print"><h3>خلاصهٔ خودم</h3><textarea id="myKhulasa" rows="8" placeholder="خلاصه را با زبان خودتان بنویسید. این متن در این مرورگر ذخیره می‌شود."></textarea><div class="row"><button class="pri" id="printKhulasa">چاپ برگهٔ خلاصه</button></div><p class="mut">یادداشت‌ها فقط در همین مرورگر ذخیره می‌شوند.</p></div><div id="khWordModal" class="kh-word-modal" hidden aria-hidden="true" aria-modal="true" role="dialog" aria-label="Vocabulary flashcard"><div class="kh-word-dialog"><button type="button" class="kh-word-close" data-kh-close aria-label="Close">×</button><div class="mut">TRILINGUAL VOCABULARY CARD</div><div id="khWordCard" class="kh-word-card"></div><div class="kh-word-actions"><button type="button" class="pri" id="khWordFlip">Flip card</button><button type="button" data-kh-close>Close</button></div></div></div></section>';
+ const assignment=item.assignment&&item.model?'<section class="khulasa-assignment"><div class="khulasa-assignment-label">موضوع تمرین در پایان درس</div><h3>'+esc(item.assignment)+'</h3><div class="khulasa-assignment-label">نمونهٔ خلاصه‌نویسی</div><p>'+linkQuran(item.model)+'</p></section>':'';
+ v.innerHTML='<section class="writing-wrap khulasa-page"><header class="khulasa-hero"><div class="mut">TERM 0'+term+' · FARSI UMOOMI · KHULASA NAVEESI</div><h2>خلاصه‌نویسی فصل‌های فارسی عمومی</h2><p>نکته‌های اصلی را مرور کنید، واژگان زیرخط‌دار را باز کنید و در پایان، خلاصه را با زبان خودتان بنویسید.</p><div class="khulasa-hero-meta"><span>FA'+term+' · CHAPTER '+item.ch+'</span><span>'+item.lines.length+' نکتهٔ کلیدی</span></div></header><div class="panel no-print khulasa-selector"><label for="khulasaChapter">انتخاب فصل</label><select id="khulasaChapter">'+opts+'</select></div><article class="panel khulasa-content"><div class="khulasa-chapter-title"><span>درس و نکته‌های اصلی</span><h2 class="fa-block">'+esc(item.title)+'</h2></div><ol class="khulasa-lines">'+lines+'</ol>'+assignment+practice+'<div class="chapter-summary"><b>روش تمرین</b>کتاب را ببندید و نکته‌های اصلی را با زبان خودتان در یک بند پیوسته بازنویسی کنید.</div></article><div class="panel no-print"><h3>خلاصهٔ خودم</h3><textarea id="myKhulasa" rows="8" placeholder="خلاصه را با زبان خودتان بنویسید. این متن در این مرورگر ذخیره می‌شود."></textarea><div class="row"><button class="pri" id="printKhulasa">چاپ برگهٔ خلاصه</button></div><p class="mut">یادداشت‌ها فقط در همین مرورگر ذخیره می‌شوند.</p></div></section>';
+ attachVocabularyLinks(v.querySelector(".khulasa-page"));
  const key='term0'+term+'-khulasa-drafts-v1',saved=(()=>{try{return JSON.parse(localStorage.getItem(key)||'{}')}catch(e){return {}}})();
  const area=$('#myKhulasa');area.value=saved[chosen]||'';
  area.oninput=()=>{saved[chosen]=area.value;try{localStorage.setItem(key,JSON.stringify(saved))}catch(e){}};
  $('#khulasaChapter').onchange=e=>{chSel.value=e.target.value;khulasa()};
  $('#printKhulasa').onclick=printCurrent;
- const modal=$('#khWordModal'),card=$('#khWordCard'),closeButton=modal.querySelector('.kh-word-close');let current=null,revealed=false,returnFocus=null,previousOverflow='';
- const close=()=>{if(modal.hidden)return;modal.hidden=true;modal.setAttribute('aria-hidden','true');document.body.style.overflow=previousOverflow;if(returnFocus&&returnFocus.isConnected)returnFocus.focus()};
- const renderCard=()=>{if(!current)return;card.innerHTML=revealed?'<div class="fa">'+esc(current.fa)+'</div><div class="tr">'+esc(current.tr)+'</div><div class="meaning">'+esc(current.en)+'</div>'+(current.xf?'<div class="ex"><div class="fa">'+esc(current.xf)+'</div><div class="tr">'+esc(current.xt||'')+'</div><div>'+esc(current.xe||'')+'</div></div>':''):'<div class="fa">'+esc(current.fa)+'</div><div class="mut">Tap Flip to reveal the meaning and example.</div>';$('#khWordFlip').textContent=revealed?'Show front':'Flip · Reveal meaning'};
- v.querySelectorAll('[data-word-id]').forEach(btn=>btn.onclick=()=>{current=words.find(i=>i.id===btn.dataset.wordId)||null;if(!current)return;returnFocus=btn;previousOverflow=document.body.style.overflow;revealed=false;renderCard();modal.hidden=false;modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';closeButton.focus()});
- modal.onclick=e=>{if(e.target===modal||(e.target.closest&&e.target.closest('[data-kh-close]')))close()};
- $('#khWordFlip').onclick=()=>{revealed=!revealed;renderCard()};
- const oldEsc=window.__khulasaEscHandler;if(oldEsc)document.removeEventListener('keydown',oldEsc);
- window.__khulasaEscHandler=e=>{if(modal.hidden)return;if(e.key==='Escape'){close();return}if(e.key==='Tab'){const items=[...modal.querySelectorAll('button:not([disabled])')];if(!items.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}};
- document.addEventListener('keydown',window.__khulasaEscHandler);
+
 }
 const speechStoreKey="term03-writing-speeches-v1";
 function readLocal(key){try{return JSON.parse(localStorage.getItem(key)||"{}")}catch(e){return {}}}
