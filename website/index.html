@@ -1458,7 +1458,7 @@ function showQ(){
 
 const CH_TITLE={"2|0":"Grammar & connectors","3|20":"Poetry and poets","3|19":"Travel and attractions","3|18":"Festivals and customs","3|17":"Inventions","3|16":"News and media","3|15":"Customs and traditions","3|14":"Civilisations and the Silk Road","3|13":"Animals and wildlife","3|12":"Environment","3|11":"Energy","3|10":"Laws","3|9":"Worry and stress","3|8":"Renting and housing","3|7":"Economy and inheritance","3|6":"Banking","3|5":"Wishes","3|4":"Regret","3|3":"Decisions and planning","3|2":"Personal qualities","3|1":"Polite speech"};const chT=(b,c)=>CH_TITLE[b+"|"+c]?" · "+CH_TITLE[b+"|"+c]:"";
 const opened=new Set(["b2","b3"]);let hq="";
-const fold=t=>String(t).normalize("NFD").replace(/[\u0300-\u036f\u064b-\u065f\u0670\u200c]/g,"").replace(/\u06c0/g,"\u0647").replace(/\u064a/g,"\u06cc").replace(/\u0643/g,"\u06a9").toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]/g,"").replace(/ee/g,"i").replace(/oo/g,"u").replace(/u/g,"o").replace(/w/g,"v").replace(/gh/g,"q");
+const fold=t=>String(t).normalize("NFD").replace(/[\u0300-\u036f\u064b-\u065f\u0670\u200c]/g,"").replace(/\u06c0/g,"\u0647").replace(/[\u064a\u0649]/g,"\u06cc").replace(/\u0643/g,"\u06a9").replace(/[\u0623\u0625\u0622\u0671]/g,"\u0627").replace(/\u0624/g,"\u0648").replace(/\u0626/g,"\u06cc").replace(/\u0629/g,"\u0647").toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]/g,"").replace(/ee/g,"i").replace(/oo/g,"u").replace(/u/g,"o").replace(/w/g,"v").replace(/gh/g,"q");;
 function home(){
   v.innerHTML=`<input id="q" type="search" placeholder="Search English, Persian or transliteration…" value="${esc(hq)}" autocomplete="off" style="margin-bottom:10px"><div id="res"></div>`;
   $("#q").oninput=e=>{hq=e.target.value;homeBody()};
