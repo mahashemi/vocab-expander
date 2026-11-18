@@ -3,13 +3,13 @@
 (()=>{
  const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f\u064b-\u065f\u0670\u200c\u200dـ\s]/g,"").replace(/\u06c0/g,"\u0647").replace(/\u064a/g,"\u06cc").replace(/\u0643/g,"\u06a9");
  const books={1:window.TERM1_DATA||[],2:window.TERM2_DATA||[],3:window.TERM3_DATA||[]};
- if(!books[1].length||!books[2].length||!books[3].length)throw new Error("Newestan vocabulary additions require all three term lexicons");
  const rows=[];
  const add=(term,lesson,fa,tr,en,faMeaning,enMeaning,arMeaning,exFa,exTr,exEn,pos="اصطلاح دستوری — grammar term")=>{
   const source="N"+term+"-"+String(lesson).padStart(2,"0");
   const semantics=window.PERSIAN_SEMANTICS||(window.PERSIAN_SEMANTICS={});
   semantics[fa]={...(semantics[fa]||{}),faMeaning,enMeaning,arMeaning};
-  const exists=Object.values(books).some(list=>list.some(x=>norm(x.fa)===norm(fa)));
+  const target=books[term];if(!target)return;
+  const exists=Object.values(books).filter(Boolean).some(list=>list.some(x=>norm(x.fa)===norm(fa)));
   if(exists)return;
   let unit=lesson,units=[lesson];
   if(term===3){
@@ -18,7 +18,7 @@
    unit=units[0];
   }
   const row={unit,units,source,fa,tr,en,pos,ex:[exFa,exTr,exEn]};
-  books[term].push(row);rows.push({term,source,fa});
+  target.push(row);rows.push({term,source,fa});
  };
  // Term 01: grammar and time expressions taken from the Newestan Biyamoozim pages.
  add(1,2,"قبل از","qabl az","before","پیش از زمان یا رویدادی دیگر.","Earlier than a time or event.","قبل وقت أو حدث آخر.","قبل از کلاس مطالعه می‌کنم.","Qabl az kelas motāle'e mikonam.","I study before class.","عبارت زمانی — time expression");
@@ -30,7 +30,7 @@
  add(1,9,"شاید","shāyad","perhaps; maybe","برای بیان احتمال و نه یقین.","Expresses possibility rather than certainty.","للتعبير عن الاحتمال لا اليقين.","شاید فردا باران ببارد.","Shāyad fardā bārān bebārad.","Perhaps it will rain tomorrow.","قید شک — adverb of doubt");
  add(1,10,"قید زمان","qeyd-e zamān","adverb of time","واژه یا عبارتی که زمان وقوع کار را نشان می‌دهد.","A word or phrase that tells when an action happens.","كلمة أو عبارة تبيّن زمن وقوع الفعل.","دیروز به دانشگاه رفتم.","Diruz be dāneshgāh raftam.","I went to university yesterday.","اصطلاح دستوری — grammar term");
  add(1,10,"قید مکان","qeyd-e makān","adverb of place","واژه یا عبارتی که مکان وقوع کار را نشان می‌دهد.","A word or phrase that tells where an action happens.","كلمة أو عبارة تبيّن مكان وقوع الفعل.","در کتابخانه مطالعه می‌کنم.","Dar ketābkhāne motāle'e mikonam.","I study in the library.","اصطلاح دستوری — grammar term");
- add(1,10,"قید کمیت","qeyd-e kamiyat","adverb of quantity","مقدار یا شدت یک کار یا ویژگی را نشان می‌دهد.","Shows the amount or degree of an action or quality.","يبيّن مقدار الفعل أو الصفة أو درجتها.","امسال خیلی زیاد باران بارید.","Emسال kheili ziyād bārān bārid.","It rained a great deal this year.","اصطلاح دستوری — grammar term");
+ add(1,10,"قید کمیت","qeyd-e kamiyat","adverb of quantity","مقدار یا شدت یک کار یا ویژگی را نشان می‌دهد.","Shows the amount or degree of an action or quality.","يبيّن مقدار الفعل أو الصفة أو درجتها.","امسال خیلی زیاد باران بارید.","Em-sāl kheili ziyād bārān bārid.","It rained a great deal this year.","اصطلاح دستوری — grammar term");
  add(1,7,"صفت برتر","sefat-e bartar","comparative adjective","برای مقایسهٔ دو شخص یا دو چیز به کار می‌رود.","Used to compare two people or things.","تُستعمل للمقارنة بين شخصين أو شيئين.","این مغازه بزرگ‌تر از آن مغازه است.","In maghāze bozorgtar az ān maghāze ast.","This shop is bigger than that shop.","اصطلاح دستوری — grammar term");
  add(1,7,"صفت برترین","sefat-e bartarin","superlative adjective","بالاترین درجهٔ یک ویژگی را در یک گروه نشان می‌دهد.","Shows the highest degree of a quality in a group.","تدلّ على أعلى درجة من الصفة ضمن مجموعة.","این یکی از زیباترین باغ‌های شهر است.","In yeki az zibātarin bāghhā-ye shahr ast.","This is one of the most beautiful gardens in the city.","اصطلاح دستوری — grammar term");
  add(1,8,"فاعل","fā'el","subject; doer","کسی یا چیزی که کار را انجام می‌دهد.","The person or thing that performs the action.","الشخص أو الشيء الذي يقوم بالفعل.","زهرا سبزی‌ها را می‌شوید.","Zahrā sabzi-hā rā mishuyad.","Zahra washes the vegetables.","اصطلاح دستوری — grammar term");
@@ -69,7 +69,7 @@
  add(3,1,"پرانتز","parantez","parentheses","برای توضیح، آوردن معادل یا عبارت دعایی به کار می‌رود.","Used for explanations, alternatives or prayer phrases.","تُستعمل للتوضيح أو البديل أو العبارة الدعائية.","بعضی فعل‌ها متعدی (دارای مفعول) هستند.","Some verbs are transitive (they take an object).","بعض الأفعال متعدّية (لها مفعول به).","نشانهٔ نگارشی — punctuation mark");
  add(3,2,"رابطهٔ زمانی ترتیبی","rābete-ye zamāni-ye tartibi","sequential temporal relation","رابطه‌ای که رویدادهای پیاپی را به ترتیب زمان نشان می‌دهد.","A relation that presents successive events in chronological order.","علاقة تعرض الأحداث المتتابعة بحسب ترتيبها الزمني.","او تحصیل کرد؛ سپس به ایران بازگشت.","He studied; then he returned to Iran.","درس؛ ثم عاد إلى إيران.","اصطلاح دستوری — grammar term");
  add(3,2,"رابطهٔ هم‌زمانی","rābete-ye hamzamāni","simultaneous temporal relation","رابطه‌ای که نشان می‌دهد دو رویداد در یک زمان رخ می‌دهند.","A relation showing that two events occur at the same time.","علاقة تبيّن وقوع حدثين في الوقت نفسه.","احمد هم‌زمان با تحصیل تدریس می‌کرد.","Ahmad taught while studying.","كان أحمد يدرّس بالتزامن مع دراسته.","اصطلاح دستوری — grammar term");
- add(3,2,"رابطهٔ زمانی ارجاعی","rābete-ye zamāni-ye ارجā'i","temporal reference relation","رابطه‌ای که یک رویداد را نسبت به زمان یا رویداد دیگر مشخص می‌کند.","A relation that places an event in reference to another time or event.","علاقة تحدّد حدثاً بالقياس إلى زمن أو حدث آخر.","سعید پیش از ثبت‌نام به ایران سفر کرد.","Saeed travelled to Iran before registering.","سافر سعيد إلى إيران قبل التسجيل.","اصطلاح دستوری — grammar term");
+ add(3,2,"رابطهٔ زمانی ارجاعی","rābete-ye zamāni-ye erjā'i","temporal reference relation","رابطه‌ای که یک رویداد را نسبت به زمان یا رویداد دیگر مشخص می‌کند.","A relation that places an event in reference to another time or event.","علاقة تحدّد حدثاً بالقياس إلى زمن أو حدث آخر.","سعید پیش از ثبت‌نام به ایران سفر کرد.","Saeed travelled to Iran before registering.","سافر سعيد إلى إيران قبل التسجيل.","اصطلاح دستوری — grammar term");
  add(3,2,"رابطهٔ زمانی انجامی","rābete-ye zamāni-ye anjāmi","completion temporal relation","رابطه‌ای که پایان یافتن رویداد یا رشته‌ای از رویدادها را نشان می‌دهد.","A relation that signals the completion of an event or sequence.","علاقة تشير إلى انتهاء الحدث أو سلسلة الأحداث.","احمد بالاخره قبول شد.","Ahmad was finally admitted.","قُبل أحمد أخيراً.","اصطلاح دستوری — grammar term");
  add(3,2,"سپس","sepas","then; afterwards","برای نشان دادن رویدادی که پس از رویداد قبلی می‌آید.","Marks an event that follows the previous one.","تدلّ على حدث يأتي بعد الحدث السابق.","او درس خواند؛ سپس به خانه رفت.","He studied; then he went home.","درس؛ ثم ذهب إلى البيت.","عامل ربط زمانی — temporal connector");
  add(3,2,"پس از آن","pas az ān","after that","برای نشان دادن مرحلهٔ بعد در ترتیب زمانی.","Marks the next step in a time sequence.","تدلّ على الخطوة التالية في التسلسل الزمني.","پس از آن به ایران بازگشت.","After that, he returned to Iran.","بعد ذلك عاد إلى إيران.","عامل ربط زمانی — temporal connector");
