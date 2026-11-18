@@ -24,7 +24,7 @@ const books=[global.TERM1_DATA||[],global.TERM2_DATA||[],global.TERM3_DATA||[]];
 for(const rows of books)for(const row of rows)if(row.fa)exact.add(fold(row.fa));
 for(const [head,forms] of Object.entries(aliases))for(const form of forms)aliasSet.add(fold(form));
 const reviewedPersianSuffixes=["ها","های","یان","ان","ات","ام","ات","اش","مان","تان","شان","م","ت","ش","ی","تر","ترین"];
-for(const rows of books)for(const row of rows)if(row.fa&&!/\\s/.test(row.fa))for(const suffix of reviewedPersianSuffixes)aliasSet.add(fold(row.fa+suffix));
+for(const rows of books)for(const row of rows)if(row.fa&&!/\s/.test(row.fa))for(const suffix of reviewedPersianSuffixes)aliasSet.add(fold(row.fa+suffix));
 const ignored=new Set((
  "و یا هم نیز اما ولی چون تا که اگر در به از با را برای بر ازآن آن این آن‌ها این‌ها او وی من تو ما شما ایشان آنها خود خودم خودت خودش خودمان خودتان خودشان هر همه بعضی یک یکی چند هیچ چه کدام همان همین همان‌طور چنین چنان است هست هستند بود بودند باشد باشند شود می‌شود می‌شوند می‌باشد می‌باشند می‌کنم می‌کند می‌کنند می‌کرد می‌کردند نمی نه نا را که تا ای ای‌که زیرا چون اما ولی پس سپس فقط نیز حتی دیگر دیگران بیشتر کمتر بسیار خیلی کمی زیاد کم همهٔ همه‌ی هرگز همیشه گاهی اکنون امروز دیروز فردا امسال پارسال سال ماه روز ساعت وقت زمان هنگام قبل بعد پیش پس همان آنجا اینجا آنجا اینجا کجا چگونه چرا آیا اگر چه هرچند مگر مگرنه البته بله خیر بااین‌حال به‌خاطر به‌دلیل ازاینرو بدین جهت دراین درآن ازآن بهآن چیزی کسان کسی هیچکس است؟ نیست؟ بود؟ الله الرحمن الرحیم الحمد رب العالمین الصلاة والسلام علی محمد آله الطاهرین بسم اما بعد السلام علیکم سلام علیکم خُواندان"
 ).split(/\s+/).map(fold));
