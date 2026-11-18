@@ -18,7 +18,7 @@ const index=fs.readFileSync(path.join(root,"website/index.html"),"utf8");
 const aliasMatch=index.match(/const curatedVocabAliases\s*=\s*(\{[\s\S]*?\n\});/);
 if(!aliasMatch)throw new Error("Cannot read reviewed alternate-form list from the shared linker");
 const aliases=vm.runInNewContext("("+aliasMatch[1]+")");
-const fold=t=>String(t).normalize("NFD").replace(/[\u0300-\u036f\u064b-\u065f\u0670\u200c\u200dـ]/g,"").replace(/\u06c0/g,"\u0647").replace(/[\u064a\u0649]/g,"\u06cc").replace(/\u0643/g,"\u06a9").toLowerCase().replace(/[^\p{L}\p{N}]/gu,"");
+const fold=t=>String(t).normalize("NFD").replace(/[\u0300-\u036f\u064b-\u065f\u0670\u200c\u200dـ]/g,"").replace(/\u06c0/g,"\u0647").replace(/[\u064a\u0649]/g,"\u06cc").replace(/\u0643/g,"\u06a9").replace(/[\u0623\u0625\u0622\u0671]/g,"\u0627").replace(/\u0624/g,"\u0648").replace(/\u0626/g,"\u06cc").replace(/\u0629/g,"\u0647").toLowerCase().replace(/[^\p{L}\p{N}]/gu,"");;
 const exact=new Set(),aliasSet=new Set();
 const books=[global.TERM1_DATA||[],global.TERM2_DATA||[],global.TERM3_DATA||[]];
 for(const rows of books)for(const row of rows)if(row.fa)exact.add(fold(row.fa));
