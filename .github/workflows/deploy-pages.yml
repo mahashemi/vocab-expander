@@ -51,6 +51,7 @@ jobs:
           node --check website/term01-amr-verbs.js
           node --check website/term01-semantic-additions.js
           node --check website/term01-core-semantics.js
+          node --check website/newestan-lexicon-additions.js
           node <<'NODE'
           global.window = {};
           require('./website/term01-data.js');
@@ -61,6 +62,7 @@ jobs:
           require('./website/semantic-meanings.js');
           require('./website/term01-semantic-additions.js');
           require('./website/term01-core-semantics.js');
+          require('./website/newestan-lexicon-additions.js');
           const rows = window.TERM1_DATA;
           if (!Array.isArray(rows) || rows.length < 20) throw new Error('Term 01 vocabulary is unexpectedly small');
           const seen = new Set();
@@ -93,6 +95,7 @@ jobs:
           node --check website/term02-lexicon-additions.js
           node --check website/term02-khulasa.js
           node --check website/term02-speeches.js
+          node --check website/newestan-lexicon-additions.js
           node --check website/term02-proverbs.js
           node --check website/term02-core-semantics.js
           node --check website/term02-additional-semantics-01.js
@@ -148,6 +151,7 @@ jobs:
         run: |
           node --check website/term03-data.js
           node --check website/term03-speeches.js
+          node --check website/newestan-lexicon-additions.js
           node --check website/term03-newestan-final-insha.js
           node --check website/term03-khulasa.js
           node --check website/term03-lexicon-additions.js
