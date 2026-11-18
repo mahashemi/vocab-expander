@@ -38,12 +38,11 @@ def test_all_twenty_khulasa_sheets_exist_and_have_five_lines() -> None:
     assert all(5 <= len(re.findall(r'"(?:[^"\\]|\\.)*"', lines)) <= 6 for lines in line_arrays)
 
 
-def test_all_twenty_chapters_have_writing_and_speech_prompts() -> None:
-    writing = read("term03-writing.js")
-    speech_start = writing.index("window.TERM3_SPEECHES")
-    essay_section, speech_section = writing[:speech_start], writing[speech_start:]
-    assert len(re.findall(r"\{ch:\s*\d+,title:", essay_section)) == 20
-    assert len(re.findall(r"\{ch:\s*\d+,title:", speech_section)) == 20
+def test_all_twenty_chapters_have_speech_prompts_without_legacy_essay_data() -> None:
+    speeches = read("term03-speeches.js")
+    assert len(re.findall(r"\{ch:\s*\d+,title:", speeches)) == 20
+    assert not (WEB / "term03-writing.js").exists()
+    assert "TERM3_WRITING" not in speeches
 
 
 def test_newestan_fourth_chapter_is_mapped_to_unit_two_consistently() -> None:
@@ -154,25 +153,25 @@ def test_term03_dedup_runtime_audit_is_part_of_ci() -> None:
     assert "memorisation progress must migrate" in runtime_audit
 
 
-def test_newestan_insha_picker_uses_home_unit_mapping_and_is_term03_only() -> None:
+def test_newestan_standalone_curriculum_keeps_all_lessons_and_final_insha() -> None:
     index = read("index.html")
     picker = read("term03-newestan-insha.js")
-    audit = (ROOT / "tools" / "audit-term03.cjs").read_text(encoding="utf-8")
+    renderer = read("term03-newestan-standalone.js")
+    final_insha = read("term03-newestan-final-insha.js")
     assert index.index('src="term03-chapter-mapping.js"') < index.index('src="term03-newestan-insha.js"')
-    assert 'const lessons=activeTerm===3&&window.term3InshaForChapter?window.term3InshaForChapter(essayCh):[];' in index
-    assert 'lessons.some(x=>x.lesson==="N3-01")' in index
-    assert 'lessons.some(x=>x.lesson==="N3-10")' in index
-    assert 'Practice prompt (not from the book)' in index
-    assert '<label for="essayTopic">${activeTerm===3?"Practice prompt (not from the book)":"Choose your writing prompt"}</label>' in index
-    assert 'NEWESTAN · DARS ' in index and 'lesson.topics.map' in index
-    assert 'if(activeTerm===1)' in index
-    assert 'const data=activeTerm===2?' in index
-    assert 'window.TERM3_CHAPTER_MAPPING' in picker
-    assert 'global.term3InshaForChapter(3)' in audit
-    assert 'global.term3InshaForChapter(16)' in audit
-    assert 'global.term3InshaForChapter(20)' in audit
-    assert 'global.term3InshaForChapter(1)' in audit
-
+    assert 'src="term03-newestan-final-insha.js"' in index
+    assert "window.TERM3_NEWESTAN_INSHA=R" in picker
+    assert "term3InshaForChapter" not in picker
+    assert "TERM3_NEWESTAN_FINAL_INSHA" in renderer
+    assert "attachVocabularyLinks(scope)" in renderer
+    assert all(('N3-' + str(i).zfill(2)) in picker for i in range(1, 11))
+    assert "TERM3_NEWESTAN_FINAL_INSHA" in final_insha
+    assert "window.TERM3_WRITING" not in index
+    assert "window.TERM2_WRITING" not in index
+    assert "TERM3_NEWESTAN_EXAMPLE" not in index
+    assert "term3InshaForChapter" not in index
+    assert "essayStoreKey" not in index
+    assert "localStorage.removeItem" not in index
 
 def test_trilingual_audit_loads_complete_term03_pipeline_and_checks_exact_card_keys() -> None:
     audit = (ROOT / "tools" / "audit-trilingual-meanings.cjs").read_text(encoding="utf-8")
