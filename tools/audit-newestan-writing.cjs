@@ -129,5 +129,5 @@ for(const term of [1,2]){
 global.activeTerm=3;
 
 assert(index.includes('<script src="term03-newestan-standalone.js"></script>'),"Term 03 standalone Newestan UI must load");
-assert(index.includes("if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3();window.bindNewestanTerm3();return}"),"Term 03 must return before the FA writing renderer");
+assert(index.includes("if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3(lesson);window.bindNewestanTerm3();return}"),"Term 03 must return before the FA writing renderer with route-aware lesson selection");
 console.log(JSON.stringify({term01:library[1].length,term02:library[2].length,term03:Object.keys(t3).length,term03Lessons:10,term03ResearchLessons:1},null,2));
