@@ -81,6 +81,11 @@ assert(term03Ui.includes("attachVocabularyLinks(scope)")&&term12Ui.includes("att
 assert(index.includes("function attachVocabularyLinks(scope)"),"Shared exact-match vocabulary linker must be available");
 assert(index.includes("function ensureVocabularyModal(scope)"),"Shared trilingual flashcard modal must be available");
 assert(index.includes("data-vocab-id"),"Vocabulary links must use the shared flashcard identity");
+assert(index.includes('attachVocabularyLinks(v.querySelector(".khulasa-page"))'),"Khulasa must use the shared vocabulary linker");
+assert(index.includes('attachVocabularyLinks(v.querySelector(".writing-wrap"))'),"Sukhanrani must use the shared vocabulary linker");
+assert(index.includes("reviewedPersianSuffixes"),"Reviewed Persian inflection forms must be available to the linker");
+assert(index.includes("meaning-ar")&&index.includes("arMeaning"),"Shared flashcards must display Arabic semantic meanings");
+
 
 assert.equal(typeof global.renderNewestanTerm3,"function","Term 03 standalone renderer must be available");
 assert.equal(typeof global.bindNewestanTerm3,"function","Term 03 standalone selector must be wired");
