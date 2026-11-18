@@ -6,6 +6,8 @@ require(path.join(root, 'website/term02-data.js'));
 require(path.join(root, 'website/term02-lexicon-additions.js'));
 require(path.join(root, 'website/term02-khulasa.js'));
 require(path.join(root, 'website/term02-speeches.js'));
+require(path.join(root, 'website/semantic-meanings.js'));
+require(path.join(root, 'website/newestan-lexicon-additions.js'));
 const fail = [];
 const assert = (ok, message) => { if (!ok) fail.push(message); };
 const expected = [];
