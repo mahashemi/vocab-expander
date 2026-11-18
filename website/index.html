@@ -1515,6 +1515,7 @@ function addVocabularyForms(index,item){
 /* Link only exact flashcard headwords and reviewed aliases in writing/speaking pages. */
 /* Link Persian vocabulary in writing and speaking guidance to the shared flashcard. */
 function attachVocabularyLinks(scope){
+ if(!scope||!scope.querySelectorAll)return 0;
  const entries=all().filter(i=>i.fa&&i.en).sort((a,b)=>(Number(b.bk===activeTerm)-Number(a.bk===activeTerm))||String(b.fa).trim().split(/\s+/).length-String(a.fa).trim().split(/\s+/).length||String(b.fa).length-String(a.fa).length);
  const index=new Map();let maxWords=1;
  entries.forEach(i=>{addVocabularyForms(index,i);maxWords=Math.max(maxWords,String(i.fa).trim().split(/\s+/).length)});
@@ -1524,6 +1525,7 @@ function attachVocabularyLinks(scope){
   return NodeFilter.FILTER_ACCEPT;
  }});
  const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+ let linkedCount=0;
  nodes.forEach(node=>{
   const parts=node.nodeValue.split(/(\s+)/);if(parts.length<1)return;
   const frag=document.createDocumentFragment();
@@ -1535,12 +1537,14 @@ function attachVocabularyLinks(scope){
     const raw=parts.slice(p,end).join(''),key=fold(raw);
     if(key&&index.has(key)){found=index.get(key);span=n*2-1;break}
    }
-   if(found){const raw=parts.slice(p,p+span).join(''),btn=document.createElement('button');btn.type='button';btn.className='kh-word';btn.dataset.vocabId=found.id;btn.textContent=raw;btn.setAttribute('aria-label','Open vocabulary card: '+found.fa);frag.append(btn);p+=span}
+   if(found){const raw=parts.slice(p,p+span).join(''),btn=document.createElement('button');btn.type='button';btn.className='kh-word';btn.dataset.vocabId=found.id;btn.textContent=raw;btn.setAttribute('aria-label','Open vocabulary card: '+found.fa);frag.append(btn);linkedCount++;p+=span}
    else frag.append(document.createTextNode(parts[p++]));
   }
   node.parentNode.replaceChild(frag,node);
  });
+ scope.dataset.vocabLinkedCount=String(linkedCount);
  ensureVocabularyModal(scope);
+ return linkedCount;
 }
 function ensureVocabularyModal(scope){
  let modal=document.getElementById('sharedVocabModal');
@@ -1554,11 +1558,16 @@ function ensureVocabularyModal(scope){
  const card=modal.querySelector('#sharedVocabCard'),flip=modal.querySelector('#sharedVocabFlip'),closeButton=modal.querySelector('.kh-word-close');
  const render=()=>{
   if(!current)return;
-  card.innerHTML=revealed?'<div class="fa"></div><div class="tr"></div><div class="meaning"></div>':'';
+  const sem=current.sem||semanticFor(current.fa)||{};
+  card.innerHTML=revealed?'<div class="fa"></div><div class="tr"></div><section class="flashcard-meaning"><b>Persian meaning · معنی فارسی</b><p class="meaning-fa"></p></section><section class="flashcard-meaning"><b>English meaning</b><p class="meaning-en"></p></section><section class="flashcard-meaning flashcard-ar" dir="rtl"><b>المعنى العربي</b><p class="meaning-ar"></p></section>':'';
   if(revealed){
-   card.querySelector('.fa').textContent=current.fa;card.querySelector('.tr').textContent=current.tr||'';card.querySelector('.meaning').textContent=current.en;
+   card.querySelector('.fa').textContent=current.fa;
+   card.querySelector('.tr').textContent=current.tr||'';
+   card.querySelector('.meaning-fa').textContent=sem.faMeaning||'';
+   card.querySelector('.meaning-en').textContent=sem.enMeaning||current.en||'';
+   card.querySelector('.meaning-ar').textContent=sem.arMeaning||'';
    if(current.xf){const ex=document.createElement('div');ex.className='ex';const fa=document.createElement('div');fa.className='fa';fa.textContent=current.xf;const tr=document.createElement('div');tr.className='tr';tr.textContent=current.xt||'';const en=document.createElement('div');en.textContent=current.xe||'';ex.append(fa,tr,en);card.append(ex)}
-  }else{const fa=document.createElement('div');fa.className='fa';fa.textContent=current.fa;const hint=document.createElement('div');hint.className='mut';hint.textContent='Tap Flip to reveal the meaning and example.';card.append(fa,hint)}
+  }else{const fa=document.createElement('div');fa.className='fa';fa.textContent=current.fa;const hint=document.createElement('div');hint.className='mut';hint.textContent='Tap Flip to reveal Persian, English and Arabic meanings with an example.';card.append(fa,hint)}
   flip.textContent=revealed?'Show front':'Flip · Reveal meaning';
  };
  const close=()=>{
