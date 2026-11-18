@@ -67,7 +67,7 @@ for(const item of texts){
  }
 }
 const missing=[...unmatched.values()].sort((a,b)=>b.count-a.count);
-const priority=missing.filter(x=>x.count>=15),longTail=missing.filter(x=>x.count<15);
+const priority=missing.filter(x=>x.count>=8),longTail=missing.filter(x=>x.count<15);
 console.log("Newestan/Khulasa/Sukhanrani Persian-token coverage: "+matched+" matched groups, "+ignoredCount+" explicitly ignored function tokens, "+priority.length+" high-frequency unmatched words and "+longTail.length+" low-frequency words across "+total+" token groups.");
 console.log("New card additions loaded: "+(global.TERM_NEWESTAN_VOCAB_ADDED||0)+" curriculum cards; "+(global.NEWESTAN_ESSAY_VOCAB_ADDED||0)+" essay cards.");
 if(priority.length)console.log("High-frequency words requiring a card or reviewed ignore:\\n"+priority.map(x=>x.word+" ×"+x.count+" | "+x.contexts.join(" || ")).join("\\n"));
