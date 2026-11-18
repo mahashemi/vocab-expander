@@ -105,6 +105,16 @@
  [1,1,"پذیرایی","pazirāyi","living room; reception; hospitality","بخشی از خانه برای پذیرایی از مهمان یا رفتار میزبان با مهمان.","جزء من البيت لاستقبال الضيوف أو إكرام المضيف لهم.","اتاق پذیرایی بزرگ و روشن است.","Otāq-e pazirāyi bozorg va roshan ast.","The living room is large and bright.","اسم — noun"],
  [1,1,"حیاط","hayāt","yard; courtyard","فضای باز داخل یا کنار ساختمان.","مساحة مفتوحة داخل المبنى أو بجانبه.","ساختمان ما حیاط کوچکی دارد.","Sākhtemān-e mā hayāt-e kuchaki dārad.","Our building has a small courtyard.","اسم — noun"]
  );
+
+ items.push(
+ [3,10,"برابر","barābar","against; in front of; equal to","در ترکیب «در برابر» به معنای مقابل یا در مواجهه با؛ همچنین به معنای مساوی.","في تركيب «در برابر» بمعنى أمام أو في مواجهة؛ وتأتي أيضاً بمعنى مساوٍ.","وظایف دانشجو در برابر استاد چیست؟","Vazāyef-e dāneshju dar barābar-e ostād chist?","What are a student's duties towards a teacher?","حرف اضافه/عبارت — expression"],
+ [3,10,"واژه","vāzhe","word; vocabulary item","واحدی از زبان که معنا دارد و در گفتار یا نوشتار به کار می‌رود.","وحدة لغوية لها معنى وتُستعمل في الكلام أو الكتابة.","واژه‌های کلیدی تحقیق را بنویسید.","Vāzhehā-ye kelidi-ye tahqiq rā benevisid.","Write the key words of the research.","اسم — noun"],
+ [3,10,"قانون","qānun","law; rule","قاعده‌ای که رفتار یا انجام کاری را تنظیم می‌کند.","قاعدة تنظّم السلوك أو أداء عمل.","رعایت قانون برای همه ضروری است.","Re'āyat-e qānun barāye hame zaruri ast.","Following the law is necessary for everyone.","اسم — noun"],
+ [3,10,"تکلیف","taklif","duty; obligation; assignment","کاری که انجام آن بر عهدهٔ فرد گذاشته شده است.","عمل أو واجب يُطلب من الشخص القيام به.","خدا هیچ‌کس را بیش از توانش تکلیف نمی‌کند.","Khodā hichkas rā bish az tavānash taklif nemikonad.","God does not burden anyone beyond their capacity.","اسم — noun"],
+ [3,10,"وظیفه","vazife","duty; responsibility","کاری که فرد بر اساس نقش یا مسئولیت خود باید انجام دهد.","عمل ينبغي للشخص القيام به بحسب دوره أو مسؤوليته.","وظیفهٔ دانشجو احترام به استاد است.","Vazife-ye dāneshju ehterām be ostād ast.","A student's duty is to respect the teacher.","اسم — noun"],
+ [3,10,"مقام","maqām","position; status; rank","جایگاه یا مرتبهٔ اجتماعی یا اداری یک فرد.","مكانة الشخص أو رتبته الاجتماعية أو الإدارية.","موفقیت تنها به داشتن پول یا مقام نیست.","Movaffaqiyat tanhā be dāshtan-e pul yā maqām nist.","Success is not only about having money or status.","اسم — noun"],
+ [3,10,"آرامش","ārāmesh","calm; peace; tranquillity","حالت آسودگی و نبود اضطراب یا نگرانی.","حالة من السكينة وغياب القلق أو الاضطراب.","خانه برای من جای آرامش است.","Khāne barāye man jā-ye ārāmesh ast.","Home is a place of peace for me.","اسم — noun"]
+ );
  for(const [term,lesson,fa,tr,en,faMeaning,arMeaning,exFa,exTr,exEn,pos] of items){
   const target=books[term];if(!target||!target.length)continue;
   const semantics=window.PERSIAN_SEMANTICS||(window.PERSIAN_SEMANTICS={});
