@@ -42,7 +42,19 @@
    '<div class="newestan-model-section"><b>بخش میانی · بند اول</b><p class="fa-block">'+escText(teach.modelInternet.band1)+'</p></div>'+
    '<div class="newestan-model-section"><b>بخش میانی · بند دوم</b><p class="fa-block">'+escText(teach.modelInternet.band2)+'</p></div>'+
    '<div class="newestan-model-section"><b>نتیجه</b><p class="fa-block">'+escText(teach.modelInternet.natija)+'</p></div></div></details>':'';
-  const research=lesson==="N3-10"&&window.TERM3_NEWESTAN_FINAL_INSHA?'<details open><summary><b>Developed research model · نمونهٔ تحقیق</b></summary><div class="dc fa-block model-sample">'+escText(window.TERM3_NEWESTAN_FINAL_INSHA.sample)+'</div></details>':'';
+  const fm=window.TERM3_NEWESTAN_FINAL_INSHA;
+  const research=lesson==="N3-10"&&fm?'<details open><summary><b>Developed research model · نمونهٔ تحقیق</b></summary><div class="dc">'+
+   '<div class="newestan-model-section"><b>Research method · روش تحقیق</b><p>'+escText(fm.method)+'</p></div>'+
+   '<div class="newestan-model-section"><b>Main research question · پرسش اصلی</b><p class="fa-block">'+escText(fm.mainQuestion)+'</p></div>'+
+   '<div class="newestan-model-section"><b>Research subtopics · ریزموضوع‌ها</b><ol class="newestan-support">'+fm.subtopics.map(x=>'<li class="fa-block">'+escText(x)+'</li>').join("")+'</ol></div>'+
+   '<div class="newestan-model-section"><b>مقدمه</b><p class="fa-block">'+escText(fm.muqaddama)+'</p></div>'+
+   '<div class="newestan-model-section"><b>بخش میانی · بند اول</b><p class="fa-block">'+escText(fm.band1)+'</p></div>'+
+   '<div class="newestan-model-section"><b>بخش میانی · بند دوم</b><p class="fa-block">'+escText(fm.band2)+'</p></div>'+
+   '<div class="newestan-model-section"><b>نتیجه</b><p class="fa-block">'+escText(fm.natija)+'</p></div>'+
+   '<div class="newestan-model-section"><b>Abstract · چکیده</b><p class="fa-block">'+escText(fm.abstract)+'</p></div>'+
+   '<div class="newestan-model-section"><b>Keywords · کلیدواژه‌ها</b><p class="fa-block">'+fm.keywords.map(escText).join("، ")+'</p></div>'+
+   '<div class="newestan-model-section"><b>Complete sample · متن کامل</b><div class="fa-block model-sample">'+escText(fm.sample)+'</div></div>'+
+   '<p class="mut">'+escText(fm.sourceNote||"")+'</p></div></details>':'';
   return '<section class="writing-wrap"><div class="mut">TERM 03 · NEWESTAN · INDEPENDENT WRITING CURRICULUM</div><h2>کارگاه نوشتن · Term 03</h2><p>Choose a Newestan lesson. This selector and its exercises are independent of Farsi Umumi (FA) chapters.</p>'+
    '<section class="panel newestan-workshop"><div class="mut">NEWESTAN · '+lesson+' · '+escText(rec.source)+'</div><div class="newestan-lesson-picker"><div class="newestan-picker-copy"><span class="newestan-picker-kicker">YOUR LEARNING PATH</span><label for="newestanLesson">Choose a Newestan lesson <span>انتخاب درس نیوستان</span></label><small>Select a lesson to open its teaching notes, language tools and writing practice.</small></div><select id="newestanLesson" aria-label="Choose a Newestan lesson">'+options+'</select></div><h2>'+escText(titles[lesson])+'</h2><p class="mut">'+escText(rec.note||"")+'</p>'+
    prompts+skill+languageLesson+bilingual+subs+steps+timeline+connectors+model+internetModel+rubric+examNote+research+sourceNote+
