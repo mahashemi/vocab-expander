@@ -1570,7 +1570,7 @@ function addVocabularyForms(index,item,aliasesOnly=false){
   if(aliasKey&&!index.has(aliasKey))index.set(aliasKey,item);
  }
  const base=String(item.fa).trim();
- if(!/[\\s]/.test(base))for(const suffix of reviewedPersianSuffixes){
+ if(!/\s/.test(base))for(const suffix of reviewedPersianSuffixes){
   const aliasKey=fold(base+suffix);
   if(aliasKey&&!index.has(aliasKey))index.set(aliasKey,item);
  }
