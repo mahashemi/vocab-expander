@@ -56,8 +56,62 @@
   const sourceLine=sourceCounts.length?'<div class="source-coverage">'+sourceCounts.map(x=>'<span><b>'+x.code+'</b><small>'+x.count+' words</small></span>').join("")+'</div>':"";
   v.insertAdjacentHTML("afterbegin",'<section class="term-welcome"><h2>'+title+'</h2><p>'+description+'</p>'+sourceLine+'</section>');
  };
- window.render=function(){if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();updateStats()};
+ const routeTabs={study:"home",flashcards:"cards",quiz:"quiz",khulasa:"khulasa",newestan:"essays",sukhanrani:"speeches"};
+ const routeNames={home:"study",cards:"flashcards",quiz:"quiz",khulasa:"khulasa",essays:"newestan",speeches:"sukhanrani"};
+ let applyingRoute=false;
+ function currentRoute(){
+  if(tab==="portal")return "#/";
+  if(tab==="verbs")return "#/verbs";
+  const term=activeTerm||3,name=routeNames[tab]||"study";
+  let path="#/term/"+term+"/"+name;
+  let lesson=null;
+  if(tab==="essays"){
+   const pick=document.getElementById("newestanLesson");
+   lesson=pick?Number(pick.value):(window.__vocabRouteLesson||1);
+  }else if(tab==="khulasa"){
+   const ch=chSel.value;
+   if(ch&&ch!=="all")lesson=ch;
+  }else if(tab==="speeches")lesson=Number(speechCh)||20;
+  else if(["home","cards","quiz"].includes(tab)&&chSel.value&&chSel.value!=="all")lesson=chSel.value;
+  if(lesson!==null&&lesson!==undefined&&lesson!==""&&!Number.isNaN(Number(lesson))){
+   path+="/"+(tab==="home"||tab==="cards"||tab==="quiz"?"chapter":"lesson")+"/"+encodeURIComponent(String(lesson));
+  }
+  return path;
+ }
+ function syncRoute(){
+  if(applyingRoute)return;
+  const next=currentRoute();
+  if(location.hash!==next)location.hash=next;
+ }
+ function applyRoute(){
+  const raw=location.hash||"#/";
+  if(raw==="#/"||raw==="#"){
+   applyingRoute=true;activeTerm=null;tab="portal";bkSel.value="all";fillCh();$id("termNav").hidden=true;window.__vocabRouteLesson=null;render();applyingRoute=false;return;
+  }
+  if(raw==="#/verbs"){
+   applyingRoute=true;activeTerm=null;tab="verbs";$id("termNav").hidden=true;window.__vocabRouteLesson=null;render();applyingRoute=false;return;
+  }
+  const m=raw.match(/^#\/term\/(1|2|3)\/(study|flashcards|quiz|khulasa|newestan|sukhanrani)(?:\/(chapter|lesson)\/([^/?#]+))?\/?$/);
+  if(!m){if(!applyingRoute) {applyingRoute=true;location.hash="#/";applyingRoute=false;}return}
+  const term=Number(m[1]),routeName=m[2],nextTab=routeTabs[routeName],kind=m[3],value=m[4]?decodeURIComponent(m[4]):null;
+  applyingRoute=true;
+  activeTerm=term;bkSel.value=String(term);fillCh();
+  if(routeName==="newestan")window.__vocabRouteLesson=Math.max(1,Math.min(10,Number(value)||1));else window.__vocabRouteLesson=null;
+  if(routeName==="sukhanrani")speechCh=Number(value)|| (term===2?1:20);
+  if(["study","flashcards","quiz"].includes(routeName)||routeName==="khulasa"){
+   chSel.value=value&&kind==="chapter"||value&&routeName==="khulasa"?String(value):"all";
+   if(chSel.selectedIndex<0)chSel.value="all";
+  }else chSel.value="all";
+  $id("termNav").hidden=false;$id("activeTermTitle").textContent="TERM 0"+term+(term===3?" · PERSIAN":"");
+  document.querySelectorAll('#termTabs [data-t="essays"],#termTabs [data-t="speeches"],#termTabs [data-t="khulasa"]').forEach(x=>x.hidden=!(term===2||term===3));
+  tab=nextTab;document.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",x.dataset.t===tab));
+  bkSel.hidden=true;chSel.hidden=![ "cards","quiz","khulasa"].includes(tab);
+  deck=[];idx=0;flip=false;render();applyingRoute=false;
+ }
+ window.render=function(){if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();updateStats();syncRoute()};
  window.gotoTab=function(t){tab=t;document.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",x.dataset.t===t));bkSel.hidden=true;chSel.hidden=![ "cards","quiz","khulasa"].includes(t);deck=[];idx=0;flip=false;render()};
+ document.addEventListener("change",e=>{if(e.target&&["newestanLesson","speechChapter","ch"].includes(e.target.id))syncRoute()});
+ window.addEventListener("hashchange",applyRoute);
  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>gotoTab(b.dataset.t));
- $id("backTerms").onclick=back;chSel.onchange=()=>{deck=[];idx=0;flip=false;render()};bkSel.hidden=true;chSel.hidden=true;$id("termNav").hidden=true;render();updateStats();
+ $id("backTerms").onclick=back;chSel.onchange=()=>{deck=[];idx=0;flip=false;render()};bkSel.hidden=true;chSel.hidden=true;$id("termNav").hidden=true;if(location.hash&&location.hash!=="#")applyRoute();else{render();updateStats()}
 })();
