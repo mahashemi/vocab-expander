@@ -16,7 +16,7 @@ const load=p=>require(path.join(root,p));
 const index=fs.readFileSync(path.join(root,"website/index.html"),"utf8");
 const aliasMatch=index.match(/const curatedVocabAliases\s*=\s*(\{[\s\S]*?\n\});/);
 if(!aliasMatch)throw new Error("Cannot read reviewed alternate-form list from the shared linker");
-const aliases=vm.runInNewContext("("+aliasMatch[1].slice(0,-1)+")");
+const aliases=vm.runInNewContext("("+aliasMatch[1]+")");
 const fold=t=>String(t).normalize("NFD").replace(/[\u0300-\u036f\u064b-\u065f\u0670\u200c]/g,"").replace(/\u06c0/g,"\u0647").replace(/\u064a/g,"\u06cc").replace(/\u0643/g,"\u06a9").toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]/g,"").replace(/ee/g,"i").replace(/oo/g,"u").replace(/u/g,"o").replace(/w/g,"v").replace(/gh/g,"q");
 const exact=new Set(),aliasSet=new Set();
 const books=[global.TERM1_DATA||[],global.TERM2_DATA||[],global.TERM3_DATA||[]];
