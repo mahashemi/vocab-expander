@@ -176,13 +176,14 @@ def test_trilingual_audit_loads_complete_term03_pipeline_and_checks_exact_card_k
         "'website/term03-page1-additions.js'",
         "'website/term03-chapter-mapping.js'",
         "'website/term03-dedup.js'",
+        "'website/newestan-lexicon-additions.js'",
     ]
     positions = [audit.index(item) for item in ordered]
     assert positions == sorted(positions)
     assert "'website/term03-additional-semantics-46.js'" in audit
     assert "window.TERM3_ADDITIONAL_SEMANTICS_BATCH46" in audit
     assert "rows.filter(row => !row.fa || !rowSemantic(row.fa))" in audit
-    assert "1939 cards and 1939 exact headwords" in audit
+    assert "1939 base cards plus" in audit
     assert "complete trilingual record under the exact card headword key" in audit
     runtime_dedup = (ROOT / "tools" / "audit-term03-dedup.cjs").read_text(encoding="utf-8")
     assert runtime_dedup.index("global.localStorage =") < runtime_dedup.index('require("./audit-trilingual-meanings.cjs")')
