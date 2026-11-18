@@ -9,7 +9,8 @@
  let selected=1;
  const store="newestan-writing-drafts-v1";
  const escText=s=>esc(s||"");
- window.renderNewestanTerm3=()=>{
+ window.renderNewestanTerm3=(lessonNo)=>{
+  if(Number.isInteger(Number(lessonNo))&&Number(lessonNo)>=1&&Number(lessonNo)<=10)selected=Number(lessonNo);
   const source=window.TERM3_NEWESTAN_INSHA||{};
   const rows=Object.keys(source).sort();
   const lesson=rows.find(x=>Number(x.slice(-2))===selected)||rows[0];
