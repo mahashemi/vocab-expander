@@ -92,7 +92,7 @@ jobs:
           node --check website/term02-data.js
           node --check website/term02-lexicon-additions.js
           node --check website/term02-khulasa.js
-          node --check website/term02-writing.js
+          node --check website/term02-speeches.js
           node --check website/term02-proverbs.js
           node --check website/term02-core-semantics.js
           node --check website/term02-additional-semantics-01.js
@@ -147,7 +147,8 @@ jobs:
       - name: Validate Term 03 curriculum JavaScript
         run: |
           node --check website/term03-data.js
-          node --check website/term03-writing.js
+          node --check website/term03-speeches.js
+          node --check website/term03-newestan-final-insha.js
           node --check website/term03-khulasa.js
           node --check website/term03-lexicon-additions.js
           node --check website/term03-source-audit.js
@@ -214,7 +215,9 @@ jobs:
         run: |
           node --check website/newestan-writing-library.js
           node --check website/newestan-writing-ui.js
+          node --check website/term03-newestan-insha.js
           node --check website/term03-newestan-teaching.js
+          node --check website/term03-newestan-final-insha.js
           node --check website/term03-newestan-teaching-ui.js
           node --check website/term03-newestan-standalone.js
           node --check tools/audit-newestan-writing.cjs
