@@ -150,6 +150,11 @@ jobs:
           NODE
           node tools/audit-term02.cjs
 
+      - name: Audit Newestan, Khulasa and Sukhanrani flashcard coverage
+        run: |
+          node --check tools/audit-newestan-vocabulary.cjs
+          node tools/audit-newestan-vocabulary.cjs
+
       - name: Validate Term 03 curriculum JavaScript
         run: |
           node --check website/term03-data.js
