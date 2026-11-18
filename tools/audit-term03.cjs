@@ -111,7 +111,7 @@ assert(global.TERM3_NEWESTAN_FINAL_INSHA.mainQuestion && global.TERM3_NEWESTAN_F
   global.TERM3_NEWESTAN_FINAL_INSHA.abstract && global.TERM3_NEWESTAN_FINAL_INSHA.keywords?.length >= 5,
   "Final Newestan Insha must include research method, subtopics, Muqaddama, two body bands, Natija, abstract and keywords");
 const newestanUi = fs.readFileSync(path.join(__dirname, "../website/term03-newestan-standalone.js"), "utf8");
-assert(newestanUi.includes("newestan-final-insha") && newestanUi.includes("TERM3_NEWESTAN_FINAL_INSHA.sample"),
+assert(newestanUi.includes("Developed research model") && newestanUi.includes("fm.sample") && newestanUi.includes("fm.muqaddama") && newestanUi.includes("fm.band1") && newestanUi.includes("fm.band2") && newestanUi.includes("fm.natija"),
   "Final Newestan Insha must remain rendered on the standalone Newestan lesson page");
 assert(appSource.includes("Exact vocabulary matching only"), "Vocabulary linking must use exact headwords rather than arbitrary example tokens");
 assert(appSource.includes("curatedVocabAliases"), "Only reviewed Persian plural/irregular aliases should be linked");
