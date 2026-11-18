@@ -3,7 +3,8 @@
  let selectedLesson=1;
  const draftKey=()=> "t"+activeTerm+"-"+selectedLesson;
  const draftsKey="newestan-writing-drafts-v1";
- function render(){
+ function render(lessonNo){
+  if(Number.isInteger(Number(lessonNo))&&Number(lessonNo)>=1&&Number(lessonNo)<=10)selectedLesson=Number(lessonNo);
   const rows=((window.NEWESTAN_WRITING_LIBRARY||{})[activeTerm])||[];
   const rec=rows.find(x=>x.no===selectedLesson)||rows[0];
   if(!rec)return "";
@@ -28,8 +29,8 @@
    '<div class="newestan-model-section"><b>تمرین شما · Your own writing</b><textarea id="newestanDraft" class="essay-draft" placeholder="مقدمه، بند اول، بند دوم و نتیجه را بنویسید...">'+esc(draft.text||"")+'</textarea><div class="mut" id="newestanDraftSaved">Your draft is saved locally in this browser.</div></div>'+
    '</section>';
  }
- window.renderNewestanTerm1=()=>'<section class="writing-wrap"><div class="mut">TERM 01 · NEWESTAN · SOURCE-BASED WRITING</div><h2>کارگاه نوشتن · Term 01</h2><p>Study the lesson writing guidance, inspect its actual exercise, then compare your work with the developed model.</p>'+render()+'<div class="row no-print"><button class="pri" id="printNewestanLesson">Print this lesson</button></div></section>';
- window.renderNewestanWorkshop=render;
+ window.renderNewestanTerm1=(lessonNo)=>'<section class="writing-wrap"><div class="mut">TERM 01 · NEWESTAN · SOURCE-BASED WRITING</div><h2>کارگاه نوشتن · Term 01</h2><p>Study the lesson writing guidance, inspect its actual exercise, then compare your work with the developed model.</p>'+render(lessonNo)+'<div class="row no-print"><button class="pri" id="printNewestanLesson">Print this lesson</button></div></section>';
+ window.renderNewestanWorkshop=(lessonNo)=>render(lessonNo);
  window.bindNewestanWorkshop=()=>{
   const select=document.getElementById("newestanLesson"),editor=document.getElementById("newestanDraft");
   if(select)select.onchange=e=>{selectedLesson=Number(e.target.value);essays()};
