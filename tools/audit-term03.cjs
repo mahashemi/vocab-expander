@@ -9,7 +9,8 @@ require("../website/term03-source-audit.js");
 require("../website/term03-chapter-mapping.js");
 require("../website/term03-newestan-insha.js");
 require("../website/term03-khulasa.js");
-require("../website/term03-writing.js");
+require("../website/term03-speeches.js");
+require("../website/term03-newestan-final-insha.js");
 const entries = global.TERM3_DATA || [];
 assert(entries.length >= 550, "Term 03 lexicon unexpectedly small: " + entries.length);
 const sourceCounts = { FA3: 0, KH3: 0, N3: 0, SH3: 0 };
@@ -100,12 +101,6 @@ assert(studyFiles.length === 60, "Expected exactly 60 original Term 03 source fi
 
 const appSource = fs.readFileSync(require.resolve("../website/index.html"), "utf8");
 
-assert(Array.isArray(global.TERM3_WRITING?.chapters) && global.TERM3_WRITING.chapters.length === 20,
-  "Expected a writing prompt for all 20 Term 03 chapters");
-assert(global.TERM3_NEWESTAN_EXAMPLE?.source === "N3-01", "Expected a source-based Newestan Dars 01 example");
-assert(global.TERM3_NEWESTAN_EXAMPLE.topicSentence && global.TERM3_NEWESTAN_EXAMPLE.supportingSentences?.length >= 2 &&
-  global.TERM3_NEWESTAN_EXAMPLE.concludingSentence && global.TERM3_NEWESTAN_EXAMPLE.sample,
-  "Newestan model must demonstrate topic, supporting and concluding sentences");
 assert(global.TERM3_NEWESTAN_FINAL_INSHA?.source?.startsWith("N3-10"), "Expected final Newestan Insha model to cite Dars 10");
 assert(global.TERM3_NEWESTAN_FINAL_INSHA.mainQuestion && global.TERM3_NEWESTAN_FINAL_INSHA.method &&
   global.TERM3_NEWESTAN_FINAL_INSHA.subtopics?.length === 4 &&
@@ -116,11 +111,6 @@ assert(global.TERM3_NEWESTAN_FINAL_INSHA.mainQuestion && global.TERM3_NEWESTAN_F
 assert(appSource.includes("newestan-final-insha") && appSource.includes("m.muqaddama") &&
   appSource.includes("m.band1") && appSource.includes("m.band2") && appSource.includes("m.natija"),
   "Final Newestan Insha must be rendered as a complete structured essay");
-const lexiconKeys = new Set(entries.map(x => String(x.fa).replace(/[\\u200c\\sـ]/g, "")));
-for (const word of global.TERM3_NEWESTAN_EXAMPLE.vocabulary) {
-  assert(lexiconKeys.has(String(word).replace(/[\\u200c\\sـ]/g, "")),
-    "Newestan vocabulary must open a flashcard: " + word);
-}
 assert(appSource.includes("Exact vocabulary matching only"), "Vocabulary linking must use exact headwords rather than arbitrary example tokens");
 assert(appSource.includes("curatedVocabAliases"), "Only reviewed Persian plural/irregular aliases should be linked");
 assert(!appSource.includes("const examples=[item.xf,item.m?.[0],item.a?.[0]]"),
@@ -128,7 +118,9 @@ assert(!appSource.includes("const examples=[item.xf,item.m?.[0],item.a?.[0]]"),
 assert(appSource.includes("Number(b.bk===activeTerm)-Number(a.bk===activeTerm)"),
   "Flashcards from the active term must take priority over cross-term duplicates");
 assert(appSource.includes("attachVocabularyLinks(v.querySelector(\".writing-wrap\"))"), "Newestan/Sukhanrani content must use shared flashcard links");
-assert(appSource.includes("newestan-vocabulary"), "Newestan model vocabulary must be rendered as linked flashcards");
+const newestanUi = fs.readFileSync(path.join(__dirname, "../website/term03-newestan-standalone.js"), "utf8");
+assert(newestanUi.includes("attachVocabularyLinks(scope)"), "Term 03 Newestan must run the shared vocabulary linker after rendering");
+assert(newestanUi.includes("TERM3_NEWESTAN_FINAL_INSHA"), "The final Newestan research Insha must remain on the Newestan page");
 assert(appSource.includes("--fa-reading-font") && appSource.includes(".newestan-example") && appSource.includes(".khulasa-lines"),
   "Persian reading typography styles are missing");
 assert(Array.isArray(global.TERM3_SPEECHES) && global.TERM3_SPEECHES.length === 20,
@@ -139,16 +131,8 @@ assert(appSource.includes("units:Array.isArray(a.units)"), "Chapter items must p
 assert(appSource.includes("(i.units||[i.ch]).includes(Number(c))"), "Chapter filters must include shared vocabulary in every linked unit");
 assert(appSource.includes("flatMap(i=>(i.units||[i.ch])"), "Chapter navigation must include shared vocabulary units");
 
-assert.deepEqual(global.term3InshaForChapter(3).map(x => x.lesson), ["N3-01", "N3-07"]);
-assert.deepEqual(global.term3InshaForChapter(16).map(x => x.lesson), ["N3-06", "N3-09"]);
-assert.deepEqual(global.term3InshaForChapter(20).map(x => x.lesson), ["N3-02", "N3-10"]);
-assert.deepEqual(global.term3InshaForChapter(1), []);
-for (const chapter of [3, 16, 1]) {
-  const lessons = global.term3InshaForChapter(chapter);
-  console.log("Newestan chapter " + chapter + ": " + (lessons.length ? lessons.map(x => x.lesson + " [" + (x.researchForm ? x.note : x.topics.map(t => t.fa + " / " + t.en).join("; ")) + "]").join(" | ") : "(no Newestan panel)"));
-}
 assert(Object.keys(global.TERM3_UNIT_META || {}).length === 20, "Expected 20 FA chapter summaries");
 for (const [unit, meta] of Object.entries(global.TERM3_UNIT_META)) assert(meta.summary, "Missing chapter summary for FA3-" + unit);
 assert(Array.isArray(global.TERM3_KHULASA) && global.TERM3_KHULASA.length === 20, "Expected a dedicated Khulasa summary for all 20 FA chapters");
 for (const item of global.TERM3_KHULASA) assert(item.lines.length >= 5 && item.lines.length <= 6, "Khulasa must contain five or six concise lines for FA3-" + item.ch);
-console.log(JSON.stringify({ total: entries.length, sources: sourceCounts, verifiedVerbs: entries.filter(x => /فعل|اصطلاح فعلی/.test(x.pos)).length, chapterSummaries: Object.keys(global.TERM3_UNIT_META).length, khulasaSummaries: global.TERM3_KHULASA.length, writingPrompts: global.TERM3_WRITING.chapters.length, speechPrompts: global.TERM3_SPEECHES.length, sourceChapters: expectedSources.length, sourceFiles: studyFiles.length }, null, 2));
+console.log(JSON.stringify({ total: entries.length, sources: sourceCounts, verifiedVerbs: entries.filter(x => /فعل|اصطلاح فعلی/.test(x.pos)).length, chapterSummaries: Object.keys(global.TERM3_UNIT_META).length, khulasaSummaries: global.TERM3_KHULASA.length, newestanLessons: Object.keys(global.TERM3_NEWESTAN_INSHA).length, speechPrompts: global.TERM3_SPEECHES.length, sourceChapters: expectedSources.length, sourceFiles: studyFiles.length }, null, 2));
