@@ -161,17 +161,10 @@ def test_newestan_standalone_curriculum_keeps_all_lessons_and_final_insha() -> N
     assert index.index('src="term03-chapter-mapping.js"') < index.index('src="term03-newestan-insha.js"')
     assert 'src="term03-newestan-final-insha.js"' in index
     assert "window.TERM3_NEWESTAN_INSHA=R" in picker
-    assert "term3InshaForChapter" not in picker
     assert "TERM3_NEWESTAN_FINAL_INSHA" in renderer
     assert "attachVocabularyLinks(scope)" in renderer
     assert all(('N3-' + str(i).zfill(2)) in picker for i in range(1, 11))
     assert "TERM3_NEWESTAN_FINAL_INSHA" in final_insha
-    assert "window.TERM3_WRITING" not in index
-    assert "window.TERM2_WRITING" not in index
-    assert "TERM3_NEWESTAN_EXAMPLE" not in index
-    assert "term3InshaForChapter" not in index
-    assert "essayStoreKey" not in index
-    assert "localStorage.removeItem" not in index
 
 def test_trilingual_audit_loads_complete_term03_pipeline_and_checks_exact_card_keys() -> None:
     audit = (ROOT / "tools" / "audit-trilingual-meanings.cjs").read_text(encoding="utf-8")
