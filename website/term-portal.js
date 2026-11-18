@@ -43,9 +43,9 @@
   input.oninput=renderResults;$id("globalSearchClear").onclick=()=>{input.value="";renderResults();input.focus()};
  }
  window.updateGlobalStats=updateStats;
- function enterTerm(b){activeTerm=b;bkSel.value=String(b);fillCh();chSel.value="all";if(b===2){essayCh=1;speechCh=1;}
+ function enterTerm(b){activeTerm=b;bkSel.value=String(b);fillCh();chSel.value="all";if(b===2){speechCh=1;}
   $id("termNav").hidden=false;$id("activeTermTitle").textContent="TERM 0"+b+(b===3?" · PERSIAN":"");
-  document.querySelectorAll('#termTabs [data-t="essays"],#termTabs [data-t="speeches"],#termTabs [data-t="khulasa"]').forEach(x=>x.hidden=!(b===3||(b===2&&((window.TERM2_WRITING||{}).chapters||[]).length)));
+  document.querySelectorAll('#termTabs [data-t="essays"],#termTabs [data-t="speeches"],#termTabs [data-t="khulasa"]').forEach(x=>x.hidden=!(b===2||b===3));
   gotoTab("home");
  }
  function back(){activeTerm=null;tab="portal";bkSel.value="all";fillCh();$id("termNav").hidden=true;render()}
