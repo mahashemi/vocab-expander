@@ -66,6 +66,18 @@ assert(t3["N3-07"].model.band2.includes("روز هفتم"),"Dars 07 trip model m
 assert(t3["N3-06"].modelInternet?.band2,"Dars 06 must model the internet benefits/harms prompt as well as book critique");
 
 
+
+const language=global.NEWESTAN_LANGUAGE_LESSONS;
+for(let term=1;term<=3;term++)for(let lesson=1;lesson<=10;lesson++){
+ const row=language?.[term]?.[lesson];
+ assert(row&&row.sections&&row.sections.length>0,"Missing Biyamoozim language lesson for Term "+term+" Dars "+lesson);
+}
+const has=(term,lesson,needle)=>language[term][lesson].sections.some(section=>section.fa.includes(needle));
+assert(has(3,2,"ترتیبی")&&has(3,2,"هم‌زمانی")&&has(3,2,"ارجاعی")&&has(3,2,"انجامی"),"Term 03 Dars 02 must teach all four textbook temporal-link relations");
+assert(has(1,4,"ضمیر پیوسته")&&has(1,5,"جمع با ـان"),"Term 01 pronoun and plural lessons must include the bottom-page Biyamoozim rules");
+assert(has(2,1,"تبدیل فعل گفتاری")&&has(2,2,"چهار نوع جمله")&&has(2,5,"حروف ربط مرکب")&&has(2,10,"نقطه‌ویرگول"),"Term 02 language lessons must include spoken/written forms, sentence types, compound links and punctuation");
+assert(has(3,3,"گذشتهٔ بعید")&&has(3,5,"اندام‌های جمع")&&has(3,8,"شش گام خلاصه")&&has(3,9,"نوشتار علمی")&&has(3,10,"مراحل سازمان‌دهی تحقیق"),"Term 03 must include the source-specific grammar, summary and research lessons");
+
 const index=require("node:fs").readFileSync(path.join(__dirname,"../website/index.html"),"utf8");
 for(const script of ["newestan-writing-library.js","newestan-writing-ui.js","term03-newestan-teaching.js","term03-newestan-teaching-ui.js"])assert(index.includes(script),"Missing script include: "+script);
 assert(index.includes("window.renderNewestanTerm1()"),"Term 01 Newestan view is not wired");
