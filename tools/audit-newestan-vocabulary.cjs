@@ -10,6 +10,7 @@ const load=p=>require(path.join(root,p));
  "website/term02-data.js","website/term02-lexicon-additions.js",
  "website/term03-data.js","website/term03-lexicon-additions.js","website/term03-matn-verbs.js","website/term03-source-audit.js","website/term03-page1-additions.js","website/term03-chapter-mapping.js",
  "website/newestan-lexicon-additions.js",
+ "website/newestan-essay-vocabulary.js",
  "website/newestan-writing-library.js","website/newestan-language-lessons.js","website/term03-newestan-insha.js","website/term03-newestan-teaching.js","website/term03-newestan-final-insha.js",
  "website/term02-khulasa.js","website/term03-khulasa.js","website/term02-speeches.js","website/term03-speeches.js"
 ].forEach(load);
