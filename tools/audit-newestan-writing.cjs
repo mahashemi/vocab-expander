@@ -8,6 +8,7 @@ require("../website/newestan-writing-library.js");
 require("../website/term03-chapter-mapping.js");
 require("../website/term03-newestan-insha.js");
 require("../website/term03-newestan-teaching.js");
+require("../website/newestan-language-lessons.js");
 require("../website/term03-newestan-final-insha.js");
 require("../website/term03-newestan-standalone.js");
 const library=global.NEWESTAN_WRITING_LIBRARY;
@@ -83,11 +84,19 @@ assert(index.includes("data-vocab-id"),"Vocabulary links must use the shared fla
 assert.equal(typeof global.renderNewestanTerm3,"function","Term 03 standalone renderer must be available");
 assert.equal(typeof global.bindNewestanTerm3,"function","Term 03 standalone selector must be wired");
 assert.equal(Object.keys(global.TERM3_NEWESTAN_INSHA).length,10,"Term 03 source prompt library must contain all ten lessons");
+assert(index.includes('<script src="newestan-language-lessons.js"></script>'),"OCR-based language lesson module must load");
+for(let term=1;term<=3;term++)for(let i=1;i<=10;i++){
+ const lesson=global.NEWESTAN_LANGUAGE_LESSONS?.[term]?.[i];
+ assert(lesson&&lesson.source&&lesson.sections?.length>=1,"Missing source-based Biyamoozim lesson: Term "+term+" Dars "+i);
+ for(const rule of lesson.sections)assert(rule.fa&&rule.en&&rule.ar&&rule.whenEn&&rule.whenAr&&rule.exampleFa&&rule.exampleEn&&rule.exampleAr,"Incomplete trilingual language rule: Term "+term+" Dars "+i);
+}
+
 for(let i=1;i<=10;i++){
  const html=global.renderNewestanTerm3(i);
  assert(html.includes("N3-"+String(i).padStart(2,"0")),"Term 03 lesson failed to render: "+i);
  assert(html.includes("Choose a Newestan lesson"),"Term 03 lesson selector missing: "+i);
  assert(html.includes("Textbook exercise")||html.includes("Research topics"),"Term 03 exercise missing: "+i);
+  assert(html.includes("BIYĀMOZĪM"),"Term 03 Biyamoozim language lesson missing: "+i);
 }
 for(const term of [1,2]){
  global.activeTerm=term;
@@ -95,6 +104,7 @@ for(const term of [1,2]){
   const html=term===1?global.renderNewestanTerm1(i):global.renderNewestanWorkshop(i);
   assert(html.includes("DARS "+String(i).padStart(2,"0")),"Term "+term+" Newestan lesson failed to render: "+i);
   assert(html.includes("Textbook exercise")||html.includes("تمرین واقعی درس"),"Term "+term+" exercise missing: "+i);
+   assert(html.includes("BIYĀMOZĪM"),"Term "+term+" Biyamoozim language lesson missing: "+i);
  }
 }
 global.activeTerm=3;
