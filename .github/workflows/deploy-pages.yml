@@ -64,6 +64,7 @@ jobs:
           require('./website/term01-semantic-additions.js');
           require('./website/term01-core-semantics.js');
           require('./website/newestan-lexicon-additions.js');
+          require('./website/newestan-essay-vocabulary.js');
           const rows = window.TERM1_DATA;
           if (!Array.isArray(rows) || rows.length < 20) throw new Error('Term 01 vocabulary is unexpectedly small');
           const seen = new Set();
