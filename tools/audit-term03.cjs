@@ -7,6 +7,7 @@ require("../website/term03-lexicon-additions.js");
 require("../website/term03-matn-verbs.js");
 require("../website/term03-source-audit.js");
 require("../website/term03-chapter-mapping.js");
+require("../website/newestan-lexicon-additions.js");
 require("../website/term03-newestan-insha.js");
 require("../website/term03-khulasa.js");
 require("../website/term03-speeches.js");
