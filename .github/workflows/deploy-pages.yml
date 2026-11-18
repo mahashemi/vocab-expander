@@ -98,7 +98,6 @@ jobs:
           node --check website/term02-khulasa.js
           node --check website/term02-speeches.js
           node --check website/newestan-lexicon-additions.js
-          node --check website/newestan-lexicon-additions.js
           node --check website/term02-proverbs.js
           node --check website/term02-core-semantics.js
           node --check website/term02-additional-semantics-01.js
@@ -226,6 +225,8 @@ jobs:
 
       - name: Validate all Newestan writing workshops
         run: |
+          node --check website/newestan-language-lessons.js
+          node --check website/newestan-essay-vocabulary.js
           node --check website/newestan-writing-library.js
           node --check website/newestan-writing-ui.js
           node --check website/term03-newestan-insha.js
