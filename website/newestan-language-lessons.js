@@ -2,7 +2,7 @@
    Each lesson is kept separate by term and Newestan Dars; supplementary examples are labelled in the notes. */
 (()=>{
  const R=(fa,en,ar,whenEn,whenAr,exampleFa,exampleEn,exampleAr)=>({fa,en,ar,whenEn,whenAr,exampleFa,exampleEn,exampleAr});
- const S=(titleFa,titleEn,titleAr,explanationEn,explanationAr,rules)=>({titleFa,titleEn,titleAr,explanationEn,explanationAr,rules});
+ const S=(fa,en,ar,whenEn,whenAr,exampleFa,exampleEn,exampleAr)=>({fa,en,ar,whenEn,whenAr,exampleFa,exampleEn,exampleAr});
  const L=(source,titleFa,titleEn,titleAr,overviewEn,overviewAr,sections)=>({source,titleFa,titleEn,titleAr,overviewEn,overviewAr,sections});
  const D={
   1:{
@@ -198,6 +198,6 @@
  window.renderNewestanLanguageLesson=(term,no)=>{
   const rec=(D[Number(term)]||{})[Number(no)];if(!rec)return "";
   const e=s=>typeof esc==="function"?esc(s||""):String(s||"");
-  return '<section class="newestan-language-lesson"><div class="newestan-language-heading"><span class="newestan-language-kicker">BIYĀMOZĪM · بیاموزیم</span><h3>'+e(rec.titleFa)+'</h3><p>'+e(rec.titleEn)+' · '+e(rec.titleAr)+'</p><small>OCR source: '+e(rec.source)+'</small></div><p class="newestan-language-overview">'+e(rec.overviewEn)+'</p><p class="newestan-language-overview fa-block" dir="rtl">'+e(rec.overviewAr)+'</p>'+rec.sections.map(section=>'<article class="newestan-language-section"><h4>'+e(section.titleFa)+'</h4><div class="newestan-language-subtitle">'+e(section.titleEn)+' · '+e(section.titleAr)+'</div><p>'+e(section.explanationEn)+'</p><p class="fa-block" dir="rtl">'+e(section.explanationAr)+'</p><div class="newestan-language-rules">'+section.rules.map(rule=>'<div class="newestan-language-rule"><div class="newestan-language-rule-title"><b>'+e(rule.fa)+'</b><span>'+e(rule.en)+' · '+e(rule.ar)+'</span></div><p>'+e(rule.whenEn)+'</p><p class="fa-block" dir="rtl">'+e(rule.whenAr)+'</p><div class="newestan-language-example"><div class="fa-block" dir="rtl">'+e(rule.exampleFa)+'</div><div>'+e(rule.exampleEn)+'</div><div class="fa-block" dir="rtl">'+e(rule.exampleAr)+'</div></div></div>').join("")+'</div></article>').join("")+'</section>';
+  return '<section class="newestan-language-lesson"><div class="newestan-language-heading"><span class="newestan-language-kicker">BIYĀMOZĪM · بیاموزیم</span><h3>'+e(rec.titleFa)+'</h3><p>'+e(rec.titleEn)+' · '+e(rec.titleAr)+'</p><small>OCR source: '+e(rec.source)+'</small></div><p class="newestan-language-overview">'+e(rec.overviewEn)+'</p><p class="newestan-language-overview fa-block" dir="rtl">'+e(rec.overviewAr)+'</p><div class="newestan-language-rules">'+rec.sections.map(rule=>'<article class="newestan-language-rule"><div class="newestan-language-rule-title"><b>'+e(rule.fa)+'</b><span>'+e(rule.en)+' · '+e(rule.ar)+'</span></div><p>'+e(rule.whenEn)+'</p><p class="fa-block" dir="rtl">'+e(rule.whenAr)+'</p><div class="newestan-language-example"><div class="fa-block" dir="rtl">'+e(rule.exampleFa)+'</div><div>'+e(rule.exampleEn)+'</div><div class="fa-block" dir="rtl">'+e(rule.exampleAr)+'</div></div></article>').join("")+'</div></section>';
  };
 })();
