@@ -86,7 +86,8 @@ const load = (p) => require(require('path').resolve(__dirname, '..', p));
   'website/term03-page1-additions.js',
   'website/term03-chapter-mapping.js',
   'website/term03-newestan-insha.js',
-  'website/term03-dedup.js'
+  'website/term03-dedup.js',
+  'website/newestan-lexicon-additions.js'
 ].forEach(load);
 
 const requiredCounts = [
@@ -171,8 +172,10 @@ for (const [term, rows] of Object.entries(books)) {
     total += headwords.length;
     complete += headwords.length - missing.length;
     console.log('Term 03: ' + rows.length + ' cards / ' + headwords.length + ' headwords, ' + missing.length + ' missing');
-    if (rows.length !== 1939 || headwords.length !== 1939) {
-      throw new Error('Term 03 expected 1939 cards and 1939 exact headwords; got ' + rows.length + ' cards and ' + headwords.length + ' headwords');
+    const newTerm3Cards = (window.TERM_NEWESTAN_VOCAB_ADDED_ROWS || []).filter(row => row.term === 3).length;
+    const expectedTerm3Cards = 1939 + newTerm3Cards;
+    if (rows.length !== expectedTerm3Cards || headwords.length !== expectedTerm3Cards) {
+      throw new Error('Term 03 expected 1939 base cards plus ' + newTerm3Cards + ' Newestan cards; got ' + rows.length + ' cards and ' + headwords.length + ' headwords');
     }
     if (missingCards.length) {
       console.log('  Missing exact card-headword keys: ' + missingCards.map(row => row.fa || '(missing headword)').join('، '));
