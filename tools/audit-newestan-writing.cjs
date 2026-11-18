@@ -80,12 +80,13 @@ assert(has(3,3,"گذشتهٔ بعید")&&has(3,5,"اندام‌های جمع")&&
 
 const index=require("node:fs").readFileSync(path.join(__dirname,"../website/index.html"),"utf8");
 for(const script of ["newestan-writing-library.js","newestan-writing-ui.js","term03-newestan-teaching.js","term03-newestan-teaching-ui.js"])assert(index.includes(script),"Missing script include: "+script);
-assert(index.includes("window.renderNewestanTerm1()"),"Term 01 Newestan view is not wired");
-assert(index.includes("if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1();window.bindNewestanWorkshop();return}"),"Term 01/02 Newestan view is not wired");
+assert(index.includes("window.renderNewestanTerm1(lesson)"),"Term 01 Newestan view is not wired with route-aware lesson selection");
+assert(index.includes("if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1(lesson);window.bindNewestanWorkshop();return}"),"Term 01/02 Newestan view is not wired");
 assert(index.includes("term03-newestan-standalone.js")&&index.includes("term03-newestan-teaching-ui.js"),"Term 03 lesson teaching modules are not loaded");
+assert(index.includes("const picker=document.getElementById(\"newestanLesson\")")&&index.includes("window.__vocabRouteLesson"),"Newestan lesson selection must be restored from and written to the URL");
 assert(!index.includes("پس از تطبیق کامل با درس‌های منبع"),"Term 01 placeholder must be removed");
-assert(index.includes("if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1();window.bindNewestanWorkshop();return}"),"Terms 01 and 02 Newestan tabs must be standalone");
-assert(index.includes("if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3();window.bindNewestanTerm3();return}"),"Term 03 Newestan tab must be standalone");
+assert(index.includes("if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1(lesson);window.bindNewestanWorkshop();return}"),"Terms 01 and 02 Newestan tabs must be standalone and route-aware");
+assert(index.includes("if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3(lesson);window.bindNewestanTerm3();return}"),"Term 03 Newestan tab must be standalone and route-aware");
 const term03Ui=require("node:fs").readFileSync(path.join(__dirname,"../website/term03-newestan-standalone.js"),"utf8");
 const term12Ui=require("node:fs").readFileSync(path.join(__dirname,"../website/newestan-writing-ui.js"),"utf8");
 assert(term03Ui.includes("newestan-lesson-picker")&&term12Ui.includes("newestan-lesson-picker"),"All Newestan terms must use the prominent lesson navigator");
