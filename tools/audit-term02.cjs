@@ -5,7 +5,7 @@ global.window = global;
 require(path.join(root, 'website/term02-data.js'));
 require(path.join(root, 'website/term02-lexicon-additions.js'));
 require(path.join(root, 'website/term02-khulasa.js'));
-require(path.join(root, 'website/term02-writing.js'));
+require(path.join(root, 'website/term02-speeches.js'));
 const fail = [];
 const assert = (ok, message) => { if (!ok) fail.push(message); };
 const expected = [];
@@ -65,19 +65,18 @@ function hasLinkedWord(line) {
   return false;
 }
 for (const x of global.TERM2_KHULASA||[]) for(let i=0;i<x.lines.length;i++) assert(hasLinkedWord(x.lines[i]), 'Khulasa line lacks linked vocabulary: chapter '+x.ch+', line '+(i+1));
-assert((global.TERM2_WRITING?.chapters||[]).length===20, 'Expected 20 writing prompts');
 assert((global.TERM2_SPEECHES||[]).length===20, 'Expected 20 speech prompts');
 for (const x of global.TERM2_SPEECHES||[]) assert(/[0-9۰-۹٠-٩]{1,3}[:：][0-9۰-۹٠-٩]{1,3}/.test(x.verse||''), 'Missing explicit Quran reference in speech '+x.ch);
 const kh = fs.readFileSync(path.join(root,'website/term02-khulasa.js'),'utf8');
 assert(kh.includes('[[QURAN:5:32|'), 'Missing explicit source Quran reference marker (5:32)');
 const index = fs.readFileSync(path.join(root,'website/index.html'),'utf8');
-for (const x of ['term02-data.js','term02-lexicon-additions.js','term02-khulasa.js','term02-writing.js','data-word-id','khWordModal','Escape','target="_blank"','rel="noopener noreferrer"','QuranMemorizer/#/surah/','cleanKh','term2=new Map()']) assert(index.includes(x), 'Missing UI integration: '+x);
+for (const x of ['term02-data.js','term02-lexicon-additions.js','term02-khulasa.js','term02-speeches.js','data-word-id','khWordModal','Escape','target="_blank"','rel="noopener noreferrer"','QuranMemorizer/#/surah/','cleanKh','term2=new Map()']) assert(index.includes(x), 'Missing UI integration: '+x);
 const portal = fs.readFileSync(path.join(root,'website/term-portal.js'),'utf8');
-assert(portal.includes('TERM2_WRITING'), 'Term 02 writing page is not connected to term navigation');
+assert(portal.includes('b===2||b===3'), 'Term 02 Newestan/Sukhanrani navigation must not depend on retired essay data');
 assert(rows.some(x=>x.source==='N2-03'&&x.units.includes(6)), 'Expected N2-03 hospital vocabulary cross-linked to FA2-06');
 assert(rows.some(x=>x.source==='N2-04'&&x.units.includes(12)), 'Expected N2-04 historical-site vocabulary cross-linked to FA2-12');
 assert(rows.some(x=>x.source==='KH2-03'&&x.units.includes(11)), 'Expected KH2-03 traditional-game vocabulary cross-linked to FA2-11');
 assert(rows.some(x=>x.source==='KH2-12'&&x.units.includes(14)), 'Expected KH2-12 flight-delay vocabulary cross-linked to FA2-14');
 assert(rows.some(x=>x.source==='N2-06'&&x.units.includes(14)), 'Expected N2-06 Newestan travel vocabulary cross-linked to FA2-14');
 if (fail.length) { console.error('Term 02 audit failed:'); for (const x of fail) console.error(' - '+x); process.exit(1); }
-console.log('Term 02 audit passed: '+files.length+' source files; '+rows.length+' vocabulary rows; '+seen.size+'/60 source IDs; '+verbs+' verbs; '+nonverbs+' non-verbs; 20 Khulasa; 20 writing prompts; 20 speeches.');
+console.log('Term 02 audit passed: '+files.length+' source files; '+rows.length+' vocabulary rows; '+seen.size+'/60 source IDs; '+verbs+' verbs; '+nonverbs+' non-verbs; 20 Khulasa; 20 speeches; standalone Newestan lessons.');
