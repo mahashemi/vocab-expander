@@ -108,8 +108,9 @@ assert(global.TERM3_NEWESTAN_FINAL_INSHA.mainQuestion && global.TERM3_NEWESTAN_F
   global.TERM3_NEWESTAN_FINAL_INSHA.band2 && global.TERM3_NEWESTAN_FINAL_INSHA.natija &&
   global.TERM3_NEWESTAN_FINAL_INSHA.abstract && global.TERM3_NEWESTAN_FINAL_INSHA.keywords?.length >= 5,
   "Final Newestan Insha must include research method, subtopics, Muqaddama, two body bands, Natija, abstract and keywords");
-assert(appSource.includes("newestan-final-insha") && appSource.includes("m.muqaddama") &&
-  appSource.includes("m.band1") && appSource.includes("m.band2") && appSource.includes("m.natija"),
+const newestanUi = fs.readFileSync(path.join(__dirname, "../website/term03-newestan-standalone.js"), "utf8");
+assert(newestanUi.includes("newestan-final-insha") && newestanUi.includes("m.muqaddama") &&
+  newestanUi.includes("m.band1") && newestanUi.includes("m.band2") && newestanUi.includes("m.natija"),
   "Final Newestan Insha must be rendered as a complete structured essay");
 assert(appSource.includes("Exact vocabulary matching only"), "Vocabulary linking must use exact headwords rather than arbitrary example tokens");
 assert(appSource.includes("curatedVocabAliases"), "Only reviewed Persian plural/irregular aliases should be linked");
@@ -118,7 +119,6 @@ assert(!appSource.includes("const examples=[item.xf,item.m?.[0],item.a?.[0]]"),
 assert(appSource.includes("Number(b.bk===activeTerm)-Number(a.bk===activeTerm)"),
   "Flashcards from the active term must take priority over cross-term duplicates");
 assert(appSource.includes("attachVocabularyLinks(v.querySelector(\".writing-wrap\"))"), "Newestan/Sukhanrani content must use shared flashcard links");
-const newestanUi = fs.readFileSync(path.join(__dirname, "../website/term03-newestan-standalone.js"), "utf8");
 assert(newestanUi.includes("attachVocabularyLinks(scope)"), "Term 03 Newestan must run the shared vocabulary linker after rendering");
 assert(newestanUi.includes("TERM3_NEWESTAN_FINAL_INSHA"), "The final Newestan research Insha must remain on the Newestan page");
 assert(appSource.includes("--fa-reading-font") && appSource.includes(".newestan-example") && appSource.includes(".khulasa-lines"),
