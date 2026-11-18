@@ -1,10 +1,14 @@
 const assert=require("node:assert/strict");
 const path=require("node:path");
 global.window=global;
+global.activeTerm=1;
+global.localStorage={getItem:()=>null,setItem:()=>{}};
+global.esc=value=>String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/\x27/g,"&#39;");
 require("../website/newestan-writing-library.js");
 require("../website/term03-chapter-mapping.js");
 require("../website/term03-newestan-insha.js");
 require("../website/term03-newestan-teaching.js");
+require("../website/term03-newestan-final-insha.js");
 require("../website/term03-newestan-standalone.js");
 const library=global.NEWESTAN_WRITING_LIBRARY;
 assert.deepEqual(Object.keys(library).sort(),["1","2"]);
@@ -78,6 +82,23 @@ assert(index.includes("data-vocab-id"),"Vocabulary links must use the shared fla
 
 assert.equal(typeof global.renderNewestanTerm3,"function","Term 03 standalone renderer must be available");
 assert.equal(typeof global.bindNewestanTerm3,"function","Term 03 standalone selector must be wired");
+assert.equal(Object.keys(global.TERM3_NEWESTAN_INSHA).length,10,"Term 03 source prompt library must contain all ten lessons");
+for(let i=1;i<=10;i++){
+ const html=global.renderNewestanTerm3(i);
+ assert(html.includes("N3-"+String(i).padStart(2,"0")),"Term 03 lesson failed to render: "+i);
+ assert(html.includes("Choose a Newestan lesson"),"Term 03 lesson selector missing: "+i);
+ assert(html.includes("Textbook exercise")||html.includes("Research topics"),"Term 03 exercise missing: "+i);
+}
+for(const term of [1,2]){
+ global.activeTerm=term;
+ for(let i=1;i<=10;i++){
+  const html=term===1?global.renderNewestanTerm1(i):global.renderNewestanWorkshop(i);
+  assert(html.includes("DARS "+String(i).padStart(2,"0")),"Term "+term+" Newestan lesson failed to render: "+i);
+  assert(html.includes("Textbook exercise")||html.includes("تمرین واقعی درس"),"Term "+term+" exercise missing: "+i);
+ }
+}
+global.activeTerm=3;
+
 assert(index.includes('<script src="term03-newestan-standalone.js"></script>'),"Term 03 standalone Newestan UI must load");
 assert(index.includes("if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3();window.bindNewestanTerm3();return}"),"Term 03 must return before the FA writing renderer");
-console.log(JSON.stringify({term01:library[1].length,term02:library[2].length,term03:Object.keys(t3).length,term03Essays:9,term03ResearchLessons:1},null,2));
+console.log(JSON.stringify({term01:library[1].length,term02:library[2].length,term03:Object.keys(t3).length,term03Lessons:10,term03ResearchLessons:1},null,2));
