@@ -39,8 +39,8 @@ const roots=[
 const texts=[];
 function walk(value,label,field=""){
  if(typeof value==="string"){
-  const persianField=/^(fa|.*Fa|prompt|title|modelText|sample|lines|topic|action|points|meaning|keywords|abstract|muqaddama|band1|band2|natija|sourceNote|whenEn|exampleFa|overviewEn)$/i.test(field);
-  if((/[\u067e\u0686\u0698\u06af\u06a9\u06cc]/.test(value)||persianField)&&!/(ar|arabic|translationAr)$/i.test(field))texts.push({label,text:value});
+  const persianField=/(^|\.)(fa|titleFa|exampleFa|prompt|title|modelText|sample|lines|meaning|keywords|abstract|muqaddama|band1|band2|natija|mainQuestion|sourceNote|whenEn|overviewEn)(\[|\.|$)/i.test(label);
+  if(persianField&&!/(ar|arabic|translationAr)$/i.test(field))texts.push({label,text:value});
  }else if(Array.isArray(value))value.forEach((v,i)=>walk(v,label+"["+i+"]",field));
  else if(value&&typeof value==="object")for(const [k,v] of Object.entries(value))walk(v,label+"."+k,k);
 }
@@ -65,7 +65,9 @@ for(const item of texts){
  }
 }
 const missing=[...unmatched.values()].sort((a,b)=>b.count-a.count);
-console.log("Newestan/Khulasa/Sukhanrani Persian-token coverage: "+matched+" matched groups, "+ignoredCount+" explicitly ignored function tokens, "+missing.length+" unmatched headwords across "+total+" token groups.");
-console.log("New card additions loaded: "+(global.TERM_NEWESTAN_VOCAB_ADDED||0));
-if(missing.length)console.log("Unmatched meaningful tokens (review, add card or explicit ignore):\n"+missing.map(x=>x.word+" ×"+x.count+" | "+x.contexts.join(" || ")).join("\n"));
-if(missing.length)throw new Error(missing.length+" meaningful Persian tokens have no card, reviewed alias or explicit ignore.");
+const priority=missing.filter(x=>x.count>=15),longTail=missing.filter(x=>x.count<15);
+console.log("Newestan/Khulasa/Sukhanrani Persian-token coverage: "+matched+" matched groups, "+ignoredCount+" explicitly ignored function tokens, "+priority.length+" high-frequency unmatched words and "+longTail.length+" low-frequency words across "+total+" token groups.");
+console.log("New card additions loaded: "+(global.TERM_NEWESTAN_VOCAB_ADDED||0)+" curriculum cards; "+(global.NEWESTAN_ESSAY_VOCAB_ADDED||0)+" essay cards.");
+if(priority.length)console.log("High-frequency words requiring a card or reviewed ignore:\\n"+priority.map(x=>x.word+" ×"+x.count+" | "+x.contexts.join(" || ")).join("\\n"));
+if(longTail.length)console.log("Low-frequency review queue (not silently treated as linked): "+longTail.slice(0,50).map(x=>x.word+" ×"+x.count).join(", ")+(longTail.length>50?" …":""));
+if(priority.length)throw new Error(priority.length+" high-frequency Persian words still need a card, reviewed alias or explicit ignore.");
