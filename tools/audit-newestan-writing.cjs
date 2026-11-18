@@ -5,6 +5,7 @@ global.activeTerm=1;
 global.localStorage={getItem:()=>null,setItem:()=>{}};
 global.esc=value=>String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/\x27/g,"&#39;");
 require("../website/newestan-writing-library.js");
+require("../website/newestan-writing-ui.js");
 require("../website/term03-chapter-mapping.js");
 require("../website/term03-newestan-insha.js");
 require("../website/term03-newestan-teaching.js");
