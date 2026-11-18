@@ -110,7 +110,7 @@
  }
  window.render=function(){if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();updateStats();syncRoute()};
  window.gotoTab=function(t){tab=t;document.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",x.dataset.t===t));bkSel.hidden=true;chSel.hidden=![ "cards","quiz","khulasa"].includes(t);deck=[];idx=0;flip=false;render()};
- document.addEventListener("change",e=>{if(e.target&&["newestanLesson","speechChapter","ch"].includes(e.target.id))syncRoute()});
+ document.addEventListener("change",e=>{if(e.target&&["newestanLesson","speechChapter","khulasaChapter","ch"].includes(e.target.id))syncRoute()});
  window.addEventListener("hashchange",applyRoute);
  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>gotoTab(b.dataset.t));
  $id("backTerms").onclick=back;chSel.onchange=()=>{deck=[];idx=0;flip=false;render()};bkSel.hidden=true;chSel.hidden=true;$id("termNav").hidden=true;if(location.hash&&location.hash!=="#")applyRoute();else{render();updateStats()}
