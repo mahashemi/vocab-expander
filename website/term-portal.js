@@ -56,8 +56,8 @@
   const sourceLine=sourceCounts.length?'<div class="source-coverage">'+sourceCounts.map(x=>'<span><b>'+x.code+'</b><small>'+x.count+' words</small></span>').join("")+'</div>':"";
   v.insertAdjacentHTML("afterbegin",'<section class="term-welcome"><h2>'+title+'</h2><p>'+description+'</p>'+sourceLine+'</section>');
  };
- const routeTabs={study:"home",flashcards:"cards",quiz:"quiz",khulasa:"khulasa",newestan:"essays",sukhanrani:"speeches"};
- const routeNames={home:"study",cards:"flashcards",quiz:"quiz",khulasa:"khulasa",essays:"newestan",speeches:"sukhanrani"};
+ const routeTabs={fa:"home",study:"home",flashcards:"cards",quiz:"quiz",khulasa:"khulasa",newestan:"essays",sukhanrani:"speeches"};
+ const routeNames={home:"fa",cards:"flashcards",quiz:"quiz",khulasa:"khulasa",essays:"newestan",speeches:"sukhanrani"};
  let applyingRoute=false;
  function currentRoute(){
   if(tab==="portal")return "#/";
@@ -91,7 +91,7 @@
   if(raw==="#/verbs"){
    applyingRoute=true;activeTerm=null;tab="verbs";$id("termNav").hidden=true;window.__vocabRouteLesson=null;render();applyingRoute=false;return;
   }
-  const m=raw.match(/^#\/term\/(1|2|3)\/(study|flashcards|quiz|khulasa|newestan|sukhanrani)(?:\/(chapter|lesson)\/([^/?#]+))?\/?$/);
+  const m=raw.match(/^#\/term\/(1|2|3)\/(fa|study|flashcards|quiz|khulasa|newestan|sukhanrani)(?:\/(chapter|lesson)\/([^/?#]+))?\/?$/);
   if(!m){if(!applyingRoute) {applyingRoute=true;location.hash="#/";applyingRoute=false;}return}
   const term=Number(m[1]),routeName=m[2],nextTab=routeTabs[routeName],kind=m[3],value=m[4]?decodeURIComponent(m[4]):null;
   applyingRoute=true;
