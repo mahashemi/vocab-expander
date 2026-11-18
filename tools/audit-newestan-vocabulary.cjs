@@ -38,7 +38,7 @@ const roots=[
 const texts=[];
 function walk(value,label,field=""){
  if(typeof value==="string"){
-  const persianField=/^(fa|.*Fa|prompt|title|modelText|model|sample|assignment|lines|topic|action|steps|subtopics|practice|meaning|keywords|abstract|muqaddama|band1|band2|natija|sourceNote|note)$/i.test(field);
+  const persianField=/^(fa|.*Fa|prompt|title|modelText|sample|lines|topic|action|points|meaning|keywords|abstract|muqaddama|band1|band2|natija|sourceNote|whenEn|exampleFa|overviewEn)$/i.test(field);
   if((/[\u067e\u0686\u0698\u06af\u06a9\u06cc]/.test(value)||persianField)&&!/(ar|arabic|translationAr)$/i.test(field))texts.push({label,text:value});
  }else if(Array.isArray(value))value.forEach((v,i)=>walk(v,label+"["+i+"]",field));
  else if(value&&typeof value==="object")for(const [k,v] of Object.entries(value))walk(v,label+"."+k,k);
