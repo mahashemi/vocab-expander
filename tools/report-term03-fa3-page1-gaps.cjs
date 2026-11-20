@@ -8,7 +8,8 @@ for (const file of [
   "term03-lexicon-additions.js",
   "term03-matn-verbs.js",
   "term03-source-audit.js",
-  "term03-page1-additions.js"
+  "term03-page1-additions.js",
+  "term03-fa3-reviewed-additions.js"
 ]) require(path.join(root, "website", file));
 
 const entries = global.TERM3_DATA || [];
