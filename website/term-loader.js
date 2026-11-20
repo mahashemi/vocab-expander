@@ -1,6 +1,6 @@
-/* On-demand Term 03 data and lesson-feature loader.
-   Term 01/02 core data remain available immediately. Term 03 is loaded only
-   when selected, searched, or needed by the shared Verb Treasury. */
+/* On-demand semantic layers, Term 03 data and lesson-feature loader.
+   Term 01/02 core vocabulary remains immediately available; semantic layers,
+   Term 03 data and optional lesson modules are fetched only when needed. */
 (function () {
   "use strict";
 
@@ -11,6 +11,16 @@
     3: 2139
   });
 
+  const term01SemanticScripts = [
+    "term01-semantic-additions.js",
+    "term01-core-semantics.js"
+  ];
+  const term02SemanticScripts = [
+    "term02-core-semantics.js",
+    ...Array.from({ length: 9 }, (_, i) =>
+      "term02-additional-semantics-" + String(i + 1).padStart(2, "0") + ".js"
+    )
+  ];
   const term03CoreScripts = [
     "term03-data.js",
     "term03-lexicon-additions.js",
@@ -55,9 +65,10 @@
   };
 
   const scriptLoads = new Map();
+  const termLoads = new Map();
   const featureLoads = new Map();
-  let term03Loaded = false;
-  let term03Promise = null;
+  const loadedTerms = new Set();
+  let sharedSemanticsPromise = null;
 
   function loadScript(file, replay) {
     const src = replay ? file + "?term03-replay=1" : file;
@@ -79,37 +90,63 @@
     return promise;
   }
 
+  async function ensureSharedSemantics() {
+    if (!sharedSemanticsPromise) {
+      sharedSemanticsPromise = loadScript("semantic-meanings.js", false).catch(error => {
+        sharedSemanticsPromise = null;
+        throw error;
+      });
+    }
+    return sharedSemanticsPromise;
+  }
+
   async function ensureTermLoaded(term) {
-    if (Number(term) !== 3 || term03Loaded) return;
-    if (term03Promise) return term03Promise;
+    const number = Number(term);
+    if (![1, 2, 3].includes(number) || loadedTerms.has(number)) return;
+    if (termLoads.has(number)) return termLoads.get(number);
 
-    term03Promise = (async () => {
-      for (const file of term03CoreScripts) await loadScript(file, false);
+    const promise = (async () => {
+      await ensureSharedSemantics();
 
-      // These two shared additions ran on the initial page for Terms 01/02.
-      // Re-run them after Term 03 exists so their Term 03 records are added too.
-      await loadScript("newestan-lexicon-additions.js", true);
-      await loadScript("newestan-essay-vocabulary.js", true);
+      if (number === 1) {
+        for (const file of term01SemanticScripts) await loadScript(file, false);
+      } else if (number === 2) {
+        for (const file of term02SemanticScripts) await loadScript(file, false);
+      } else if (number === 3) {
+        for (const file of term03CoreScripts) await loadScript(file, false);
 
-      if (typeof window.__refreshVocabBooks !== "function") {
-        throw new Error("The vocabulary app bootstrap is not ready to accept Term 03 data.");
+        // These two shared additions ran on the initial page for Terms 01/02.
+        // Re-run them after Term 03 exists so their Term 03 records are added too.
+        await loadScript("newestan-lexicon-additions.js", true);
+        await loadScript("newestan-essay-vocabulary.js", true);
+
+        if (typeof window.__refreshVocabBooks !== "function") {
+          throw new Error("The vocabulary app bootstrap is not ready to accept Term 03 data.");
+        }
+        window.__refreshVocabBooks();
       }
-      window.__refreshVocabBooks();
-      term03Loaded = true;
+
+      loadedTerms.add(number);
       if (window.updateGlobalStats) window.updateGlobalStats();
     })().catch(error => {
-      term03Promise = null;
+      termLoads.delete(number);
       throw error;
     });
 
-    return term03Promise;
+    termLoads.set(number, promise);
+    return promise;
+  }
+
+  async function ensureAllTermsLoaded() {
+    for (const term of [1, 2, 3]) await ensureTermLoaded(term);
   }
 
   async function ensureFeatureLoaded(term, feature) {
-    const key = Number(term) + ":" + feature;
+    const number = Number(term);
+    const key = number + ":" + feature;
     const files = featureScripts[key];
     if (!files) return;
-    if (Number(term) === 3) await ensureTermLoaded(3);
+    await ensureTermLoaded(number);
     if (featureLoads.has(key)) return featureLoads.get(key);
 
     const promise = (async () => {
@@ -123,7 +160,7 @@
   }
 
   window.ensureTermLoaded = ensureTermLoaded;
-  window.ensureAllTermsLoaded = () => ensureTermLoaded(3);
+  window.ensureAllTermsLoaded = ensureAllTermsLoaded;
   window.ensureFeatureLoaded = ensureFeatureLoaded;
-  window.getLoadedTermNumbers = () => term03Loaded ? [1, 2, 3] : [1, 2];
+  window.getLoadedTermNumbers = () => [1, 2, 3].filter(term => loadedTerms.has(term));
 })();
