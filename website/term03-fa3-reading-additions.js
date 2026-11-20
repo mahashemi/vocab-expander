@@ -44,11 +44,13 @@
    for(const item of prior){
     item.sources=Array.from(new Set([...(item.sources||[item.source]).filter(Boolean),...card.sources]));
     item.units=Array.from(new Set([...(item.units||[item.unit]),...units]));
+    item.pos=item.pos||"فعل مرکب — compound verb";
+    item.ms=item.ms||card.fa;
    }
    linked++;
   } else {
    const {meaning,...fields}=card;
-   const item={...fields,source,sources:card.sources,unit:units[0],units};
+   const item={...fields,pos:"فعل مرکب — compound verb",ms:card.fa,source,sources:card.sources,unit:units[0],units};
    D.push(item);byKey.set(key,[item]);added++;
   }
   const meaning=card.meaning;
