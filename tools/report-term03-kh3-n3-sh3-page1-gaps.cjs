@@ -45,7 +45,7 @@ function extractCandidates(raw,family){
  if(family==="SH3"){
   // SH3 page-one vocabulary is enclosed by two dashed separators; the
   // printed vocabulary heading is repeated after the learning objectives.
-  const separators=[...page1.matchAll(/^\s*--\s*$/gm)];
+  const separators=[...page1.matchAll(/^\s*-{2,}\s*$/gm)];
   if(separators.length>=2){
    mode="dashed-vocabulary-block";
    const start=separators[0].index+separators[0][0].length;
