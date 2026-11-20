@@ -64,7 +64,7 @@
 [10,"N1-10","سؤال اصلی","so'āl-e asli","main question; research question","noun phrase","سؤال اصلی تحقیق باید روشن باشد.","So'āl-e asli-ye tahqiq bāyad rowshan bāshad.","The main research question should be clear."],
 [10,"N1-10","استاد راهنما","ostād-e rāhnamā","academic supervisor; advisor","noun phrase","استاد راهنما طرح تحقیق را بررسی کرد.","Ostād-e rāhnamā tarh-e tahqiq rā barrasi kard.","The academic supervisor reviewed the research proposal."],
 [10,"N1-10","فرایند نوشتن","farāyand-e neveshtan","writing process","noun phrase","فرایند نوشتن چند مرحله دارد.","Farāyand-e neveshtan chand marhale dārad.","The writing process has several stages."],
-[10,"N1-10","منبع","manba'","source; reference","noun","برای تحقیق باید منبع معتبر پیدا کنیم.","Barāye tahqiq bāyad manba'-e mo'tabar peydā konim.","We should find a reliable source for research."]
+[10,"N1-10","منبع","manba'","source; reference","noun","برای تحقیق باید منبع معتبر پیدا کنیم.","Barāye tahqiq bāyad manba'-e mo'tabar peydā konim.","We should find a reliable source for research."],
 [3,"KH1-03","کلاس درس","kelās-e dars","classroom; lesson","noun phrase","کلاس درس ما روشن است.","Kelās-e dars-e mā rowshan ast.","Our classroom is bright."],
 [18,"KH1-18","قفل کردن","qofl kardan","to lock","verb","پیش از سفر در را قفل کن.","Pish az safar dar rā qofl kon.","Lock the door before travelling."],
 [18,"KH1-18","رزرو کردن","rezerv kardan","to reserve; to book","verb","اتاق هتل را از قبل رزرو کردیم.","Otāq-e hotel rā az qabl rezerv kardim.","We booked the hotel room in advance."],
