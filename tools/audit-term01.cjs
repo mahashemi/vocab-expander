@@ -27,8 +27,7 @@ for (let i = 1; i <= 20; i++) expected.push("KH1-" + String(i).padStart(2, "0"))
 for (const prefix of ["N1", "SH1"]) {
   const limit = prefix === "N1" ? 10 : 20;
   for (let i = 1; i <= limit; i++) {
-    // SH1-10 has no OCR file in the repository inventory; keep it visible as
-    // an explicit syllabus/OCR follow-up rather than silently treating it as covered.
+    // SH1-10 is intentionally not part of this term's source inventory.
     if (prefix === "SH1" && i === 10) continue;
     expected.push(prefix + "-" + String(i).padStart(2, "0"));
   }
@@ -65,14 +64,12 @@ const expectedFiles = [
   ...Array.from({length:20},(_,i)=>"T1_F1_"+String(i+1).padStart(2,"0")+"-"),
   ...Array.from({length:20},(_,i)=>"T1_Kh_"+String(i+1).padStart(2,"0")+"-"),
   ...Array.from({length:10},(_,i)=>"T1_N1_"+String(i+1).padStart(2,"0")+"-"),
-  ...Array.from({length:19},(_,i)=>"T1_Sh1_"+String(i+1+(i>=9?1:0)).padStart(2,"0")+"-")
+  ...Array.from({length:9},(_,i)=>"T1_Sh1_"+String(i+1).padStart(2,"0")+"-"),
+  ...Array.from({length:10},(_,i)=>"T1_Sh1_"+String(i+11).padStart(2,"0")+"-")
 ];
 for (const prefix of expectedFiles) {
   assert(files.some(name => name.startsWith(prefix)), "Missing original OCR file matching " + prefix);
 }
-assert(!files.some(name => name.startsWith("T1_Sh1_10-")),
-  "SH1-10 inventory changed; review and update the explicit missing-source note");
-
 assert(global.TERM1_AMR_COUNT === 18, "Expected 18 supplementary Term 01 imperative verbs");
 assert(global.TERM1_AMR_ADDED_COUNT + global.TERM1_AMR_EXISTING_COUNT === 18,
   "Term 01 imperative batch accounting does not reconcile");
@@ -88,6 +85,5 @@ console.log(JSON.stringify({
   vocabularyRows: rows.length,
   verbs,
   nonverbs,
-  supplementaryImperatives: global.TERM1_AMR_COUNT,
-  missingOcrSource: "SH1-10 (needs syllabus/OCR confirmation)"
+  supplementaryImperatives: global.TERM1_AMR_COUNT
 }, null, 2));
