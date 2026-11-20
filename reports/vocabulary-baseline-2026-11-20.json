@@ -1,0 +1,77 @@
+{
+  "generatedAt": "2026-11-20",
+  "mainCommit": "e773e8e8aab20f6d36e1a51b93f89a16a0af5328",
+  "inventory": {
+    "totalFiles": 189,
+    "terms": {
+      "01": {
+        "ocrFiles": 69,
+        "sourceFamilies": {
+          "F1": 20,
+          "Kh": 20,
+          "N1": 10,
+          "Sh1": 19
+        },
+        "excluded": [
+          "SH1-10"
+        ]
+      },
+      "02": {
+        "ocrFiles": 60,
+        "sourceFamilies": {
+          "FA2": 20,
+          "KH2": 20,
+          "N2": 10,
+          "SH2": 10
+        }
+      },
+      "03": {
+        "ocrFiles": 60,
+        "sourceFamilies": {
+          "FA3": 20,
+          "KH3": 20,
+          "N3": 10,
+          "SH3": 10
+        }
+      }
+    }
+  },
+  "metrics": {
+    "01": {
+      "vocabularyRows": 572,
+      "uniqueNormalizedHeadwords": 557,
+      "phraseEntries": 169,
+      "sourceReferences": 574,
+      "verbs": 114,
+      "coveredSources": 69
+    },
+    "02": {
+      "vocabularyRows": 438,
+      "uniqueNormalizedHeadwords": 434,
+      "phraseEntries": 283,
+      "sourceReferences": 438,
+      "verbs": 185,
+      "coveredSources": 60
+    },
+    "03": {
+      "vocabularyRows": 2234,
+      "uniqueNormalizedHeadwords": 2067,
+      "phraseEntries": 1093,
+      "sourceReferences": 2656,
+      "verifiedVerbs": 610,
+      "coveredSources": 60,
+      "sourceReferenceDistribution": {
+        "FA3": 1302,
+        "KH3": 573,
+        "N3": 359,
+        "SH3": 329
+      },
+      "sourceChapters": 60,
+      "chapterSummaries": 20,
+      "khulasaSummaries": 20,
+      "newestanLessons": 10,
+      "speechPrompts": 20
+    }
+  },
+  "caveat": "Curated source-linked lexicon metrics, not total OCR word counts. Gap review is ongoing."
+}
