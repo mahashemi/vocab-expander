@@ -32,12 +32,12 @@ for (const fa of global.TERM03_FA3_READING_BATCH04.headwords) { const meaning = 
 assert(global.TERM03_KH3_N3_BATCH01 && global.TERM03_KH3_N3_BATCH01.added > 0, "Reviewed KH3/N3 batch 01 did not load");
 for (const fa of global.TERM03_KH3_N3_BATCH01.headwords) { const meaning = global.PERSIAN_SEMANTICS?.[fa]; assert(meaning?.faMeaning && meaning?.enMeaning && meaning?.arMeaning, "Missing trilingual meaning for " + fa); }
 assert(entries.length >= 550, "Term 03 lexicon unexpectedly small: " + entries.length);
-const sourceCounts = { FA3: 0, KH3: 0, N3: 0, SH3: 0 };
+const sourceCounts = {};
 for (const item of entries) {
   assert(item.fa && item.tr && item.en && item.pos, "Missing core vocabulary fields: " + JSON.stringify(item));
-  for (const source of (item.sources || [item.source]).filter(Boolean)) {
+  for (const source of new Set([item.source, ...(item.sources || [])].filter(Boolean))) {
     const prefix = String(source).split("-")[0];
-    if (Object.prototype.hasOwnProperty.call(sourceCounts, prefix)) sourceCounts[prefix]++;
+    sourceCounts[prefix] = (sourceCounts[prefix] || 0) + 1;
   }
   assert(!/[\u0600-\u06ff]/.test(item.tr), "Persian script in transliteration: " + item.fa);
   if (/فعل|اصطلاح فعلی/.test(item.pos)) {
