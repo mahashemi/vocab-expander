@@ -43,11 +43,20 @@ function extractCandidates(raw,family){
  let section="";
  let mode="";
  if(family==="SH3"){
-  const heading=/واژه(?:‌|\s)*ها\s*و\s*(?:اصطلاحات|اصطاحات|اصطلاح)\s*درس|واژه\s*و\s*(?:اصطلاحات|اصطاحات)/i.exec(page1);
-  if(!heading)return {status:"no_vocabulary_heading",mode:"none",candidates:[]};
-  mode="vocabulary-heading";
-  const titleEnd=page1.indexOf("\n",heading.index+heading[0].length);
-  section=page1.slice(titleEnd<0?heading.index+heading[0].length:titleEnd+1);
+  // SH3 page-one vocabulary is enclosed by two dashed separators; the
+  // printed vocabulary heading is repeated after the learning objectives.
+  const separators=[...page1.matchAll(/^\s*--\s*$/gm)];
+  if(separators.length>=2){
+   mode="dashed-vocabulary-block";
+   const start=separators[0].index+separators[0][0].length;
+   section=page1.slice(start,separators[1].index);
+  }else{
+   const lesson=/^\s*درس[\s‌]*[^\n]{1,24}/m.exec(page1);
+   if(!lesson)return {status:"no_vocabulary_heading",mode:"none",candidates:[]};
+   mode="lesson-title-fallback";
+   const titleEnd=page1.indexOf("\n",lesson.index+lesson[0].length);
+   section=page1.slice(titleEnd<0?lesson.index+lesson[0].length:titleEnd+1);
+  }
  }else{
   // KH3 and N3 OCR pages place their lesson vocabulary directly after the
   // lesson title, usually between dashed separators, without a reliable heading.
