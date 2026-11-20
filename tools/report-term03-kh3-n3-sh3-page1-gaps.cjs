@@ -13,7 +13,8 @@ for (const file of [
   "term03-fa3-reading-additions.js",
   "term03-fa3-reading-additions-02.js",
   "term03-fa3-reading-additions-03.js",
-  "term03-fa3-reading-additions-04.js"
+  "term03-fa3-reading-additions-04.js",
+  "term03-kh3-n3-additions-01.js"
 ]) require(path.join(root, "website", file));
 
 const entries = global.TERM3_DATA || [];
