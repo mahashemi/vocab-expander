@@ -56,6 +56,7 @@ async function waitFor(page, expression, label) {
     }
     if (dedupAuditErrors.length) throw new Error('Term 03 deduplication emitted an audit error: ' + dedupAuditErrors.join(' | '));
     console.log('PASS: Term 03 dedup audit reconciles against the live pre-merge dataset (' + dedupAudit.actualBefore + ' → ' + dedupAudit.after + ')');
+    if (dedupAudit.progressMigrated) throw new Error('A clean browser profile unexpectedly reported saved-progress migration.');
     await page.waitForSelector('.term-welcome', { timeout: 60000 });
     const runtimeCounts = await page.evaluate(() => window.__getRuntimeVocabCounts());
     console.log('Runtime portal vocabulary counts (custom entries excluded): ' + JSON.stringify(runtimeCounts));
@@ -89,6 +90,24 @@ async function waitFor(page, expression, label) {
     await page.click('[data-open-verbs]');
     await page.waitForSelector('#verbSearch', { state: 'visible', timeout: 120000 });
     console.log('PASS: Verb Treasury loads all-term data on demand');
+
+    // Verify that a learner's saved legacy completion ID is carried to its canonical merged ID.
+    const migrationContext = await browser.newContext({ viewport: { width: 1365, height: 900 } });
+    const migrationPage = await migrationContext.newPage();
+    await migrationPage.addInitScript(() => {
+      localStorage.setItem('persian_done_v1', JSON.stringify(['3|4|KH3-04|اختراع']));
+    });
+    await migrationPage.goto(target + '#/term/3/fa/chapter/1', { waitUntil: 'load', timeout: 120000 });
+    await waitFor(migrationPage, 'window.TERM03_DEDUP_APPLIED === true', 'Term 03 saved-progress migration runs for a returning learner');
+    const migration = await migrationPage.evaluate(() => ({
+      audit: window.TERM03_DEDUP_AUDIT,
+      done: JSON.parse(localStorage.getItem('persian_done_v1') || '[]')
+    }));
+    await migrationContext.close();
+    if (!migration.audit.progressMigrated || !migration.done.includes('3|17|FA3-17|اختراع') || migration.done.includes('3|4|KH3-04|اختراع')) {
+      throw new Error('Term 03 saved progress was not migrated to the canonical ID: ' + JSON.stringify(migration));
+    }
+    console.log('PASS: legacy Term 03 completion IDs migrate to canonical merged IDs without losing progress');
 
     if (pageErrors.length) throw new Error('Browser page errors: ' + pageErrors.join(' | '));
     console.log('All lazy-loading browser smoke tests passed.');
