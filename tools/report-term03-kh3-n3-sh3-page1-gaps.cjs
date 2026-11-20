@@ -62,7 +62,7 @@ function extractCandidates(raw,family){
   /اهداف?.{0,8}درس/i,
   /انتظ[اآا]ر[\s‌]*می[\s‌]*رود/i,
   /انتظار[\s‌]*می[\s‌]*رود/i,
-  /واژه(?:‌|\s)*ها\s*و\s*اصطلاح(?:ات|احات)\s*درس/i,
+  /واژه(?:‌|\s)*ها\s*و\s*(?:اصطلاحات|اصطاحات|اصطلاح)\s*درس/i,
  ];
  let stopIndex=-1;
  for(const pattern of stopPatterns){const match=pattern.exec(section);if(match&&(stopIndex<0||match.index<stopIndex))stopIndex=match.index;}
