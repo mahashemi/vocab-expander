@@ -1,6 +1,6 @@
-# Vocabulary audit baseline — 2026-11-20
+# Vocabulary audit baseline — 2026-11-20 (post-FA3 batch 03)
 
-Generated from the passing all-term audit workflow on main commit `e773e8e8aab20f6d36e1a51b93f89a16a0af5328`.
+Generated from the successful all-term audit on content commit `e412653a1210d3fcb850fb10dc45affee38bcd03`. The report-generation workflow fix was subsequently merged in `479dcd36f0a4334b3d500fa41ea6e5642781718d`; it changes workflow path coverage only, not lexicon content.
 
 ## OCR source inventory
 
@@ -17,16 +17,13 @@ The absent Term 01 source `SH1-10` is intentionally excluded; it is not an outst
 
 | Metric | Term 01 | Term 02 | Term 03 |
 |---|---:|---:|---:|
-| Vocabulary rows | 572 | 438 | 2,234 |
-| Unique normalized headwords | 557 | 434 | 2,067 |
-| Phrase entries | 169 | 283 | 1,093 |
-| Source references | 574 | 438 | 2,656 |
-| Verbs | 114 | 185 | 610 |
+| Vocabulary rows | 572 | 438 | 2,253 |
+| Unique normalized headwords | 557 | 434 | 2,086 |
+| Phrase entries | 169 | 283 | 1,112 |
+| Source references | 574 | 438 | 2,712 |
+| Verbs | 114 | 185 | 629 |
 
-Term 03 audit additionally reports:
-- Source reference distribution: FA3 1,302; KH3 573; N3 359; SH3 329.
-- Chapter/source coverage: 60 source chapters.
-- 20 chapter summaries, 20 Khulasa summaries, 10 Newestan lessons and 20 speech prompts.
+Term 03 source-reference distribution: FA3 1,358; KH3 573; N3 359; SH3 329. Term 03 also has 60 source chapters, 20 chapter summaries, 20 Khulasa summaries, 10 Newestan lessons and 20 speech prompts.
 
 Term 01/02 source coverage: all expected source IDs are represented in their audited lexicons (69/69 and 60/60 respectively). Term 03 covers all 60 expected source IDs.
 
@@ -36,11 +33,15 @@ Term 01/02 source coverage: all expected source IDs are represented in their aud
 - **Unique normalized headwords:** Persian-aware normalization removes whitespace/ZWNJ, tatweel and punctuation; Term 02/03 also normalize common Arabic/Persian yeh and kaf variants.
 - **Phrase entries:** whitespace-containing entries plus records explicitly tagged as compound verbs or noun phrases. This is a structural metric, not a claim that every phrase is unique.
 - **Source references:** source links retained on curated records; one record can cite multiple lessons, so this may exceed row count.
-- **Verbs:** audited verb records (Term 03 reports `verifiedVerbs`).
+- **Verbs:** audited verb records (Term 03 reports verified verbs).
+
+## FA3 reading-passage gap scan (candidate-only)
+
+The refreshed report on main commit `479dcd36f0a4334b3d500fa41ea6e5642781718d` scanned all 20 FA3 OCR files (pages 2 onward), covering 1,615 paragraphs. It found 19 repeated unknown single-word candidates and 213 unmatched phrase candidates. These are review candidates, not approved vocabulary: OCR noise, inflectional fragments and context-dependent forms require manual checking before promotion. The workflow now regenerates and uploads this report on main when its scanner changes.
 
 ## Important interpretation
 
-These figures measure the currently curated, source-linked vocabulary and content structures. They do **not** mean every word or expression in the OCR has been captured. The OCR-to-lexicon gap-review process is ongoing, starting with FA3 reading passages and continuing across KH3/N3/SH3, then Term 02 and Term 01.
+These figures measure curated, source-linked vocabulary and content structures. They do **not** mean every word or expression in the OCR has been captured. OCR-to-lexicon review remains ongoing: continue with the remaining FA3 candidates, then KH3/N3/SH3, followed by Term 02 (FA2/KH2/N2/SH2) and Term 01 (F1/Kh/N1/Sh1).
 
 ## Reproduction
 
