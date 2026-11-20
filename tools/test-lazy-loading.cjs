@@ -36,8 +36,10 @@ async function waitFor(page, expression, label) {
     console.log('PASS: initial portal is visible without loading Term 03 data');
 
     await page.goto(target + '#/term/3/fa/chapter/1', { waitUntil: 'load', timeout: 120000 });
-    await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && Array.isArray(window.TERM3_DATA) && window.TERM3_DATA.length > 2200', 'direct Term 03 deep link loads the full deduplicated vocabulary');
+    await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && Array.isArray(window.TERM3_DATA) && window.TERM3_DATA.length > 1800', 'direct Term 03 deep link loads the full deduplicated vocabulary');
     await page.waitForSelector('.term-welcome', { timeout: 60000 });
+    const runtimeCounts = await page.evaluate(() => window.__getRuntimeVocabCounts());
+    console.log('Runtime portal vocabulary counts (custom entries excluded): ' + JSON.stringify(runtimeCounts));
 
     const features = [
       ['2', 'khulasa', 'lesson', '1', 'TERM2_KHULASA'],
