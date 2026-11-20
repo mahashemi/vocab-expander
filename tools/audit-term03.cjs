@@ -31,12 +31,19 @@ for (const fa of global.TERM03_FA3_READING_BATCH03.headwords) { const meaning = 
 assert(global.TERM03_FA3_READING_BATCH04 && global.TERM03_FA3_READING_BATCH04.added > 0, "Reviewed FA3 reading batch 04 did not load");
 for (const fa of global.TERM03_FA3_READING_BATCH04.headwords) { const meaning = global.PERSIAN_SEMANTICS?.[fa]; assert(meaning?.faMeaning && meaning?.enMeaning && meaning?.arMeaning, "Missing trilingual meaning for " + fa); }
 assert(global.TERM03_FA3_READING_BATCH05 && global.TERM03_FA3_READING_BATCH05.added + global.TERM03_FA3_READING_BATCH05.linked === 4, "Reviewed FA3 reading batch 05 did not account for all four cards");
+const batch05Sources = {
+  "دکان": ["FA3-20"],
+  "کدام‌یک": ["FA3-02", "FA3-10"],
+  "قبل از میلاد": ["FA3-14"],
+  "پس از میلاد": ["FA3-14"]
+};
 for (const fa of global.TERM03_FA3_READING_BATCH05.headwords) {
   const meaning = global.PERSIAN_SEMANTICS?.[fa];
   const matches = entries.filter(item => item.fa === fa);
+  const actualSources = new Set(matches.flatMap(item => [item.source, ...(item.sources || [])].filter(Boolean)));
   assert(meaning?.faMeaning && meaning?.enMeaning && meaning?.arMeaning, "Missing trilingual meaning for " + fa);
   assert(matches.length > 0, "Reviewed FA3 reading headword was not added: " + fa);
-  assert(matches.some(item => (item.sources || [item.source]).includes("FA3-14") || (item.sources || [item.source]).includes("FA3-20") || (item.sources || [item.source]).includes("FA3-02") || (item.sources || [item.source]).includes("FA3-10")), "Missing FA3 source link for " + fa);
+  for (const source of batch05Sources[fa]) assert(actualSources.has(source), "Missing " + source + " source link for " + fa);
 }
 assert(global.TERM03_KH3_N3_BATCH01 && global.TERM03_KH3_N3_BATCH01.added > 0, "Reviewed KH3/N3 batch 01 did not load");
 for (const fa of global.TERM03_KH3_N3_BATCH01.headwords) { const meaning = global.PERSIAN_SEMANTICS?.[fa]; assert(meaning?.faMeaning && meaning?.enMeaning && meaning?.arMeaning, "Missing trilingual meaning for " + fa); }
