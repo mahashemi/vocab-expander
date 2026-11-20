@@ -11,6 +11,7 @@
     3: 2139
   });
 
+  const sharedSemanticScript = "semantic-meanings.js";
   const term01SemanticScripts = [
     "term01-semantic-additions.js",
     "term01-core-semantics.js"
@@ -92,7 +93,7 @@
 
   async function ensureSharedSemantics() {
     if (!sharedSemanticsPromise) {
-      sharedSemanticsPromise = loadScript("semantic-meanings.js", false).catch(error => {
+      sharedSemanticsPromise = loadScript(sharedSemanticScript, false).catch(error => {
         sharedSemanticsPromise = null;
         throw error;
       });
