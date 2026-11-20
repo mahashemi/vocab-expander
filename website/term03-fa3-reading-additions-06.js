@@ -24,7 +24,7 @@
   },
   {fa:"نگهداری کردن",tr:"negahdāri kardan",en:"to keep; to maintain; to take care of",sources:["FA3-13","FA3-17"],unit:13,units:[13,17],pos:"فعل مرکب — compound verb",ms:"نگهداری کردن",amr:"نگهداری کن",
    m:["نگهداری کردن از حیوانات، مسئولیت می‌خواهد.","Negahdāri kardan az heyavānāt, mas'uliyat mikhāhad.","Taking care of animals requires responsibility."],
-   a:["از این گیاه در برابر سرما نگهداری کن.","Az in گیاه dar barābar-e sarmā negahdāri kon.","Protect this plant from the cold."],
+   a:["از این گیاه در برابر سرما نگهداری کن.","Az in giyāh dar barābar-e sarmā negahdāri kon.","Protect this plant from the cold."],
    meaning:["از شخص، حیوان یا چیزی مراقبت کردن و آن را در وضعیت مناسب حفظ کردن.","To take care of a person, animal or thing and keep it in good condition.","حافظ على؛ اعتنى بـ."]
   },
   {fa:"مرتب کردن",tr:"morattab kardan",en:"to arrange; to organize; to tidy",sources:["FA3-03","FA3-20"],unit:3,units:[3,20],pos:"فعل مرکب — compound verb",ms:"مرتب کردن",amr:"مرتب کن",
@@ -58,7 +58,7 @@
    meaning:["نورانی شدن یا شروع به کار کردن چراغ و دستگاه؛ همچنین آشکار شدن.","For a light or device to turn on or illuminate; also, for something to become clear.","أضاء؛ اشتغل؛ اتّضح."]
   },
   {fa:"نابود شدن",tr:"nābud shodan",en:"to be destroyed; to perish",sources:["FA3-12"],unit:12,units:[12],pos:"فعل مرکب — compound verb",ms:"نابود شدن",amr:"—",
-   m:["نابود شدن جنگل‌ها، زیست‌بوم جانوران را تهدید می‌کند.","Nābud shodan-e jangal-hā, zist-bum-e heyavānāt rā تهدید mikonad.","The destruction of forests threatens animal habitats."],
+   m:["نابود شدن جنگل‌ها، زیست‌بوم جانوران را تهدید می‌کند.","Nābud shodan-e jangal-hā, zist-bum-e heyavānāt rā tahdid mikonad.","The destruction of forests threatens animal habitats."],
    a:null,note:"این فعل از بین رفتن یا ویران شدن را بیان می‌کند و امر مستقیم طبیعی ندارد.",
    meaning:["از بین رفتن یا به‌کلی ویران شدن.","To be destroyed or completely ruined; to perish.","هلك؛ دُمّر."]
   },
