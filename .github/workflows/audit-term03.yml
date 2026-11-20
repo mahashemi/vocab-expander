@@ -5,12 +5,17 @@ on:
     branches: [main]
     paths:
       - "website/term03-*.js"
+      - "website/term01-*.js"
+      - "website/term02-*.js"
+      - "website/newestan-lexicon-additions.js"
+      - "website/newestan-essay-vocabulary.js"
       - "website/index.html"
       - "study-materials/dars/term-03/**"
       - "tools/audit-term03.cjs"
       - "tools/audit-term03-dedup.cjs"
       - "tools/report-term03-fa3-page1-gaps.cjs"
       - "tools/report-term03-fa3-reading-gaps.cjs"
+      - "tools/test-term03-fa3-cross-term-gaps.cjs"
       - "tests/test_term03_content.py"
       - "TERM03_FIRST_PAGE_AUDIT.md"
       - ".github/workflows/audit-term03.yml"
@@ -18,6 +23,10 @@ on:
     branches: [main]
     paths:
       - "website/term03-*.js"
+      - "website/term01-*.js"
+      - "website/term02-*.js"
+      - "website/newestan-lexicon-additions.js"
+      - "website/newestan-essay-vocabulary.js"
       - "website/index.html"
       - "study-materials/dars/term-03/**"
       - "tools/audit-term03.cjs"
@@ -25,6 +34,7 @@ on:
       - "tools/report-term03-fa3-page1-gaps.cjs"
       - "tools/report-term03-kh3-n3-sh3-page1-gaps.cjs"
       - "tools/report-term03-fa3-reading-gaps.cjs"
+      - "tools/test-term03-fa3-cross-term-gaps.cjs"
       - "tests/test_term03_content.py"
       - "TERM03_FIRST_PAGE_AUDIT.md"
       - ".github/workflows/audit-term03.yml"
@@ -52,6 +62,7 @@ jobs:
           done
           node --check tools/report-term03-fa3-page1-gaps.cjs
           node --check tools/report-term03-fa3-reading-gaps.cjs
+          node --check tools/test-term03-fa3-cross-term-gaps.cjs
           node --check tools/report-term03-kh3-n3-sh3-page1-gaps.cjs
 
       - name: Run Term 03 deployment audit
@@ -72,6 +83,9 @@ jobs:
 
       - name: Generate Term 03 FA3 reading-passage gap report
         run: node tools/report-term03-fa3-reading-gaps.cjs
+
+      - name: Verify cross-term FA3 reading-gap coverage
+        run: node tools/test-term03-fa3-cross-term-gaps.cjs
 
       - name: Upload Term 03 FA3 reading-passage gap report
         uses: actions/upload-artifact@v4
