@@ -8,7 +8,7 @@
     version: "2026-11-20",
     1: 775,
     2: 1109,
-    3: 2139
+    3: 2143
   });
 
   const sharedSemanticScript = "semantic-meanings.js";
