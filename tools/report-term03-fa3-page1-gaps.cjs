@@ -10,7 +10,8 @@ for (const file of [
   "term03-source-audit.js",
   "term03-page1-additions.js",
   "term03-fa3-reviewed-additions.js",
-  "term03-fa3-reading-additions.js"
+  "term03-fa3-reading-additions.js",
+  "term03-fa3-reading-additions-02.js"
 ]) require(path.join(root, "website", file));
 
 const entries = global.TERM3_DATA || [];
