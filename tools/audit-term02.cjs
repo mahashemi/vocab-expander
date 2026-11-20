@@ -82,8 +82,8 @@ assert(rows.some(x=>x.source==='KH2-03'&&x.units.includes(11)), 'Expected KH2-03
 assert(rows.some(x=>x.source==='KH2-12'&&x.units.includes(14)), 'Expected KH2-12 flight-delay vocabulary cross-linked to FA2-14');
 assert(rows.some(x=>x.source==='N2-06'&&x.units.includes(14)), 'Expected N2-06 Newestan travel vocabulary cross-linked to FA2-14');
 if (fail.length) { console.error('Term 02 audit failed:'); for (const x of fail) console.error(' - '+x); process.exit(1); }
-const normalizeHeadword = value => String(value || "").normalize("NFC").replace(/[\\u200c\\sـ]/g, "").replace(/[،؛؟,.!?«»()[\\]{}…]/g, "").replace(/[يى]/g, "ی").replace(/ك/g, "ک").toLowerCase();
+const normalizeHeadword = value => String(value || "").normalize("NFC").replace(/[\u200c\sـ]/g, "").replace(/[،؛؟,.!?«»()[\]{}…]/g, "").replace(/[يى]/g, "ی").replace(/ك/g, "ک").toLowerCase();
 const uniqueHeadwords = new Set(rows.map(item => normalizeHeadword(item.fa)));
-const phraseEntries = rows.filter(item => /فعل مرکب|compound verb|noun phrase|گروه اسمی|ترکیب اسمی/i.test(item.pos) || /\\s/.test(String(item.fa || "").trim())).length;
+const phraseEntries = rows.filter(item => /فعل مرکب|compound verb|noun phrase|گروه اسمی|ترکیب اسمی/i.test(item.pos) || /\s/.test(String(item.fa || "").trim())).length;
 const sourceReferences = rows.reduce((total, item) => total + new Set([item.source, ...(item.sources || [])].filter(Boolean)).size, 0);
 console.log(JSON.stringify({term:'02',ocrFiles:files.length,coveredSourceIds:seen.size,expectedSourceIds:60,vocabularyRows:rows.length,uniqueNormalizedHeadwords:uniqueHeadwords.size,phraseEntries,sourceReferences,verbs,nonverbs,khulasa:global.TERM2_KHULASA.length,speeches:global.TERM2_SPEECHES.length},null,2));
