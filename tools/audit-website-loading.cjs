@@ -135,8 +135,9 @@ const lazyFeatureScriptCount = new Set([...lazyFeatureFiles, ...sharedFeatureFil
 
 const externalBytes = external.reduce((sum, item) => sum + item.bytes, 0);
 const inlineBytes = inline.reduce((sum, item) => sum + item.bytes, 0);
-if (external.length > 30) loaderOrderErrors.push('Initial external script count exceeds the 30-file budget: ' + external.length);
-if (externalBytes > 1.5 * 1024 * 1024) loaderOrderErrors.push('Initial external JavaScript exceeds the 1.5 MiB source budget: ' + externalBytes + ' bytes');
+if (external.length > 18) loaderOrderErrors.push('Initial external script count exceeds the 18-file budget: ' + external.length);
+if (externalBytes > 0.75 * 1024 * 1024) loaderOrderErrors.push('Initial external JavaScript exceeds the 0.75 MiB source budget: ' + externalBytes + ' bytes');
+if (inlineBytes > 250 * 1024) loaderOrderErrors.push('Inline application JavaScript exceeds the 250 KiB source budget: ' + inlineBytes + ' bytes');
 const noLoadHints = scripts.filter(x => x.kind !== 'remote' && !x.async && !x.defer).length;
 const report = {
   generatedAt: new Date().toISOString(),
@@ -170,9 +171,9 @@ const md = [
   '|---|---:|',
   '| HTML bytes | ' + report.html.bytes.toLocaleString('en-US') + ' |',
   '| Script tags | ' + report.scriptTagCount + ' |',
-  '| External scripts | ' + report.externalScriptCount + ' (budget: 30) |',
-  '| External JavaScript bytes | ' + report.externalScriptBytes.toLocaleString('en-US') + ' (budget: 1.5 MiB) |',
-  '| Inline script bytes | ' + report.inlineScriptBytes.toLocaleString('en-US') + ' |',
+  '| External scripts | ' + report.externalScriptCount + ' (budget: 18) |',
+  '| External JavaScript bytes | ' + report.externalScriptBytes.toLocaleString('en-US') + ' (budget: 0.75 MiB) |',
+  '| Inline script bytes | ' + report.inlineScriptBytes.toLocaleString('en-US') + ' (budget: 250 KiB) |',
   '| Scripts without async/defer | ' + report.scriptTagsWithoutAsyncOrDefer + ' |',
   '| Term 03 core scripts deferred until needed | ' + lazyTerm03CoreScriptCount + ' |',
   '| Feature scripts deferred until opened | ' + lazyFeatureScriptCount + ' |',
