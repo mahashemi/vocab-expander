@@ -8,6 +8,7 @@ require("../website/term03-matn-verbs.js");
 require("../website/term03-source-audit.js");
 require("../website/term03-page1-additions.js");
 require("../website/term03-fa3-reviewed-additions.js");
+require("../website/term03-fa3-reading-additions.js");
 require("../website/term03-chapter-mapping.js");
 require("../website/newestan-lexicon-additions.js");
 require("../website/newestan-essay-vocabulary.js");
@@ -16,6 +17,8 @@ require("../website/term03-khulasa.js");
 require("../website/term03-speeches.js");
 require("../website/term03-newestan-final-insha.js");
 const entries = global.TERM3_DATA || [];
+assert(global.TERM03_FA3_READING_BATCH01 && global.TERM03_FA3_READING_BATCH01.added > 0, "Reviewed FA3 reading batch did not load");
+for (const fa of global.TERM03_FA3_READING_BATCH01.headwords) { const meaning = global.PERSIAN_SEMANTICS?.[fa]; assert(meaning?.faMeaning && meaning?.enMeaning && meaning?.arMeaning, "Missing trilingual meaning for " + fa); }
 assert(entries.length >= 550, "Term 03 lexicon unexpectedly small: " + entries.length);
 const sourceCounts = { FA3: 0, KH3: 0, N3: 0, SH3: 0 };
 for (const item of entries) {
