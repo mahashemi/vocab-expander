@@ -25,7 +25,7 @@ const normalize = value => String(value || "").normalize("NFKC")
   .replace(/[،؛؟,.!?«»()[\]{}"'"]/g, "").toLowerCase();
 
 const known = new Set(entries.map(item => normalize(item.fa)).filter(Boolean));
-const knownPhrases = new Set(entries.filter(item => /[\\s‌]/.test(String(item.fa || ""))).map(item => normalize(item.fa)).filter(Boolean));
+const knownPhrases = new Set(entries.filter(item => /[\s‌]/.test(String(item.fa || ""))).map(item => normalize(item.fa)).filter(Boolean));
 const isCoveredPhrase = key => known.has(key) || [...knownPhrases].some(existing => existing.includes(key) || key.includes(existing));
 const knownComponents = new Set();
 for (const item of entries) {
