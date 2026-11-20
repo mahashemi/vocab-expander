@@ -10,6 +10,8 @@ on:
       - "website/newestan-*.js"
       - "website/semantic-meanings.js"
       - "website/index.html"
+      - "website/*.js"
+      - "tools/audit-website-loading.cjs"
       - "study-materials/dars/term-01/**"
       - "study-materials/dars/term-02/**"
       - "study-materials/dars/term-03/**"
@@ -55,6 +57,19 @@ jobs:
           for file in website/term01-*.js website/term02-*.js website/term03-*.js; do
             node --check "$file"
           done
+
+      - name: Audit website initial loading and script dependencies
+        run: node tools/audit-website-loading.cjs
+
+      - name: Upload website loading inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-loading-inventory
+          path: |
+            reports/website-loading-inventory.json
+            reports/website-loading-inventory.md
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Run Term 01 audit
         run: node tools/audit-term01.cjs
