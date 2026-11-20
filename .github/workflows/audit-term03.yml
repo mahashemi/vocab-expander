@@ -9,6 +9,7 @@ on:
       - "study-materials/dars/term-03/**"
       - "tools/audit-term03.cjs"
       - "tools/audit-term03-dedup.cjs"
+      - "tools/report-term03-fa3-page1-gaps.cjs"
       - "tests/test_term03_content.py"
       - "TERM03_FIRST_PAGE_AUDIT.md"
       - ".github/workflows/audit-term03.yml"
@@ -20,6 +21,7 @@ on:
       - "study-materials/dars/term-03/**"
       - "tools/audit-term03.cjs"
       - "tools/audit-term03-dedup.cjs"
+      - "tools/report-term03-fa3-page1-gaps.cjs"
       - "tests/test_term03_content.py"
       - "TERM03_FIRST_PAGE_AUDIT.md"
       - ".github/workflows/audit-term03.yml"
@@ -45,9 +47,23 @@ jobs:
           for file in website/term03-*.js; do
             node --check "$file"
           done
+          node --check tools/report-term03-fa3-page1-gaps.cjs
 
       - name: Run Term 03 deployment audit
         run: node tools/audit-term03.cjs
+
+      - name: Generate Term 03 FA3 first-page OCR gap report
+        run: node tools/report-term03-fa3-page1-gaps.cjs
+
+      - name: Upload Term 03 FA3 gap report
+        uses: actions/upload-artifact@v4
+        with:
+          name: term03-fa3-page1-gap-report
+          path: |
+            reports/term03-fa3-page1-gap-report.json
+            reports/term03-fa3-page1-gap-report.md
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Run Term 03 deduplication runtime audit
         run: node tools/audit-term03-dedup.cjs
