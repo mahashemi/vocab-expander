@@ -77,12 +77,17 @@ assert(global.TERM1_CORE_SEMANTICS_COUNT > 0, "Term 01 core semantic meanings di
 assert(global.PERSIAN_SEMANTICS && Object.keys(global.PERSIAN_SEMANTICS).length > 0,
   "Shared Persian semantic dictionary did not load");
 
+const normalizeHeadword = value => String(value || "").normalize("NFC").replace(/[\\u200c\\sـ]/g, "").replace(/[،؛؟,.!?«»()[\\]{}…]/g, "").toLowerCase();
+const uniqueHeadwords = new Set(rows.map(item => normalizeHeadword(item.fa)));
+const phraseEntries = rows.filter(item => /فعل مرکب|compound verb|noun phrase|گروه اسمی|ترکیب اسمی/i.test(item.pos) || /\\s/.test(String(item.fa || "").trim())).length;
+const sourceReferences = rows.reduce((total, item) => total + new Set([item.source, ...(item.sources || [])].filter(Boolean)).size, 0);
+
 console.log(JSON.stringify({
   term: "01",
   ocrFiles: files.length,
   expectedSourceIds: expected.length,
   coveredSourceIds: expected.filter(source => present.has(source)).length,
-  vocabularyRows: rows.length,
+  vocabularyRows: rows.length,\n  uniqueNormalizedHeadwords: uniqueHeadwords.size,\n  phraseEntries,\n  sourceReferences,
   verbs,
   nonverbs,
   supplementaryImperatives: global.TERM1_AMR_COUNT
