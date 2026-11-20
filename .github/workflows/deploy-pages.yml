@@ -7,6 +7,7 @@ on:
     paths:
       - "website/**"
       - ".github/workflows/deploy-pages.yml"
+      - ".github/workflows/performance-baseline.yml"
       - "tools/**"
       - "study-materials/dars/term-01/**"
       - "study-materials/dars/term-02/**"
@@ -17,6 +18,7 @@ on:
     paths:
       - "website/**"
       - ".github/workflows/deploy-pages.yml"
+      - ".github/workflows/performance-baseline.yml"
       - "tools/**"
       - "study-materials/dars/term-01/**"
       - "study-materials/dars/term-02/**"
