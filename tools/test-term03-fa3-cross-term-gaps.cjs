@@ -30,6 +30,13 @@ for (const [word, term] of expectedCoverage) {
 
 assert.ok(!unmatchedWords.has("دکان"), "the reviewed literary word دکان should no longer remain in the candidate queue");
 assert.ok(!unmatchedWords.has("کدام‌یک"), "the reviewed expression کدام‌یک should no longer remain in the candidate queue");
+const unmatchedPhrases = new Set(report.phrases.map(item => item.phrase));
+const reviewedBatch06 = [
+  "خودداری کردن","دعا کردن","دریافت کردن","نگهداری کردن","مرتب کردن","جمع کردن",
+  "وصل کردن","تقسیم شدن","حل شدن","روشن شدن","نابود شدن","متولد شدن",
+  "غافل شدن","تکرار شدن","به شمار رفتن","به ذهنم رسیدن","به آرزویش رسیدن","در ارتباط بودن"
+];
+for (const phrase of reviewedBatch06) assert.ok(!unmatchedPhrases.has(phrase), "Reviewed compound phrase should no longer be in the gap queue: " + phrase);
 assert.equal(report.totals.crossTermCoveredWordCandidates, report.crossTermCovered.words.length);
 assert.equal(report.totals.crossTermCoveredPhraseCandidates, report.crossTermCovered.phrases.length);
 
