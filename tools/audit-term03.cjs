@@ -13,6 +13,7 @@ require("../website/term03-fa3-reading-additions-02.js");
 require("../website/term03-fa3-reading-additions-03.js");
 require("../website/term03-fa3-reading-additions-04.js");
 require("../website/term03-kh3-n3-additions-01.js");
+require("../website/term03-kh3-n3-additions-02.js");
 require("../website/term03-chapter-mapping.js");
 require("../website/newestan-lexicon-additions.js");
 require("../website/newestan-essay-vocabulary.js");
@@ -31,6 +32,8 @@ assert(global.TERM03_FA3_READING_BATCH04 && global.TERM03_FA3_READING_BATCH04.ad
 for (const fa of global.TERM03_FA3_READING_BATCH04.headwords) { const meaning = global.PERSIAN_SEMANTICS?.[fa]; assert(meaning?.faMeaning && meaning?.enMeaning && meaning?.arMeaning, "Missing trilingual meaning for " + fa); }
 assert(global.TERM03_KH3_N3_BATCH01 && global.TERM03_KH3_N3_BATCH01.added > 0, "Reviewed KH3/N3 batch 01 did not load");
 for (const fa of global.TERM03_KH3_N3_BATCH01.headwords) { const meaning = global.PERSIAN_SEMANTICS?.[fa]; assert(meaning?.faMeaning && meaning?.enMeaning && meaning?.arMeaning, "Missing trilingual meaning for " + fa); }
+assert(global.TERM03_KH3_N3_BATCH02 && global.TERM03_KH3_N3_BATCH02.added > 0, "Reviewed KH3/N3 batch 02 did not load");
+for (const fa of global.TERM03_KH3_N3_BATCH02.headwords) { const meaning = global.PERSIAN_SEMANTICS?.[fa]; assert(meaning?.faMeaning && meaning?.enMeaning && meaning?.arMeaning, "Missing trilingual meaning for " + fa); }
 assert(entries.length >= 550, "Term 03 lexicon unexpectedly small: " + entries.length);
 const sourceCounts = { FA3: 0, KH3: 0, N3: 0, SH3: 0 };
 for (const item of entries) {
