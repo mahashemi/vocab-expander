@@ -206,6 +206,7 @@ const lines = [
   "- Extracted candidates: " + totals.candidates,
   "- Covered in the same source: " + totals.coveredInSource,
   "- Present elsewhere; source link needs review: " + totals.presentElsewhereCheckSourceLink,
+  "- Possible OCR variants: " + totals.possibleOcrVariant,
   "- Unmatched candidates requiring human review: " + totals.unmatchedReview,
   "",
   "## Source-by-source results",
