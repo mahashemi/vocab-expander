@@ -79,10 +79,11 @@ assert(has(2,1,"تبدیل فعل گفتاری")&&has(2,2,"چهار نوع جم�
 assert(has(3,3,"گذشتهٔ بعید")&&has(3,5,"اندام‌های جمع")&&has(3,8,"شش گام خلاصه")&&has(3,9,"نوشتار علمی")&&has(3,10,"مراحل سازمان‌دهی تحقیق"),"Term 03 must include the source-specific grammar, summary and research lessons");
 
 const index=require("node:fs").readFileSync(path.join(__dirname,"../website/index.html"),"utf8");
-for(const script of ["newestan-writing-library.js","newestan-writing-ui.js","term03-newestan-teaching.js","term03-newestan-teaching-ui.js"])assert(index.includes(script),"Missing script include: "+script);
+const loader=require("node:fs").readFileSync(path.join(__dirname,"../website/term-loader.js"),"utf8");
+for(const script of ["newestan-writing-library.js","newestan-writing-ui.js","term03-newestan-teaching.js","term03-newestan-teaching-ui.js"])assert(loader.includes(script),"Missing lazy script integration: "+script);
 assert(index.includes("window.renderNewestanTerm1(lesson)"),"Term 01 Newestan view is not wired with route-aware lesson selection");
 assert(index.includes("if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1(lesson);window.bindNewestanWorkshop();return}"),"Term 01/02 Newestan view is not wired");
-assert(index.includes("term03-newestan-standalone.js")&&index.includes("term03-newestan-teaching-ui.js"),"Term 03 lesson teaching modules are not loaded");
+assert(loader.includes("term03-newestan-standalone.js")&&loader.includes("term03-newestan-teaching-ui.js"),"Term 03 lesson teaching modules are not lazy-loaded");
 assert(index.includes("const picker=document.getElementById(\"newestanLesson\")")&&index.includes("window.__vocabRouteLesson"),"Newestan lesson selection must be restored from and written to the URL");
 assert(!index.includes("پس از تطبیق کامل با درس‌های منبع"),"Term 01 placeholder must be removed");
 assert(index.includes("if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1(lesson);window.bindNewestanWorkshop();return}"),"Terms 01 and 02 Newestan tabs must be standalone and route-aware");
@@ -103,7 +104,7 @@ assert(index.includes("meaning-ar")&&index.includes("arMeaning"),"Shared flashca
 assert.equal(typeof global.renderNewestanTerm3,"function","Term 03 standalone renderer must be available");
 assert.equal(typeof global.bindNewestanTerm3,"function","Term 03 standalone selector must be wired");
 assert.equal(Object.keys(global.TERM3_NEWESTAN_INSHA).length,10,"Term 03 source prompt library must contain all ten lessons");
-assert(index.includes('<script src="newestan-language-lessons.js"></script>'),"OCR-based language lesson module must load");
+assert(loader.includes("newestan-language-lessons.js"),"OCR-based language lesson module must be lazy-loaded");
 for(let term=1;term<=3;term++)for(let i=1;i<=10;i++){
  const lesson=global.NEWESTAN_LANGUAGE_LESSONS?.[term]?.[i];
  assert(lesson&&lesson.source&&lesson.sections?.length>=1,"Missing source-based Biyamoozim lesson: Term "+term+" Dars "+i);
@@ -128,6 +129,6 @@ for(const term of [1,2]){
 }
 global.activeTerm=3;
 
-assert(index.includes('<script src="term03-newestan-standalone.js"></script>'),"Term 03 standalone Newestan UI must load");
+assert(loader.includes("term03-newestan-standalone.js"),"Term 03 standalone Newestan UI must be lazy-loaded");
 assert(index.includes("if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3(lesson);window.bindNewestanTerm3();return}"),"Term 03 must return before the FA writing renderer with route-aware lesson selection");
 console.log(JSON.stringify({term01:library[1].length,term02:library[2].length,term03:Object.keys(t3).length,term03Lessons:10,term03ResearchLessons:1},null,2));
