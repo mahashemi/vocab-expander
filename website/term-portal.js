@@ -82,8 +82,11 @@
   if(input.value)renderResults();
  }
  window.updateGlobalStats=updateStats;
+ let termEntryRequest=0;
  async function enterTerm(b){
+  const request=++termEntryRequest;
   try{await window.ensureTermLoaded(b)}catch(error){const status=$id("globalSearchMeta");if(status)status.textContent="This term could not be loaded. Please retry.";console.error(error);return}
+  if(request!==termEntryRequest)return;
   activeTerm=b;bkSel.value=String(b);fillCh();chSel.value="all";if(b===2){speechCh=1;}
   $id("termNav").hidden=false;$id("activeTermTitle").textContent="TERM 0"+b+(b===3?" · PERSIAN":"");
   document.querySelectorAll('#termTabs [data-t="essays"],#termTabs [data-t="speeches"],#termTabs [data-t="khulasa"]').forEach(x=>x.hidden=!(b===2||b===3));
@@ -99,7 +102,7 @@
  };
  const routeTabs={fa:"home",study:"home",flashcards:"cards",quiz:"quiz",khulasa:"khulasa",newestan:"essays",sukhanrani:"speeches"};
  const routeNames={home:"fa",cards:"flashcards",quiz:"quiz",khulasa:"khulasa",essays:"newestan",speeches:"sukhanrani"};
- let applyingRoute=false;
+ let applyingRoute=false,routeRequest=0,tabRequest=0;
  function currentRoute(){
   if(tab==="portal")return "#/";
   if(tab==="verbs")return "#/verbs";
@@ -125,13 +128,15 @@
   if(location.hash!==next)location.hash=next;
  }
  async function applyRoute(){
+  const request=++routeRequest;
   const raw=location.hash||"#/";
   if(raw==="#/"||raw==="#"){
    applyingRoute=true;activeTerm=null;tab="portal";bkSel.value="all";fillCh();$id("termNav").hidden=true;window.__vocabRouteLesson=null;render();applyingRoute=false;return;
   }
   if(raw==="#/verbs"){
    applyingRoute=true;
-   try{await window.ensureAllTermsLoaded()}catch(error){applyingRoute=false;console.error(error);return}
+   try{await window.ensureAllTermsLoaded()}catch(error){if(request===routeRequest)applyingRoute=false;console.error(error);return}
+   if(request!==routeRequest)return;
    activeTerm=null;tab="verbs";$id("termNav").hidden=true;window.__vocabRouteLesson=null;render();applyingRoute=false;return;
   }
   const m=raw.match(/^#\/term\/(1|2|3)\/(fa|study|flashcards|quiz|khulasa|newestan|sukhanrani)(?:\/(chapter|lesson)\/([^/?#]+))?\/?$/);
@@ -143,7 +148,8 @@
    if(routeName==="khulasa")await window.ensureFeatureLoaded(term,"khulasa");
    if(routeName==="sukhanrani")await window.ensureFeatureLoaded(term,"speeches");
    if(routeName==="newestan")await window.ensureFeatureLoaded(term,"essays");
-  }catch(error){applyingRoute=false;console.error(error);return}
+  }catch(error){if(request===routeRequest)applyingRoute=false;console.error(error);return}
+  if(request!==routeRequest)return;
   activeTerm=term;bkSel.value=String(term);fillCh();
   if(routeName==="newestan")window.__vocabRouteLesson=Math.max(1,Math.min(10,Number(value)||1));else window.__vocabRouteLesson=null;
   if(routeName==="sukhanrani")speechCh=Number(value)|| (term===2?1:20);
@@ -159,10 +165,12 @@
  }
  window.render=function(){if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();updateStats();syncRoute()};
  window.gotoTab=async function(t){
+  const request=++tabRequest;
   try{
    if(t==="verbs")await window.ensureAllTermsLoaded();
    else if(["khulasa","speeches","essays"].includes(t)&&activeTerm)await window.ensureFeatureLoaded(activeTerm,t==="essays"?"essays":t);
   }catch(error){const status=$id("globalSearchMeta");if(status)status.textContent="This learning section could not be loaded. Please retry.";console.error(error);return}
+  if(request!==tabRequest)return;
   tab=t;document.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",x.dataset.t===t));bkSel.hidden=true;chSel.hidden=![ "cards","quiz","khulasa"].includes(t);deck=[];idx=0;flip=false;render()
  };
  document.addEventListener("change",e=>{if(e.target&&["newestanLesson","speechChapter","khulasaChapter","ch"].includes(e.target.id))syncRoute()});
