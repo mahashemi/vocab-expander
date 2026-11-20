@@ -24,11 +24,24 @@
    {b:2,no:"TERM 02",name:"Term Two",sub:"Strengthen grammar and expression",theme:"t2"},
    {b:3,no:"TERM 03",name:"Term Three",sub:"Read, write, speak and think in Persian",theme:"t3"}
   ];
-  v.innerHTML='<section class="portal-intro"><div class="eyebrow">YOUR PERSIAN LEARNING LIBRARY</div><h2>Choose your term. Continue your journey.</h2><p>Every term has its own vocabulary, practice tools and learning activities. Your memorisation progress is tracked across the whole collection.</p></section>'+
+  if(!v.querySelector('.portal-intro'))v.innerHTML='<section class="portal-intro"><div class="eyebrow">YOUR PERSIAN LEARNING LIBRARY</div><h2>Choose your term. Continue your journey.</h2><p>Every term has its own vocabulary, practice tools and learning activities. Your memorisation progress is tracked across the whole collection.</p></section>'+
   '<section class="global-search" aria-label="Search all terms and verbs"><div class="global-search-heading"><div><div class="eyebrow">ONE SEARCH · THE WHOLE LIBRARY</div><h3>Find a word, phrase or verb</h3><p>Search Persian, Arabic, Urdu, English or transliteration across all three terms and the Verb Treasury.</p></div></div><div class="global-search-box"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="مثلاً: برگشتن · برگرد · return · sit down" aria-label="Search all terms and verb treasury"><button type="button" id="globalSearchClear" aria-label="Clear search">Clear</button></div><div class="global-search-meta" id="globalSearchMeta" aria-live="polite">Search the complete vocabulary and verb collection.</div><div id="globalSearchResults" class="global-search-results"></div></section>'+
   '<div class="term-grid">'+data.map(t=>{const list=a.filter(x=>x.bk===t.b),mem=list.filter(x=>done.has(x.id)).length,p=list.length?Math.round(mem*100/list.length):0;return '<button class="term-entry '+t.theme+'" data-enter="'+t.b+'"><span class="term-no">'+t.no+'</span><span class="term-name">'+t.name+'</span><span class="term-sub">'+t.sub+'</span><div class="term-stats"><span>'+list.length.toLocaleString()+' words</span><span>'+mem.toLocaleString()+' memorised</span></div><div class="bar"><i style="width:'+p+'%"></i></div><span class="term-cta">Enter term →</span></button>'}).join("")+'</div>'+
   '<div class="verb-entry-wrap"><button class="verb-entry" data-open-verbs><span class="term-no">A SHARED GRAMMAR COLLECTION</span><span class="term-name">گنجینهٔ فعل‌ها · Verb Treasury</span><span class="term-sub">Masdar, amr, example sentences and revision cards across terms</span><span class="term-cta">Enter the verb treasury →</span></button></div>'+
   '<div class="portal-summary"><span><b>'+a.length.toLocaleString()+'</b> total vocabulary entries</span><span><b>'+d.toLocaleString()+'</b> memorised</span><span><b>'+(a.length?Math.round(d*100/a.length):0)+'%</b> overall progress</span></div>';
+  data.forEach(t=>{
+   const list=a.filter(x=>x.bk===t.b),mem=list.filter(x=>done.has(x.id)).length,p=list.length?Math.round(mem*100/list.length):0;
+   const card=v.querySelector('[data-enter="'+t.b+'"]');if(!card)return;
+   const stats=card.querySelector(".term-stats");
+   if(stats)stats.innerHTML='<span>'+list.length.toLocaleString()+' words</span><span>'+mem.toLocaleString()+' memorised</span>';
+   const bar=card.querySelector(".bar i");if(bar)bar.style.width=p+"%";
+  });
+  const summary=v.querySelectorAll(".portal-summary b");
+  if(summary.length>=3){
+   summary[0].textContent=a.length.toLocaleString();
+   summary[1].textContent=d.toLocaleString();
+   summary[2].textContent=(a.length?Math.round(d*100/a.length):0)+"%";
+  }
   v.querySelectorAll("[data-enter]").forEach(btn=>btn.onclick=()=>enterTerm(Number(btn.dataset.enter)));
   const verbs=v.querySelector("[data-open-verbs]");if(verbs)verbs.onclick=()=>{activeTerm=null;$id("termNav").hidden=true;gotoTab("verbs")};
   const input=$id("globalSearchInput"),results=$id("globalSearchResults"),meta=$id("globalSearchMeta");
@@ -41,6 +54,7 @@
    results.querySelectorAll("[data-result]").forEach(btn=>btn.onclick=()=>{const x=hits[Number(btn.dataset.result)];if(!x)return;if(x.kind==="Verb Treasury"){activeTerm=null;$id("termNav").hidden=true;window.openVerbSearch?window.openVerbSearch(x.label):gotoTab("verbs");return}enterTerm(Number(x.bk));if(x.ch!=null){chSel.value=String(x.ch);render()}$id("termNav").scrollIntoView({behavior:"smooth",block:"start"})});
   };
   input.oninput=renderResults;$id("globalSearchClear").onclick=()=>{input.value="";renderResults();input.focus()};
+  if(input.value)renderResults();
  }
  window.updateGlobalStats=updateStats;
  function enterTerm(b){activeTerm=b;bkSel.value=String(b);fillCh();chSel.value="all";if(b===2){speechCh=1;}
