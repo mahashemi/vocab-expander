@@ -109,20 +109,47 @@ for (let lesson = 1; lesson <= 20; lesson++) {
 
       for (let i = 0; i < tokens.length; i++) {
         const canonicalVerb = verbForms.get(normalize(tokens[i]));
-        if (!canonicalVerb) continue;
-        for (let width = 1; width <= 3; width++) {
-          const start = i - width;
-          if (start < 0) continue;
-          const before = tokens.slice(start, i);
-          const content = before.filter(t => !isStop(t));
-          if (!content.length) continue;
-          const phraseTokens = before.map(t => verbForms.get(normalize(t)) || t).concat(canonicalVerb);
+        if (!canonicalVerb || i < 1) continue;
+        const previous = tokens[i - 1];
+        const previousKey = normalize(previous);
+        if (!previousKey || isStop(previous) || previousKey === "خدا") continue;
+
+        const addPhrase = phraseTokens => {
           const phrase = phraseTokens.join(" ");
           const key = normalize(phrase);
-          if (!key || known.has(key)) continue;
-          const nonStop = phraseTokens.filter(t => !isStop(t) || t === canonicalVerb);
-          if (nonStop.length < 2) continue;
+          if (!key || known.has(key)) return;
           addCandidate(phraseMap, key, phrase, source, sentence);
+        };
+
+        // Core light-verb collocation: noun/adjective + infinitive.
+        addPhrase([previous, canonicalVerb]);
+
+        // Preserve a small set of productive Persian preposition + noun + light-verb
+        // patterns, rather than generating arbitrary sentence fragments.
+        if (i >= 2) {
+          const prep = normalize(tokens[i - 2]);
+          if (["به","از","در","زیر","روی"].includes(prep)) {
+            addPhrase([tokens[i - 2], previous, canonicalVerb]);
+          }
+        }
+
+        // Established three-part idiom/collocation shapes that need a wider window.
+        if (i >= 3) {
+          const p3 = normalize(tokens[i - 3]);
+          const p2 = normalize(tokens[i - 2]);
+          const p1 = normalize(tokens[i - 1]);
+          if (p3 === "از" && p2 === "کوره" && p1 === "در" && canonicalVerb === "رفتن") {
+            addPhrase(["از","کوره","در","رفتن"]);
+          }
+          if (p3 === "روی" && p2 === "کسی" && p1 === "حساب" && canonicalVerb === "کردن") {
+            addPhrase(["روی","کسی","حساب","کردن"]);
+          }
+          if (p3 === "در" && p2 === "معرض" && p1 === "قرار" && canonicalVerb === "گرفتن") {
+            addPhrase(["در","معرض","قرار","گرفتن"]);
+          }
+          if (p3 === "از" && p2 === "دست" && p1 === "دادن" && canonicalVerb === "دادن") {
+            addPhrase(["از","دست","دادن"]);
+          }
         }
       }
     }
