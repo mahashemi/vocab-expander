@@ -37,7 +37,7 @@ The portal displays the actual runtime book-array counts after the application's
 | Term 02 | 1,109 |
 | Term 03 | 2,143 |
 
-Measured by the post-deployment browser smoke test in [run 44802583486](https://github.com/mahashemi/vocab-expander/actions/runs/44802583486). These runtime totals are intentionally distinct from the curated audit `vocabularyRows` metrics above: the audit and the rendered application count different stages/collections (including seed content, runtime deduplication and Newestan additions).
+Measured by the post-deployment browser smoke test in [run 44804035759](https://github.com/mahashemi/vocab-expander/actions/runs/44804035759). These runtime totals are intentionally distinct from the curated audit `vocabularyRows` metrics above: the audit and the rendered application count different stages/collections (including seed content, runtime deduplication and Newestan additions).
 
 ## Term 03 OCR-to-lexicon gap reports
 
