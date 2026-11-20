@@ -1,11 +1,12 @@
-/* On-demand semantic layers, Term 03 data and lesson-feature loader.
+/* Vocab release 2026-11-20-batch05.
+   On-demand semantic layers, Term 03 data and lesson-feature loader.
    Term 01/02 core vocabulary remains immediately available; semantic layers,
    Term 03 data and optional lesson modules are fetched only when needed. */
 (function () {
   "use strict";
 
   window.VOCAB_PORTAL_SUMMARY = Object.freeze({
-    version: "2026-11-20",
+    version: "2026-11-20-batch05",
     1: 775,
     2: 1109,
     3: 2143
