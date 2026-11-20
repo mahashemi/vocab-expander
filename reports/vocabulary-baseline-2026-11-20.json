@@ -1,8 +1,8 @@
 {
   "generatedAt": "2026-11-20",
-  "mainCommit": "97d8a0b255b09ba90b2590701cbe634ae163a3fc",
-  "auditWorkflowRun": 44802383707,
-  "auditContentCommit": "97d8a0b255b09ba90b2590701cbe634ae163a3fc",
+  "mainCommit": "fa26f4de136ff43bc09ecfc5acf0eda963a16be1",
+  "auditWorkflowRun": 44805267562,
+  "auditContentCommit": "fa26f4de136ff43bc09ecfc5acf0eda963a16be1",
   "inventory": {
     "totalFiles": 189,
     "terms": {
@@ -56,14 +56,14 @@
       "coveredSources": 60
     },
     "03": {
-      "vocabularyRows": 2298,
-      "uniqueNormalizedHeadwords": 2131,
-      "phraseEntries": 1138,
-      "sourceReferences": 2781,
-      "verifiedVerbs": 653,
+      "vocabularyRows": 2316,
+      "uniqueNormalizedHeadwords": 2149,
+      "phraseEntries": 1156,
+      "sourceReferences": 2808,
+      "verifiedVerbs": 671,
       "coveredSources": 60,
       "sourceReferenceDistribution": {
-        "FA3": 1407,
+        "FA3": 1434,
         "KH3": 593,
         "N3": 359,
         "SH3": 329,
@@ -77,7 +77,7 @@
     }
   },
   "term03GapReports": {
-    "workflowRun": 44802383707,
+    "workflowRun": 44805267562,
     "fa3FirstPage": {
       "sourceFilesExpected": 20,
       "sourceFilesFound": 20,
@@ -96,7 +96,7 @@
       "sourceFilesFound": 20,
       "paragraphsScanned": 1615,
       "unknownRepeatedWordCandidates": 7,
-      "unmatchedPhraseCandidates": 167,
+      "unmatchedPhraseCandidates": 149,
       "candidateOnly": true,
       "crossTermCoveredWordCandidates": 203,
       "crossTermCoveredPhraseCandidates": 16
@@ -119,8 +119,8 @@
   "portalRuntimeCounts": {
     "01": 775,
     "02": 1109,
-    "03": 2143,
+    "03": 2161,
     "customEntriesExcluded": true,
-    "measuredBySmokeTestRun": 44804035759
+    "measuredBySmokeTestRun": null
   }
 }
