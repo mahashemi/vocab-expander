@@ -116,10 +116,12 @@ def test_all_curated_verb_examples_match_their_masdar_and_imperative() -> None:
 
 def test_term03_deduplication_plan_and_runtime_audit_are_wired_before_mapping() -> None:
     index = read("index.html")
+    loader = read("term-loader.js")
     page1 = read("term03-page1-additions.js")
     dedup = read("term03-dedup.js")
-    assert index.index('src="term03-page1-additions.js"') < index.index('src="term03-chapter-mapping.js"')
-    assert index.index('src="term03-chapter-mapping.js"') < index.index('src="term03-dedup.js"')
+    assert loader.index('"term03-page1-additions.js"') < loader.index('"term03-chapter-mapping.js"')
+    assert loader.index('"term03-chapter-mapping.js"') < loader.index('"term03-dedup.js"')
+    assert 'src="term03-data.js"' not in index
     assert "replace(/[\\u064B-\\u065F\\u0670\\u0640]/g" in page1
     assert "replace(/[\\u200c\\s]+/g" in page1
     assert "expectedApprovedMerges:EXPECTED.approvedMerges" in dedup
@@ -158,8 +160,10 @@ def test_newestan_standalone_curriculum_keeps_all_lessons_and_final_insha() -> N
     picker = read("term03-newestan-insha.js")
     renderer = read("term03-newestan-standalone.js")
     final_insha = read("term03-newestan-final-insha.js")
-    assert index.index('src="term03-chapter-mapping.js"') < index.index('src="term03-newestan-insha.js"')
-    assert 'src="term03-newestan-final-insha.js"' in index
+    loader = read("term-loader.js")
+    assert loader.index('"term03-chapter-mapping.js"') < loader.index('"term03-newestan-insha.js"')
+    assert loader.index('"term03-newestan-final-insha.js"') < loader.index('"term03-newestan-insha.js"')
+    assert 'term03-newestan-final-insha.js' in loader
     assert "window.TERM3_NEWESTAN_INSHA=R" in picker
     assert "TERM3_NEWESTAN_FINAL_INSHA" in renderer
     assert "attachVocabularyLinks(scope)" in renderer

@@ -73,7 +73,9 @@ for (const x of global.TERM2_SPEECHES||[]) assert(/[0-9۰-۹٠-٩]{1,3}[:：][0-
 const kh = fs.readFileSync(path.join(root,'website/term02-khulasa.js'),'utf8');
 assert(kh.includes('[[QURAN:5:32|'), 'Missing explicit source Quran reference marker (5:32)');
 const index = fs.readFileSync(path.join(root,'website/index.html'),'utf8');
-for (const x of ['term02-data.js','term02-lexicon-additions.js','term02-khulasa.js','term02-speeches.js','data-vocab-id','sharedVocabModal','sharedVocabFlip','Escape','target="_blank"','rel="noopener noreferrer"','QuranMemorizer/#/surah/','attachVocabularyLinks(v.querySelector(".khulasa-page"))','term2=new Map()']) assert(index.includes(x), 'Missing UI integration: '+x);
+for (const x of ['term02-data.js','term02-lexicon-additions.js','data-vocab-id','sharedVocabModal','sharedVocabFlip','Escape','target="_blank"','rel="noopener noreferrer"','QuranMemorizer/#/surah/','attachVocabularyLinks(v.querySelector(".khulasa-page"))','term2=new Map()']) assert(index.includes(x), 'Missing UI integration: '+x);
+const loader = fs.readFileSync(path.join(root,'website/term-loader.js'),'utf8');
+for (const x of ['term02-khulasa.js','term02-speeches.js']) assert(loader.includes(x), 'Missing lazy feature integration: '+x);
 const portal = fs.readFileSync(path.join(root,'website/term-portal.js'),'utf8');
 assert(portal.includes('b===2||b===3'), 'Term 02 Newestan/Sukhanrani navigation must not depend on retired essay data');
 assert(rows.some(x=>x.source==='N2-03'&&x.units.includes(6)), 'Expected N2-03 hospital vocabulary cross-linked to FA2-06');

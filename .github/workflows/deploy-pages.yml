@@ -240,7 +240,9 @@ jobs:
           node tools/audit-newestan-writing.cjs
 
       - name: Check browser performance measurement script syntax
-        run: node --check tools/measure-site-performance.cjs
+        run: |
+          node --check tools/measure-site-performance.cjs
+          node --check tools/test-lazy-loading.cjs
 
       - name: Validate embedded application JavaScript
         run: |

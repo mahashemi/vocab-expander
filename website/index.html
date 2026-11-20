@@ -265,18 +265,18 @@ main{max-width:1120px;padding:28px 24px 16px}.site-head{margin-bottom:26px}.bran
 <script src="term01-data.js"></script>
 <script src="term02-data.js"></script>
 <script src="term02-lexicon-additions.js"></script>
-<script src="term02-khulasa.js"></script>
-<script src="term02-speeches.js"></script>
+
+
 <script src="term01-chapters-11-15.js"></script>
 <script src="term01-chapters-16-20.js"></script>
 <script src="term01-supplementary.js"></script>
-<script src="term03-data.js"></script>
-<script src="term03-lexicon-additions.js"></script>
-<script src="term03-matn-verbs.js"></script>
-<script src="term03-source-audit.js"></script>
-<script src="term03-speeches.js"></script>
-<script src="term03-newestan-final-insha.js"></script>
-<script src="term03-khulasa.js"></script>
+
+
+
+
+
+
+
 <script src="semantic-meanings.js"></script>
 <script src="term01-semantic-additions.js"></script>
 <script src="term01-amr-verbs.js"></script>
@@ -292,69 +292,69 @@ main{max-width:1120px;padding:28px 24px 16px}.site-head{margin-bottom:26px}.bran
 <script src="term02-additional-semantics-07.js"></script>
 <script src="term02-additional-semantics-08.js"></script>
 <script src="term02-additional-semantics-09.js"></script>
-<script src="term03-core-semantics.js"></script>
-<script src="term03-additional-semantics-01.js"></script>
-<script src="term03-additional-semantics-02.js"></script>
-<script src="term03-additional-semantics-03.js"></script>
-<script src="term03-additional-semantics-04.js"></script>
-<script src="term03-additional-semantics-05.js"></script>
-<script src="term03-additional-semantics-06.js"></script>
-<script src="term03-additional-semantics-07.js"></script>
-<script src="term03-additional-semantics-08.js"></script>
-<script src="term03-additional-semantics-09.js"></script>
-<script src="term03-additional-semantics-10.js"></script>
-<script src="term03-additional-semantics-11.js"></script>
-<script src="term03-additional-semantics-12.js"></script>
-<script src="term03-additional-semantics-13.js"></script>
-<script src="term03-additional-semantics-14.js"></script>
-<script src="term03-additional-semantics-15.js"></script>
-<script src="term03-additional-semantics-16.js"></script>
-<script src="term03-additional-semantics-17.js"></script>
-<script src="term03-additional-semantics-18.js"></script>
-<script src="term03-additional-semantics-19.js"></script>
-<script src="term03-additional-semantics-20.js"></script>
-<script src="term03-additional-semantics-21.js"></script>
-<script src="term03-additional-semantics-22.js"></script>
-<script src="term03-additional-semantics-23.js"></script>
-<script src="term03-additional-semantics-24.js"></script>
-<script src="term03-additional-semantics-25.js"></script>
-<script src="term03-additional-semantics-26.js"></script>
-<script src="term03-additional-semantics-27.js"></script>
-<script src="term03-additional-semantics-28.js"></script>
-<script src="term03-additional-semantics-29.js"></script>
-<script src="term03-additional-semantics-30.js"></script>
-<script src="term03-additional-semantics-31.js"></script>
-<script src="term03-additional-semantics-32.js"></script>
-<script src="term03-additional-semantics-33.js"></script>
-<script src="term03-additional-semantics-34.js"></script>
-<script src="term03-additional-semantics-35.js"></script>
-<script src="term03-additional-semantics-36.js"></script>
-<script src="term03-additional-semantics-37.js"></script>
-<script src="term03-additional-semantics-38.js"></script>
-<script src="term03-additional-semantics-39.js"></script>
-<script src="term03-additional-semantics-40.js"></script>
-<script src="term03-additional-semantics-41.js"></script>
-<script src="term03-additional-semantics-42.js"></script>
-<script src="term03-additional-semantics-43.js"></script>
-<script src="term03-additional-semantics-44.js"></script>
-<script src="term03-additional-semantics-45.js"></script>
-<script src="term03-additional-semantics-46.js"></script>
-<script src="term03-page1-additions.js"></script>
-<script src="term03-fa3-reviewed-additions.js"></script>
-<script src="term03-fa3-reading-additions.js"></script>
-<script src="term03-fa3-reading-additions-02.js"></script>
-<script src="term03-fa3-reading-additions-03.js"></script>
-<script src="term03-fa3-reading-additions-04.js"></script>
-<script src="term03-kh3-n3-additions-01.js"></script>
-<script src="term03-chapter-mapping.js"></script>
-<script src="term03-newestan-insha.js"></script>
-<script src="term03-newestan-teaching.js"></script>
-<script src="term03-newestan-teaching-ui.js"></script>
-<script src="newestan-writing-library.js"></script>
-<script src="newestan-language-lessons.js"></script>
-<script src="newestan-writing-ui.js"></script>
-<script src="term03-newestan-standalone.js"></script>
-<script src="term03-dedup.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <script src="newestan-lexicon-additions.js"></script>
 <script src="newestan-essay-vocabulary.js"></script>
 <script>
@@ -1151,6 +1151,7 @@ const BOOK2=[
 ];
 // Hierarchy: BOOKS[bookNumber] = built-in rows. Add built-in rows for books 1 and 3 here.
 const BOOKS={1:(window.TERM1_DATA||[]),2:BOOK2.concat(window.TERM2_DATA||[]),3:(window.TERM3_DATA||[])};
+window.__refreshVocabBooks=()=>{BOOKS[1]=window.TERM1_DATA||[];BOOKS[2]=BOOK2.concat(window.TERM2_DATA||[]);BOOKS[3]=window.TERM3_DATA||[];};
 const KEY="persian_custom_v2",DKEY="persian_done_v1";
 // EXTRA: extra sentences (and notes) keyed by Persian word: [sentence fa, translit, english, note]. Row’s own sentence wins.
 const EXTRA={
@@ -1352,6 +1353,7 @@ let custom=[],done=new Set(),hideDone=false;
 // custom rows: [book, chapter, persian, translit, meaning, exFa, exTr, exEn]
 try{custom=JSON.parse(localStorage.getItem(KEY)||"null")||JSON.parse(localStorage.getItem("persian_custom_v1")||"[]").map(r=>[2,...r])}catch(e){custom=[]}
 try{done=new Set(JSON.parse(localStorage.getItem(DKEY)||"[]"))}catch(e){}
+window.__getCustomVocabRows=()=>custom;window.__getDoneIds=()=>[...done];
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(custom))}catch(e){}if(window.updateGlobalStats)window.updateGlobalStats()};
 const saveDone=()=>{try{localStorage.setItem(DKEY,JSON.stringify([...done]))}catch(e){}if(window.updateGlobalStats)window.updateGlobalStats()};
 const all=()=>{
@@ -1369,6 +1371,11 @@ const all=()=>{
   for(const field of ['tr','en','xf','xt','xe','nt','pos','ms','amr','m','a','note'])if((prior[field]===undefined||prior[field]===null||prior[field]==='')&&item[field]!==undefined)prior[field]=item[field];
  });
  return out.concat(custom.map(r=>toItem(r.slice(1),Number(r[0]))));
+};
+window.__getRuntimeVocabCounts=()=>{
+ const rows=all(),customCounts={1:0,2:0,3:0};
+ for(const row of custom)if(customCounts[Number(row[0])]!==undefined)customCounts[Number(row[0])]++;
+ return Object.fromEntries([1,2,3].map(b=>[b,rows.filter(item=>item.bk===b).length-customCounts[b]]));
 };
 const $=s=>document.querySelector(s), v=$("#v"), chSel=$("#ch"), bkSel=$("#bk");
 let tab="portal",activeTerm=null,idx=0,flip=false,deck=[],quiz=null;
@@ -1760,5 +1767,6 @@ chSel.onchange=()=>{deck=[];idx=0;flip=false;render()};
 bkSel.onchange=()=>{fillCh();deck=[];idx=0;flip=false;render()};
 bkSel.hidden=chSel.hidden=true;fillBk();render();
 </script>
+<script src="term-loader.js"></script>
 <script src="verb-treasury.js"></script>\n<script src="term-portal.js"></script>
 </body></html>
