@@ -25,6 +25,7 @@ const normalize = value => String(value || "")
   .replace(/[\u200c\sـ]/g,"")
   .replace(/[،؛؟,.!?«»()[\]{}"'"]/g,"").toLowerCase();
 
+const listStopWords = new Set(["از","به","در","و","را","که","با","برای","تا","یا","این","آن","یک","هم","اما","اگر","چون","ما","من","تو","او","همه","هر","هیچ","چه","کدام"]);
 const sourceDir = path.join(root,"study-materials/dars/term-03");
 const sourceFiles = fs.readdirSync(sourceDir);
 const lexiconBySource = new Map();
@@ -42,7 +43,7 @@ function extractCandidates(raw,family){
  let section="";
  let mode="";
  if(family==="SH3"){
-  const heading=/واژه(?:‌|\s)*ها\s*و\s*اصطلاح(?:ات|احات)\s*درس|واژه\s*و\s*اصطلاحات/i.exec(page1);
+  const heading=/واژه(?:‌|\s)*ها\s*و\s*(?:اصطلاحات|اصطاحات|اصطلاح)\s*درس|واژه\s*و\s*(?:اصطلاحات|اصطاحات)/i.exec(page1);
   if(!heading)return {status:"no_vocabulary_heading",mode:"none",candidates:[]};
   mode="vocabulary-heading";
   const titleEnd=page1.indexOf("\n",heading.index+heading[0].length);
@@ -62,7 +63,6 @@ function extractCandidates(raw,family){
   /انتظ[اآا]ر[\s‌]*می[\s‌]*رود/i,
   /انتظار[\s‌]*می[\s‌]*رود/i,
   /واژه(?:‌|\s)*ها\s*و\s*اصطلاح(?:ات|احات)\s*درس/i,
-  /^\s*[0-9۰-۹٠-٩]+(?:\s+\S{1,8})?\s*$/m
  ];
  let stopIndex=-1;
  for(const pattern of stopPatterns){const match=pattern.exec(section);if(match&&(stopIndex<0||match.index<stopIndex))stopIndex=match.index;}
@@ -77,6 +77,7 @@ function extractCandidates(raw,family){
    if(parenthetical>=0)candidate=candidate.slice(0,parenthetical).trim();
    const key=normalize(candidate);
    if(!key||key.length<2||!/[\u0600-\u06ff]/.test(candidate))continue;
+   if(candidate.split(/\s+/).length===1&&listStopWords.has(key))continue;
    if(candidate.length>65||candidate.split(/\s+/).length>8)continue;
    if(/^(واژه|اصطلاحات|جدید|درس|صفحه|اهداف)$/.test(candidate)||/^واژه.{0,18}(اصطلاح|اصطاح).{0,8}درس/.test(candidate))continue;
    if(!candidates.has(key))candidates.set(key,candidate);
