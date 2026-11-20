@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "website/term03-*.js"
+      - "website/term-loader.js"
       - "website/term01-*.js"
       - "website/term02-*.js"
       - "website/newestan-lexicon-additions.js"
@@ -23,6 +24,7 @@ on:
     branches: [main]
     paths:
       - "website/term03-*.js"
+      - "website/term-loader.js"
       - "website/term01-*.js"
       - "website/term02-*.js"
       - "website/newestan-lexicon-additions.js"
@@ -60,6 +62,7 @@ jobs:
           for file in website/term03-*.js; do
             node --check "$file"
           done
+          node --check website/term-loader.js
           node --check tools/report-term03-fa3-page1-gaps.cjs
           node --check tools/report-term03-fa3-reading-gaps.cjs
           node --check tools/test-term03-fa3-cross-term-gaps.cjs
