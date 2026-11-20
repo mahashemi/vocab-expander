@@ -22,6 +22,7 @@ on:
       - "tools/audit-term03.cjs"
       - "tools/audit-term03-dedup.cjs"
       - "tools/report-term03-fa3-page1-gaps.cjs"
+      - "tools/report-term03-fa3-reading-gaps.cjs"
       - "tests/test_term03_content.py"
       - "TERM03_FIRST_PAGE_AUDIT.md"
       - ".github/workflows/audit-term03.yml"
@@ -48,6 +49,7 @@ jobs:
             node --check "$file"
           done
           node --check tools/report-term03-fa3-page1-gaps.cjs
+          node --check tools/report-term03-fa3-reading-gaps.cjs
 
       - name: Run Term 03 deployment audit
         run: node tools/audit-term03.cjs
@@ -62,6 +64,19 @@ jobs:
           path: |
             reports/term03-fa3-page1-gap-report.json
             reports/term03-fa3-page1-gap-report.md
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Generate Term 03 FA3 reading-passage gap report
+        run: node tools/report-term03-fa3-reading-gaps.cjs
+
+      - name: Upload Term 03 FA3 reading-passage gap report
+        uses: actions/upload-artifact@v4
+        with:
+          name: term03-fa3-reading-gap-report
+          path: |
+            reports/term03-fa3-reading-gap-report.json
+            reports/term03-fa3-reading-gap-report.md
           if-no-files-found: error
           retention-days: 14
 
