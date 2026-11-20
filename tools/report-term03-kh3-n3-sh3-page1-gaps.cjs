@@ -110,9 +110,10 @@ function extractCandidates(raw,family){
   }
   if(!lightVerbs.has(verb))continue;
   const last=normalize(previous[previous.length-1]);
-  const width= new Set(["قرار","دست","پا","گوش","خود","یاد","نظر","کار","خدمت","اختیار","وجود","به","در","از"]).has(last)?2:1;
+  const width= new Set(["قرار","دست","پا","گوش","آغوش","دام","تعویق","استقبال","خود","یاد","نظر","کار","خدمت","اختیار","وجود","به","در","از"]).has(last)?2:1;
   let tail=previous.slice(-width);
-  if(width===2&&tail.length===2&&["تحت","پشت","به","در","از"].includes(normalize(tail[0]))&&last==="قرار")tail=previous.slice(-3);
+  if(last==="قرار"&&previous.length>=3&&["تحت","در"].includes(normalize(previous[previous.length-3])))tail=previous.slice(-3);
+  if(last==="در"&&previous.length>=3&&normalize(previous[previous.length-3])==="از"&&normalize(previous[previous.length-2])==="کوره")tail=previous.slice(-3);
   const phrase=tail.concat(next[0]).join(" ");
   const key=normalize(phrase);if(key)candidates.set(key,phrase);
  }
