@@ -37,6 +37,7 @@
     "term03-fa3-reading-additions-02.js",
     "term03-fa3-reading-additions-03.js",
     "term03-fa3-reading-additions-04.js",
+    "term03-fa3-reading-additions-05.js",
     "term03-kh3-n3-additions-01.js",
     "term03-chapter-mapping.js",
     // Keep dedup after all reviewed Term 03 data and before Newestan-wide
