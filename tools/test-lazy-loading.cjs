@@ -30,7 +30,7 @@ async function waitFor(page, expression, label) {
     if (initial.term3DataType !== 'undefined' || initial.dedupApplied) {
       throw new Error('Term 03 data was loaded on the initial portal visit; lazy loading did not hold.');
     }
-    if (!initial.loaderReady || !initial.portalSummary || initial.portalSummary[3] !== 2294) {
+    if (!initial.loaderReady || !initial.portalSummary || initial.portalSummary[3] !== 2139) {
       throw new Error('Initial portal summary or Term 03 loader is unavailable: ' + JSON.stringify(initial));
     }
     console.log('PASS: initial portal is visible without loading Term 03 data');
@@ -40,6 +40,12 @@ async function waitFor(page, expression, label) {
     await page.waitForSelector('.term-welcome', { timeout: 60000 });
     const runtimeCounts = await page.evaluate(() => window.__getRuntimeVocabCounts());
     console.log('Runtime portal vocabulary counts (custom entries excluded): ' + JSON.stringify(runtimeCounts));
+    for (const term of [1, 2, 3]) {
+      if (runtimeCounts[term] !== initial.portalSummary[term]) {
+        throw new Error('Portal count mismatch for Term ' + term + ': summary=' + initial.portalSummary[term] + ', runtime=' + runtimeCounts[term]);
+      }
+    }
+    console.log('PASS: portal summary counts match the loaded runtime books');
 
     const features = [
       ['2', 'khulasa', 'lesson', '1', 'TERM2_KHULASA'],
