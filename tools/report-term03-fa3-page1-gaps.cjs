@@ -11,7 +11,8 @@ for (const file of [
   "term03-page1-additions.js",
   "term03-fa3-reviewed-additions.js",
   "term03-fa3-reading-additions.js",
-  "term03-fa3-reading-additions-02.js"
+  "term03-fa3-reading-additions-02.js",
+  "term03-fa3-reading-additions-03.js"
 ]) require(path.join(root, "website", file));
 
 const entries = global.TERM3_DATA || [];
@@ -154,7 +155,7 @@ for (let lesson = 1; lesson <= 20; lesson++) {
   const candidates = extracted.candidates.map(candidate => {
     const matchesInSource = sourceKeys.has(candidate.key);
     const matchesElsewhere = lexiconByHeadword.has(candidate.key);
-    const componentKeys = !matchesInSource && candidate.key.length >= 4 ? [...sourceKeys].filter(key => key.includes(candidate.key)) : [];
+    const componentKeys = !matchesInSource && candidate.key.length >= 4 ? [...sourceKeys].filter(key => key.length >= 4 && (key.includes(candidate.key) || candidate.key.includes(key))) : [];
     const matchesAsComponent = componentKeys.length > 0;
     const matches = matchesInSource ? lexiconByHeadword.get(candidate.key) : matchesElsewhere ? lexiconByHeadword.get(candidate.key) : componentKeys.flatMap(key => lexiconByHeadword.get(key) || []);
     const suggestions = matchesInSource || matchesElsewhere || matchesAsComponent ? [] : nearMatches(candidate.key);
