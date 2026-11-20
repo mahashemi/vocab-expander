@@ -6,6 +6,8 @@ require("../website/term03-data.js");
 require("../website/term03-lexicon-additions.js");
 require("../website/term03-matn-verbs.js");
 require("../website/term03-source-audit.js");
+require("../website/term03-page1-additions.js");
+require("../website/term03-fa3-reviewed-additions.js");
 require("../website/term03-chapter-mapping.js");
 require("../website/newestan-lexicon-additions.js");
 require("../website/newestan-essay-vocabulary.js");
