@@ -46,11 +46,12 @@
     item.units=Array.from(new Set([...(item.units||[item.unit]),...units]));
    }
    linked++;
-   continue;
+  } else {
+   const {meaning,...fields}=card;
+   const item={...fields,source,sources:card.sources,unit:units[0],units};
+   D.push(item);byKey.set(key,[item]);added++;
   }
-  const {meaning,...fields}=card;
-  const item={...fields,source,sources:card.sources,unit:units[0],units};
-  D.push(item);byKey.set(key,[item]);added++;
+  const meaning=card.meaning;
   S[card.fa]={...(S[card.fa]||{}),faMeaning:meaning[0],enMeaning:meaning[1],arMeaning:meaning[2],faSynonyms:(S[card.fa]||{}).faSynonyms||[],enSynonyms:(S[card.fa]||{}).enSynonyms||[],arSynonyms:(S[card.fa]||{}).arSynonyms||[]};
  }
  window.TERM03_FA3_READING_BATCH01={added,linked,headwords:cards.map(x=>x.fa)};
