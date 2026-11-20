@@ -3,6 +3,21 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 global.window = global;
 
+// Load all term datasets before the shared Newestan additions so duplicate checks
+// see the same cross-term vocabulary that learners can search in the application.
+for (const file of [
+  "term01-data.js",
+  "term01-chapters-11-15.js",
+  "term01-chapters-16-20.js",
+  "term01-supplementary.js"
+]) require(path.join(root, "website", file));
+
+for (const file of [
+  "term02-data.js",
+  "term02-lexicon-additions.js",
+  "term02-proverbs.js"
+]) require(path.join(root, "website", file));
+
 for (const file of [
   "term03-data.js",
   "term03-lexicon-additions.js",
@@ -14,11 +29,16 @@ for (const file of [
   "term03-fa3-reading-additions-02.js",
   "term03-fa3-reading-additions-03.js",
   "term03-fa3-reading-additions-04.js",
-  "term03-kh3-n3-additions-01.js"
+  "term03-kh3-n3-additions-01.js",
+  "term03-chapter-mapping.js"
 ]) require(path.join(root, "website", file));
 
+require(path.join(root, "website", "newestan-lexicon-additions.js"));
+require(path.join(root, "website", "newestan-essay-vocabulary.js"));
+
 const entries = global.TERM3_DATA || [];
-if (!entries.length) throw new Error("Term 03 vocabulary did not load");
+const otherEntries = [...(global.TERM1_DATA || []), ...(global.TERM2_DATA || [])];
+if (!entries.length || !otherEntries.length) throw new Error("All-term vocabulary data did not load");
 
 const normalize = value => String(value || "").normalize("NFKC")
   .replace(/[يى]/g, "ی").replace(/ك/g, "ک")
@@ -28,7 +48,28 @@ const normalize = value => String(value || "").normalize("NFKC")
 
 const known = new Set(entries.map(item => normalize(item.fa)).filter(Boolean));
 const knownPhrases = new Set(entries.filter(item => /[\s‌]/.test(String(item.fa || ""))).map(item => normalize(item.fa)).filter(Boolean));
-const isCoveredPhrase = key => known.has(key) || [...knownPhrases].some(existing => existing.includes(key) || key.includes(existing));
+const otherTermHeadwords = new Map();
+const otherTermPhrases = new Map();
+const otherTermComponents = new Map();
+for (const item of otherEntries) {
+  const key = normalize(item.fa);
+  if (!key) continue;
+  const term = Number(item.bk || (item.source && item.source.startsWith("N1-") ? 1 : item.source && item.source.startsWith("N2-") ? 2 : item.unit ? (global.TERM1_DATA.includes(item) ? 1 : 2) : 0));
+  if (!otherTermHeadwords.has(key)) otherTermHeadwords.set(key, new Set());
+  if (term) otherTermHeadwords.get(key).add(term);
+  if (/[\s‌]/.test(String(item.fa || ""))) {
+    if (!otherTermPhrases.has(key)) otherTermPhrases.set(key, new Set());
+    if (term) otherTermPhrases.get(key).add(term);
+  }
+  for (const token of String(item.fa || "").split(/[\s‌]+/)) {
+    const part = normalize(token);
+    if (!part) continue;
+    if (!otherTermComponents.has(part)) otherTermComponents.set(part, new Set());
+    if (term) otherTermComponents.get(part).add(term);
+  }
+}
+const isCoveredInTerm03 = key => known.has(key) || [...knownPhrases].some(existing => existing.includes(key) || key.includes(existing));
+const otherTermPhraseMatches = key => [...otherTermPhrases].filter(([existing]) => existing.includes(key) || key.includes(existing));
 const knownComponents = new Set();
 for (const item of entries) {
   for (const token of String(item.fa || "").split(/[\s‌]+/)) {
@@ -36,6 +77,8 @@ for (const item of entries) {
     if (key) knownComponents.add(key);
   }
 }
+const crossTermWordMap = new Map();
+const crossTermPhraseMap = new Map();
 
 const stopWords = new Set([
   "و","یا","که","را","در","به","از","با","برای","تا","اگر","چون","اما","ولی","این","آن","آنها","ایشان","او","من","تو","ما","شما","خود","هم","نیز","هر","هیچ","بعضی","بسیاری","چند","یک","دو","سه","همه","فقط","بسیار","خیلی","بیشتر","کمتر","دیگر","باید","شاید","ممکن","است","هست","بود","باشد","هستند","شد","شده","می","نمی","های","ها","تر","ترین","ای","آنچه","چیزی","کسی","هرگز","همیشه","اکنون","امروز","دیروز","فردا","حالا","وقتی","همان","چنین","بنابراین","مثلا","مثلاً","یعنی","زیرا","سپس","بعد","قبل","پس","مانند","درباره","دربارة","نسبت","طریق","طور","جهت","ضمن","بدون","روی","زیر","کنار","مقابل","میان","بین","پیش","نزد","همچنین","بلکه","نه","بله","آری","خیر","لطفا","لطفاً","سلام","خداحافظ","آنجا","اینجا","کدام","چه","چرا","چگونه","چطور","کجا","کی","کِی","هرکدام","همین","آنها","آنها","ایشان","بعضی","اکثر","تمام","کل","نزدیک","دور","مثل","مثال","مثلا","برای","همراه","بسیار","واقعاً","واقعا","اصلا","اصلاً","فقط","حتی","تقریبا","تقریباً","فورا","فوراً","دوباره","یکدیگر","دیگران","خودشان","خودش","خودم","خودت","خودمان","خودتان"
@@ -73,12 +116,14 @@ const phraseMap = new Map();
 const tokenMap = new Map();
 const sources = [];
 
-function addCandidate(map, key, text, source, context) {
-  if (!map.has(key)) map.set(key, { text, count: 0, sources: new Set(), contexts: [] });
+function addCandidate(map, key, text, source, context, metadata = {}) {
+  if (!map.has(key)) map.set(key, { text, count: 0, sources: new Set(), contexts: [], ...metadata });
   const item = map.get(key);
   item.count++;
   item.sources.add(source);
   if (item.contexts.length < 3 && context && !item.contexts.includes(context)) item.contexts.push(context);
+  if (metadata.coverage) item.coverage = metadata.coverage;
+  if (metadata.otherTerms) item.otherTerms = [...new Set([...(item.otherTerms || []), ...metadata.otherTerms])].sort();
 }
 
 for (let lesson = 1; lesson <= 20; lesson++) {
@@ -108,6 +153,16 @@ for (let lesson = 1; lesson <= 20; lesson++) {
       for (const token of tokens) {
         const key = normalize(token);
         if (!key || key.length < 3 || isStop(token) || known.has(key) || knownComponents.has(key)) continue;
+        const otherExact = otherTermHeadwords.get(key);
+        const otherComponent = otherTermComponents.get(key);
+        if (otherExact || otherComponent) {
+          const terms = [...(otherExact || otherComponent || [])].map(String);
+          addCandidate(crossTermWordMap, key, token, source, sentence, {
+            coverage: otherExact ? "exact_in_other_term" : "component_in_other_term",
+            otherTerms: terms
+          });
+          continue;
+        }
         frequencies.set(key, (frequencies.get(key) || 0) + 1);
       }
       for (const [key, count] of frequencies) {
@@ -124,7 +179,22 @@ for (let lesson = 1; lesson <= 20; lesson++) {
         const addPhrase = phraseTokens => {
           const phrase = phraseTokens.join(" ");
           const key = normalize(phrase);
-          if (!key || isCoveredPhrase(key)) return;
+          if (!key || isCoveredInTerm03(key)) return;
+          const exactTerms = otherTermHeadwords.get(key);
+          const phraseMatches = otherTermPhraseMatches(key);
+          const componentTerms = otherTermComponents.get(key);
+          if (exactTerms || phraseMatches.length || componentTerms) {
+            const terms = new Set([
+              ...(exactTerms || []),
+              ...(componentTerms || []),
+              ...phraseMatches.flatMap(([, termSet]) => [...termSet])
+            ]);
+            addCandidate(crossTermPhraseMap, key, phrase, source, sentence, {
+              coverage: exactTerms ? "exact_in_other_term" : phraseMatches.length ? "phrase_component_in_other_term" : "component_in_other_term",
+              otherTerms: [...terms].map(String)
+            });
+            return;
+          }
           addCandidate(phraseMap, key, phrase, source, sentence);
         };
 
@@ -172,11 +242,19 @@ const words = [...tokenMap.entries()]
   .filter(([,x]) => x.count >= 2)
   .map(([normalized,x]) => ({ normalized, word:x.text, occurrences:x.count, sources:[...x.sources], contexts:x.contexts }))
   .sort((a,b) => b.occurrences-a.occurrences || a.word.localeCompare(b.word));
+const crossTermWords = [...crossTermWordMap.entries()]
+  .filter(([,x]) => x.count >= 2)
+  .map(([normalized,x]) => ({ normalized, word:x.text, coverage:x.coverage, otherTerms:x.otherTerms || [], occurrences:x.count, sources:[...x.sources], contexts:x.contexts }))
+  .sort((a,b) => b.occurrences-a.occurrences || a.word.localeCompare(b.word));
+const crossTermPhrases = [...crossTermPhraseMap.entries()]
+  .filter(([,x]) => x.count >= 2 || x.text.split(/\s+/).length >= 3)
+  .map(([normalized,x]) => ({ normalized, phrase:x.text, coverage:x.coverage, otherTerms:x.otherTerms || [], occurrences:x.count, sources:[...x.sources], contexts:x.contexts }))
+  .sort((a,b) => b.occurrences-a.occurrences || a.phrase.localeCompare(b.phrase));
 
 const report = {
   generatedAt: new Date().toISOString(),
   scope: "FA3 OCR pages 2 onward; vocabulary-list page 1 is excluded.",
-  method: "Candidate-only scan. Finds repeated unknown Persian tokens and multiword sequences ending in recognized inflected light verbs, normalizes those verbs to infinitives, and compares against the current Term 03 lexicon.",
+  method: "Candidate-only scan. Finds repeated unknown Persian tokens and multiword sequences ending in recognized inflected light verbs, normalizes those verbs to infinitives, and compares against Term 03 plus Term 01/02 vocabulary. Exact/component matches in other terms are retained in a separate cross-term coverage queue for source-link review.",
   limitations: [
     "This is a discovery heuristic, not a Persian morphological parser. It can miss one-off terms and produce phrase fragments.",
     "OCR line breaks, inflection, and sentence segmentation can distort candidates.",
@@ -188,11 +266,14 @@ const report = {
     sourceFilesFound: sources.filter(x => x.filename).length,
     paragraphsScanned: sources.reduce((n,x)=>n+x.paragraphs,0),
     unknownRepeatedWordCandidates: words.length,
-    unmatchedPhraseCandidates: phrases.length
+    unmatchedPhraseCandidates: phrases.length,
+    crossTermCoveredWordCandidates: crossTermWords.length,
+    crossTermCoveredPhraseCandidates: crossTermPhrases.length
   },
   sources,
   words,
-  phrases
+  phrases,
+  crossTermCovered: { words: crossTermWords, phrases: crossTermPhrases }
 };
 
 const reportDir = path.join(root, "reports");
@@ -211,7 +292,9 @@ const lines = [
   "- OCR files found: " + report.totals.sourceFilesFound + "/20",
   "- Paragraphs scanned (page 2 onward): " + report.totals.paragraphsScanned,
   "- Repeated unknown single-word candidates: " + report.totals.unknownRepeatedWordCandidates,
-  "- Unmatched phrase candidates: " + report.totals.unmatchedPhraseCandidates,
+  "- Unmatched phrase candidates across all terms: " + report.totals.unmatchedPhraseCandidates,
+  "- Repeated word candidates already covered in Term 01/02: " + report.totals.crossTermCoveredWordCandidates,
+  "- Phrase candidates already covered in Term 01/02: " + report.totals.crossTermCoveredPhraseCandidates,
   "",
   "## Repeated unknown single-word candidates",
   ""
@@ -223,6 +306,15 @@ for (const item of words.slice(0, 250)) {
 lines.push("", "## Unmatched phrase candidates", "");
 for (const item of phrases.slice(0, 350)) {
   lines.push("- " + item.phrase + " — " + item.occurrences + " occurrence(s); " + item.sources.join(", "));
+  for (const context of item.contexts.slice(0,2)) lines.push("  - " + context);
+}
+lines.push("", "## Candidates covered in another term (source-link review)", "");
+for (const item of crossTermWords) {
+  lines.push("- " + item.word + " — " + item.coverage + "; Term " + item.otherTerms.join(", ") + "; " + item.occurrences + " occurrence(s); " + item.sources.join(", "));
+  for (const context of item.contexts.slice(0,2)) lines.push("  - " + context);
+}
+for (const item of crossTermPhrases) {
+  lines.push("- " + item.phrase + " — " + item.coverage + "; Term " + item.otherTerms.join(", ") + "; " + item.occurrences + " occurrence(s); " + item.sources.join(", "));
   for (const context of item.contexts.slice(0,2)) lines.push("  - " + context);
 }
 lines.push("", "## Method and limitations", "", ...report.limitations.map(x => "- " + x), "");
