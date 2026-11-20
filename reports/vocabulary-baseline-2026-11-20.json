@@ -1,7 +1,8 @@
 {
   "generatedAt": "2026-11-20",
-  "mainCommit": "479dcd36f0a4334b3d500fa41ea6e5642781718d",
-  "auditContentCommit": "e412653a1210d3fcb850fb10dc45affee38bcd03",
+  "mainCommit": "47c28cba1118931ba64fb6ab5159b58444c6d87e",
+  "auditWorkflowRun": 44793291093,
+  "auditContentCommit": "2a6ae435c32c3f3c7db521dc23c1a46e14ff1287",
   "inventory": {
     "totalFiles": 189,
     "terms": {
@@ -13,9 +14,7 @@
           "N1": 10,
           "Sh1": 19
         },
-        "excluded": [
-          "SH1-10"
-        ]
+        "excluded": ["SH1-10"]
       },
       "02": {
         "ocrFiles": 60,
@@ -55,17 +54,18 @@
       "coveredSources": 60
     },
     "03": {
-      "vocabularyRows": 2253,
-      "uniqueNormalizedHeadwords": 2086,
-      "phraseEntries": 1112,
-      "sourceReferences": 2712,
-      "verifiedVerbs": 629,
+      "vocabularyRows": 2294,
+      "uniqueNormalizedHeadwords": 2127,
+      "phraseEntries": 1136,
+      "sourceReferences": 2776,
+      "verifiedVerbs": 653,
       "coveredSources": 60,
       "sourceReferenceDistribution": {
-        "FA3": 1358,
-        "KH3": 573,
+        "FA3": 1402,
+        "KH3": 593,
         "N3": 359,
-        "SH3": 329
+        "SH3": 329,
+        "WR3": 93
       },
       "sourceChapters": 60,
       "chapterSummaries": 20,
@@ -74,16 +74,42 @@
       "speechPrompts": 20
     }
   },
-  "fa3ReadingGapScan": {
-    "generatedAt": "2026-11-20T17:57:10.568Z",
-    "workflowRun": 44788120365,
-    "commit": "479dcd36f0a4334b3d500fa41ea6e5642781718d",
-    "sourceFilesExpected": 20,
-    "sourceFilesFound": 20,
-    "paragraphsScanned": 1615,
-    "unknownRepeatedWordCandidates": 19,
-    "unmatchedPhraseCandidates": 213,
-    "candidateOnly": true
+  "term03GapReports": {
+    "workflowRun": 44793291083,
+    "fa3FirstPage": {
+      "sourceFilesExpected": 20,
+      "sourceFilesFound": 20,
+      "listsParsed": 20,
+      "candidates": 577,
+      "coveredInSource": 498,
+      "coveredAsComponent": 2,
+      "coveredViaOcrVariant": 76,
+      "presentElsewhereCheckSourceLink": 0,
+      "possibleOcrVariant": 0,
+      "unmatchedReview": 1,
+      "candidateOnly": true
+    },
+    "fa3ReadingPassages": {
+      "sourceFilesExpected": 20,
+      "sourceFilesFound": 20,
+      "paragraphsScanned": 1615,
+      "unknownRepeatedWordCandidates": 19,
+      "unmatchedPhraseCandidates": 183,
+      "candidateOnly": true
+    },
+    "kh3N3Sh3FirstPage": {
+      "sourceFilesExpected": 40,
+      "sourceFilesFound": 40,
+      "listsParsed": 40,
+      "candidates": 941,
+      "coveredInSource": 766,
+      "coveredAsComponent": 84,
+      "coveredViaOcrVariant": 45,
+      "presentElsewhereCheckSourceLink": 3,
+      "possibleOcrVariant": 8,
+      "unmatchedReview": 35,
+      "candidateOnly": true
+    }
   },
-  "caveat": "Curated source-linked lexicon metrics, not total OCR word counts. FA3 reading-passage gap figures are unreviewed candidates, not approved vocabulary."
+  "caveat": "Curated source-linked lexicon metrics, not total OCR word counts. OCR gap reports are candidate classifications, not automatic approval or proof of completeness."
 }
