@@ -98,22 +98,30 @@ function extractCandidates(raw) {
 }
 
 function editDistance(a, b) {
-  const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+  // Damerau-Levenshtein treats adjacent OCR character transpositions as one
+  // edit (for example, سر / رس), which is common in Persian OCR output.
+  const matrix = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));
+  for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+  for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
   for (let i = 1; i <= a.length; i++) {
-    let previous = row[0];
-    row[0] = i;
     for (let j = 1; j <= b.length; j++) {
-      const current = row[j];
-      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, previous + (a[i - 1] === b[j - 1] ? 0 : 1));
-      previous = current;
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        matrix[i][j] = Math.min(matrix[i][j], matrix[i - 2][j - 2] + 1);
+      }
     }
   }
-  return row[b.length];
+  return matrix[a.length][b.length];
 }
 
 function nearMatches(key) {
   if (key.length < 5) return [];
-  const limit = key.length >= 9 ? 2 : 1;
+  const limit = key.length >= 6 ? 2 : 1;
   const candidates = [];
   for (const [known, items] of lexiconByHeadword) {
     if (Math.abs(known.length - key.length) > limit) continue;
