@@ -84,7 +84,7 @@ async function measureViewport(name, config) {
         responseStartMs: navigation?.responseStart ?? null,
         resourceCount: resources.length,
         transferBytes: sum(resources),
-        scriptTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'script' || /\\.js(?:[?#]|$)/i.test(entry.name))),
+        scriptTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'script' || /\.js(?:[?#]|$)/i.test(entry.name))),
         cssTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'css' || /\\.css(?:[?#]|$)/i.test(entry.name))),
       };
       for (const observer of observers) observer.disconnect();
