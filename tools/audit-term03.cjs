@@ -13,6 +13,7 @@ require("../website/term03-fa3-reading-additions-02.js");
 require("../website/term03-fa3-reading-additions-03.js");
 require("../website/term03-fa3-reading-additions-04.js");
 require("../website/term03-fa3-reading-additions-05.js");
+require("../website/term03-fa3-reading-additions-06.js");
 require("../website/term03-kh3-n3-additions-01.js");
 require("../website/term03-chapter-mapping.js");
 require("../website/newestan-lexicon-additions.js");
@@ -44,6 +45,26 @@ for (const fa of global.TERM03_FA3_READING_BATCH05.headwords) {
   assert(meaning?.faMeaning && meaning?.enMeaning && meaning?.arMeaning, "Missing trilingual meaning for " + fa);
   assert(matches.length > 0, "Reviewed FA3 reading headword was not added: " + fa);
   for (const source of batch05Sources[fa]) assert(actualSources.has(source), "Missing " + source + " source link for " + fa);
+}
+assert(global.TERM03_FA3_READING_BATCH06 && global.TERM03_FA3_READING_BATCH06.added + global.TERM03_FA3_READING_BATCH06.linked === 18, "Reviewed FA3 reading batch 06 did not account for all 18 expressions");
+const batch06Sources = {
+  "خودداری کردن": ["FA3-06"], "دعا کردن": ["FA3-09", "FA3-18"],
+  "دریافت کردن": ["FA3-07", "FA3-17"], "نگهداری کردن": ["FA3-13", "FA3-17"],
+  "مرتب کردن": ["FA3-03", "FA3-20"], "جمع کردن": ["FA3-10", "FA3-11"],
+  "وصل کردن": ["FA3-02", "FA3-07"], "تقسیم شدن": ["FA3-06", "FA3-10"],
+  "حل شدن": ["FA3-07", "FA3-19"], "روشن شدن": ["FA3-09", "FA3-17"],
+  "نابود شدن": ["FA3-12"], "متولد شدن": ["FA3-20"],
+  "غافل شدن": ["FA3-04"], "تکرار شدن": ["FA3-14"],
+  "به شمار رفتن": ["FA3-10"], "به ذهنم رسیدن": ["FA3-09"],
+  "به آرزویش رسیدن": ["FA3-05"], "در ارتباط بودن": ["FA3-17"]
+};
+for (const fa of global.TERM03_FA3_READING_BATCH06.headwords) {
+  const meaning = global.PERSIAN_SEMANTICS?.[fa];
+  const matches = entries.filter(item => item.fa === fa);
+  const actualSources = new Set(matches.flatMap(item => [item.source, ...(item.sources || [])].filter(Boolean)));
+  assert(meaning?.faMeaning && meaning?.enMeaning && meaning?.arMeaning, "Missing trilingual meaning for " + fa);
+  assert(matches.length > 0, "Reviewed FA3 reading expression was not added: " + fa);
+  for (const source of batch06Sources[fa]) assert(actualSources.has(source), "Missing " + source + " source link for " + fa);
 }
 assert(global.TERM03_KH3_N3_BATCH01 && global.TERM03_KH3_N3_BATCH01.added > 0, "Reviewed KH3/N3 batch 01 did not load");
 for (const fa of global.TERM03_KH3_N3_BATCH01.headwords) { const meaning = global.PERSIAN_SEMANTICS?.[fa]; assert(meaning?.faMeaning && meaning?.enMeaning && meaning?.arMeaning, "Missing trilingual meaning for " + fa); }
