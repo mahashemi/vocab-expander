@@ -42,6 +42,11 @@ jobs:
           SITE_URL: https://mahashemi.github.io/vocab-expander/
         run: node tools/measure-site-performance.cjs
 
+      - name: Smoke-test lazy term and feature routes
+        env:
+          SITE_URL: https://mahashemi.github.io/vocab-expander/
+        run: node tools/test-lazy-loading.cjs
+
       - name: Upload performance baseline
         uses: actions/upload-artifact@v4
         with:
