@@ -82,10 +82,12 @@
   if(input.value)renderResults();
  }
  window.updateGlobalStats=updateStats;
- function enterTerm(b){activeTerm=b;bkSel.value=String(b);fillCh();chSel.value="all";if(b===2){speechCh=1;}
+ async function enterTerm(b){
+  try{await window.ensureTermLoaded(b)}catch(error){const status=$id("globalSearchMeta");if(status)status.textContent="This term could not be loaded. Please retry.";console.error(error);return}
+  activeTerm=b;bkSel.value=String(b);fillCh();chSel.value="all";if(b===2){speechCh=1;}
   $id("termNav").hidden=false;$id("activeTermTitle").textContent="TERM 0"+b+(b===3?" · PERSIAN":"");
   document.querySelectorAll('#termTabs [data-t="essays"],#termTabs [data-t="speeches"],#termTabs [data-t="khulasa"]').forEach(x=>x.hidden=!(b===2||b===3));
-  gotoTab("home");
+  await window.gotoTab("home");
  }
  function back(){activeTerm=null;tab="portal";bkSel.value="all";fillCh();$id("termNav").hidden=true;render()}
  const originalHome=home;
@@ -122,18 +124,26 @@
   const next=currentRoute();
   if(location.hash!==next)location.hash=next;
  }
- function applyRoute(){
+ async function applyRoute(){
   const raw=location.hash||"#/";
   if(raw==="#/"||raw==="#"){
    applyingRoute=true;activeTerm=null;tab="portal";bkSel.value="all";fillCh();$id("termNav").hidden=true;window.__vocabRouteLesson=null;render();applyingRoute=false;return;
   }
   if(raw==="#/verbs"){
-   applyingRoute=true;activeTerm=null;tab="verbs";$id("termNav").hidden=true;window.__vocabRouteLesson=null;render();applyingRoute=false;return;
+   applyingRoute=true;
+   try{await window.ensureAllTermsLoaded()}catch(error){applyingRoute=false;console.error(error);return}
+   activeTerm=null;tab="verbs";$id("termNav").hidden=true;window.__vocabRouteLesson=null;render();applyingRoute=false;return;
   }
   const m=raw.match(/^#\/term\/(1|2|3)\/(fa|study|flashcards|quiz|khulasa|newestan|sukhanrani)(?:\/(chapter|lesson)\/([^/?#]+))?\/?$/);
   if(!m){if(!applyingRoute) {applyingRoute=true;location.hash="#/";applyingRoute=false;}return}
   const term=Number(m[1]),routeName=m[2],nextTab=routeTabs[routeName],kind=m[3],value=m[4]?decodeURIComponent(m[4]):null;
   applyingRoute=true;
+  try{
+   await window.ensureTermLoaded(term);
+   if(routeName==="khulasa")await window.ensureFeatureLoaded(term,"khulasa");
+   if(routeName==="sukhanrani")await window.ensureFeatureLoaded(term,"speeches");
+   if(routeName==="newestan")await window.ensureFeatureLoaded(term,"essays");
+  }catch(error){applyingRoute=false;console.error(error);return}
   activeTerm=term;bkSel.value=String(term);fillCh();
   if(routeName==="newestan")window.__vocabRouteLesson=Math.max(1,Math.min(10,Number(value)||1));else window.__vocabRouteLesson=null;
   if(routeName==="sukhanrani")speechCh=Number(value)|| (term===2?1:20);
@@ -148,7 +158,13 @@
   deck=[];idx=0;flip=false;render();applyingRoute=false;
  }
  window.render=function(){if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();updateStats();syncRoute()};
- window.gotoTab=function(t){tab=t;document.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",x.dataset.t===t));bkSel.hidden=true;chSel.hidden=![ "cards","quiz","khulasa"].includes(t);deck=[];idx=0;flip=false;render()};
+ window.gotoTab=async function(t){
+  try{
+   if(t==="verbs")await window.ensureAllTermsLoaded();
+   else if(["khulasa","speeches","essays"].includes(t)&&activeTerm)await window.ensureFeatureLoaded(activeTerm,t==="essays"?"essays":t);
+  }catch(error){const status=$id("globalSearchMeta");if(status)status.textContent="This learning section could not be loaded. Please retry.";console.error(error);return}
+  tab=t;document.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",x.dataset.t===t));bkSel.hidden=true;chSel.hidden=![ "cards","quiz","khulasa"].includes(t);deck=[];idx=0;flip=false;render()
+ };
  document.addEventListener("change",e=>{if(e.target&&["newestanLesson","speechChapter","khulasaChapter","ch"].includes(e.target.id))syncRoute()});
  window.addEventListener("hashchange",applyRoute);
  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>gotoTab(b.dataset.t));
