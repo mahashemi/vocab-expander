@@ -66,7 +66,6 @@ const requiredOrder = [
   ['term01-data.js', '(inline application bootstrap)'],
   ['term02-data.js', 'term02-lexicon-additions.js'],
   ['term02-lexicon-additions.js', '(inline application bootstrap)'],
-  ['semantic-meanings.js', '(inline application bootstrap)'],
   ['(inline application bootstrap)', 'term-loader.js'],
   ['term-loader.js', 'verb-treasury.js'],
   ['verb-treasury.js', 'term-portal.js'],
@@ -79,6 +78,10 @@ for (const [before, after] of requiredOrder) {
 }
 
 const loaderOrder = [
+  ['semantic-meanings.js', 'term01-semantic-additions.js'],
+  ['semantic-meanings.js', 'term01-core-semantics.js'],
+  ['semantic-meanings.js', 'term02-core-semantics.js'],
+  ['semantic-meanings.js', 'term03-core-semantics.js'],
   ['term03-data.js', 'term03-lexicon-additions.js'],
   ['term03-lexicon-additions.js', 'term03-matn-verbs.js'],
   ['term03-chapter-mapping.js', 'term03-dedup.js'],
@@ -107,6 +110,9 @@ const forbiddenInitial = [
   'term03-data.js', 'term03-lexicon-additions.js', 'term03-dedup.js',
   'term03-core-semantics.js', 'term03-speeches.js', 'term03-khulasa.js',
   'term03-newestan-insha.js', 'term02-khulasa.js', 'term02-speeches.js',
+  'semantic-meanings.js', 'term01-semantic-additions.js', 'term01-core-semantics.js',
+  'term02-core-semantics.js',
+  ...Array.from({ length: 9 }, (_, i) => 'term02-additional-semantics-' + String(i + 1).padStart(2, '0') + '.js'),
   'newestan-writing-library.js', 'newestan-language-lessons.js', 'newestan-writing-ui.js',
 ];
 for (const file of forbiddenInitial) {
