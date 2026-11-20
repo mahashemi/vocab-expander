@@ -28,8 +28,8 @@ for (const [word, term] of expectedCoverage) {
   assert.ok(!unmatchedWords.has(word), word + " must not remain in the globally-uncovered word queue");
 }
 
-assert.ok(unmatchedWords.has("دکان"), "the literary word دکان should remain in the human-review queue");
-assert.ok(unmatchedWords.has("کدام‌یک"), "the useful expression کدام‌یک should remain in the human-review queue");
+assert.ok(!unmatchedWords.has("دکان"), "the reviewed literary word دکان should no longer remain in the candidate queue");
+assert.ok(!unmatchedWords.has("کدام‌یک"), "the reviewed expression کدام‌یک should no longer remain in the candidate queue");
 assert.equal(report.totals.crossTermCoveredWordCandidates, report.crossTermCovered.words.length);
 assert.equal(report.totals.crossTermCoveredPhraseCandidates, report.crossTermCovered.phrases.length);
 
