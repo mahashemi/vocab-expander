@@ -88,6 +88,8 @@ function extractCandidates(raw) {
         .replace(/^[\s:؛،"'«»()[\]{}]+|[\s:؛،"'«»()[\]{}]+$/g, "")
         .replace(/\s+/g, " ")
         .trim();
+      const parenthetical = candidate.search(/[()]/);
+      if (parenthetical >= 0) candidate = candidate.slice(0, parenthetical).trim();
       const key = normalize(candidate);
       if (!key || key.length < 2 || !/[\u0600-\u06ff]/.test(candidate)) continue;
       if (candidate.length > 55 || candidate.split(/\s+/).length > 7) continue;
@@ -121,7 +123,7 @@ function editDistance(a, b) {
 }
 
 function nearMatches(key) {
-  if (key.length < 5) return [];
+  if (key.length < 4) return [];
   const limit = key.length >= 6 ? 2 : 1;
   const candidates = [];
   for (const [known, items] of lexiconByHeadword) {
