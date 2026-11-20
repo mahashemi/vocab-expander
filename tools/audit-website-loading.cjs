@@ -76,6 +76,11 @@ if (!fs.existsSync(loaderPath)) throw new Error('Missing website/term-loader.js'
 const loaderText = fs.readFileSync(loaderPath, 'utf8');
 
 const requiredOrder = [
+  ['term01-data.js', '(inline application bootstrap)'],
+  ['term02-data.js', 'term02-lexicon-additions.js'],
+  ['term02-lexicon-additions.js', '(inline application bootstrap)'],
+  ['semantic-meanings.js', '(inline application bootstrap)'],
+  ['(inline application bootstrap)', 'term-loader.js'],
   ['term-loader.js', 'verb-treasury.js'],
   ['verb-treasury.js', 'term-portal.js'],
 ];
