@@ -21,6 +21,26 @@ async function measureViewport(name, config) {
     serviceWorkers: 'block',
   });
   const page = await context.newPage();
+  await page.addInitScript(() => {
+    const samples = { lcp: [], cls: [], longTasks: [] };
+    const supported = PerformanceObserver.supportedEntryTypes || [];
+    if (supported.includes('largest-contentful-paint')) {
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) samples.lcp.push(entry.startTime);
+      }).observe({ type: 'largest-contentful-paint', buffered: true });
+    }
+    if (supported.includes('layout-shift')) {
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) if (!entry.hadRecentInput) samples.cls.push(entry.value);
+      }).observe({ type: 'layout-shift', buffered: true });
+    }
+    if (supported.includes('longtask')) {
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) samples.longTasks.push(entry.duration);
+      }).observe({ type: 'longtask', buffered: true });
+    }
+    window.__sitePerfSamples = samples;
+  });
   const cdp = await context.newCDPSession(page);
   await cdp.send('Network.enable');
   await cdp.send('Network.emulateNetworkConditions', {
@@ -48,48 +68,27 @@ async function measureViewport(name, config) {
     await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
     await delay(1800);
 
-    const browserMetrics = await page.evaluate(async () => {
-      const lcpValues = [];
-      const clsValues = [];
-      const longTasks = [];
-      const observers = [];
-      const observe = (type, callback) => {
-        if (!PerformanceObserver.supportedEntryTypes.includes(type)) return;
-        const observer = new PerformanceObserver(list => callback(list.getEntries()));
-        observer.observe({ type, buffered: true });
-        observers.push(observer);
-      };
-      observe('largest-contentful-paint', entries => {
-        for (const entry of entries) lcpValues.push(entry.startTime);
-      });
-      observe('layout-shift', entries => {
-        for (const entry of entries) if (!entry.hadRecentInput) clsValues.push(entry.value);
-      });
-      observe('longtask', entries => {
-        for (const entry of entries) longTasks.push(entry.duration);
-      });
-      await new Promise(resolve => setTimeout(resolve, 100));
+    const browserMetrics = await page.evaluate(() => {
+      const samples = window.__sitePerfSamples || { lcp: [], cls: [], longTasks: [] };
       const navigation = performance.getEntriesByType('navigation')[0];
       const resources = performance.getEntriesByType('resource');
       const paints = performance.getEntriesByType('paint');
       const sum = entries => entries.reduce((total, entry) => total + (entry.transferSize || 0), 0);
-      const result = {
+      return {
         fcpMs: paints.find(entry => entry.name === 'first-contentful-paint')?.startTime ?? null,
-        lcpMs: lcpValues.length ? Math.max(...lcpValues) : null,
-        cls: clsValues.reduce((total, value) => total + value, 0),
-        longTaskMs: longTasks.reduce((total, value) => total + value, 0),
-        longTaskCount: longTasks.length,
+        lcpMs: samples.lcp.length ? Math.max(...samples.lcp) : null,
+        cls: samples.cls.reduce((total, value) => total + value, 0),
+        longTaskMs: samples.longTasks.reduce((total, value) => total + value, 0),
+        longTaskCount: samples.longTasks.length,
         domContentLoadedMs: navigation?.domContentLoadedEventEnd ?? null,
         loadEventMs: navigation?.loadEventEnd ?? null,
         responseStartMs: navigation?.responseStart ?? null,
         resourceCount: resources.length,
         transferBytes: sum(resources),
-        scriptTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'script' || /\.js(?:[?#]|$)/i.test(entry.name))),
-        cssTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'css' || /\.css(?:[?#]|$)/i.test(entry.name))),
+        scriptTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'script' || /\\.js(?:[?#]|$)/i.test(entry.name))),
+        cssTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'css' || /\\.css(?:[?#]|$)/i.test(entry.name))),
       };
-      for (const observer of observers) observer.disconnect();
-      return result;
-    });
+    });;
 
     return {
       label,
