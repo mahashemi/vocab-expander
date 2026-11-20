@@ -35,7 +35,7 @@ assert(entries.length >= 550, "Term 03 lexicon unexpectedly small: " + entries.l
 const sourceCounts = { FA3: 0, KH3: 0, N3: 0, SH3: 0 };
 for (const item of entries) {
   assert(item.fa && item.tr && item.en && item.pos, "Missing core vocabulary fields: " + JSON.stringify(item));
-  for (const source of (item.sources || [item.source]).filter(Boolean)) {
+  for (const source of new Set([item.source, ...(item.sources || [])].filter(Boolean))) {
     const prefix = String(source).split("-")[0];
     if (Object.prototype.hasOwnProperty.call(sourceCounts, prefix)) sourceCounts[prefix]++;
   }
