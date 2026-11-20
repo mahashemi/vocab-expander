@@ -92,6 +92,30 @@ function extractCandidates(raw,family){
    if(!candidates.has(key))candidates.set(key,candidate);
   }
  }
+ // OCR sometimes wraps a compound expression immediately before its light verb.
+ const lightVerbs=new Set(["کردن","شدن","داشتن","گرفتن","دادن","زدن","رفتن","آمدن","بودن","آوردن","بردن","خوردن","کشیدن","رسیدن","گذاشتن","ماندن","پوشیدن","پیچیدن","درآوردن","بیرون‌آمدن","بیرون‌رفتن"]);
+ const lines=section.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ for(let i=0;i<lines.length-1;i++){
+  if(/[،,؛;]$/.test(lines[i]))continue;
+  const previous=(lines[i].match(/[\u0600-\u06ff]+(?:‌[\u0600-\u06ff]+)*/g)||[]);
+  const next=(lines[i+1].match(/[\u0600-\u06ff]+(?:‌[\u0600-\u06ff]+)*/g)||[]);
+  if(!previous.length||!next.length)continue;
+  const verb=normalize(next[0]);
+  if(verb==="کردن"&&/کردن\s*\/\s*شدن/.test(lines[i+1])){
+   for(const form of ["کردن","شدن"]){
+    const phrase=previous.slice(-1).concat(form).join(" ");
+    const key=normalize(phrase);if(key)candidates.set(key,phrase);
+   }
+   continue;
+  }
+  if(!lightVerbs.has(verb))continue;
+  const last=normalize(previous[previous.length-1]);
+  const width= new Set(["قرار","دست","پا","گوش","خود","یاد","نظر","کار","خدمت","اختیار","وجود","به","در","از"]).has(last)?2:1;
+  let tail=previous.slice(-width);
+  if(width===2&&tail.length===2&&["تحت","پشت","به","در","از"].includes(normalize(tail[0]))&&last==="قرار")tail=previous.slice(-3);
+  const phrase=tail.concat(next[0]).join(" ");
+  const key=normalize(phrase);if(key)candidates.set(key,phrase);
+ }
  return {status:candidates.size?"parsed":"heading_but_no_candidates",mode,candidates:[...candidates].map(([key,text])=>({key,text}))};
 }
 
