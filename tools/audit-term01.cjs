@@ -87,7 +87,10 @@ console.log(JSON.stringify({
   ocrFiles: files.length,
   expectedSourceIds: expected.length,
   coveredSourceIds: expected.filter(source => present.has(source)).length,
-  vocabularyRows: rows.length,\n  uniqueNormalizedHeadwords: uniqueHeadwords.size,\n  phraseEntries,\n  sourceReferences,
+  vocabularyRows: rows.length,
+  uniqueNormalizedHeadwords: uniqueHeadwords.size,
+  phraseEntries,
+  sourceReferences,
   verbs,
   nonverbs,
   supplementaryImperatives: global.TERM1_AMR_COUNT
