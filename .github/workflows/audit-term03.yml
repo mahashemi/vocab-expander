@@ -21,6 +21,7 @@ on:
       - "study-materials/dars/term-03/**"
       - "tools/audit-term03.cjs"
       - "tools/audit-term03-dedup.cjs"
+      - "tools/report-term03-fa3-page1-gaps.cjs"
       - "tests/test_term03_content.py"
       - "TERM03_FIRST_PAGE_AUDIT.md"
       - ".github/workflows/audit-term03.yml"
