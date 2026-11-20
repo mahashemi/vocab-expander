@@ -6,9 +6,9 @@
 
   window.VOCAB_PORTAL_SUMMARY = Object.freeze({
     version: "2026-11-20",
-    1: 572,
-    2: 438,
-    3: 2294
+    1: 775,
+    2: 1109,
+    3: 2139
   });
 
   const term03CoreScripts = [

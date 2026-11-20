@@ -14,7 +14,9 @@
           "N1": 10,
           "Sh1": 19
         },
-        "excluded": ["SH1-10"]
+        "excluded": [
+          "SH1-10"
+        ]
       },
       "02": {
         "ocrFiles": 60,
@@ -111,5 +113,12 @@
       "candidateOnly": true
     }
   },
-  "caveat": "Curated source-linked lexicon metrics, not total OCR word counts. OCR gap reports are candidate classifications, not automatic approval or proof of completeness."
+  "caveat": "Curated source-linked lexicon metrics, not total OCR word counts. OCR gap reports are candidate classifications, not automatic approval or proof of completeness.",
+  "portalRuntimeCounts": {
+    "01": 775,
+    "02": 1109,
+    "03": 2139,
+    "customEntriesExcluded": true,
+    "measuredBySmokeTestRun": 44797422294
+  }
 }

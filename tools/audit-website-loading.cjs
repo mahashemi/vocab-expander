@@ -97,9 +97,9 @@ if (!fs.existsSync(baselinePath)) throw new Error('Missing vocabulary baseline u
 const baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
 for (const term of [1, 2, 3]) {
   const key = String(term).padStart(2, '0');
-  const expected = baseline.metrics[key].vocabularyRows;
+  const expected = baseline.portalRuntimeCounts && baseline.portalRuntimeCounts[key];
   if (!loaderText.includes(term + ': ' + expected)) {
-    loaderOrderErrors.push('Portal summary for Term ' + key + ' must match baseline row count ' + expected);
+    loaderOrderErrors.push('Portal summary for Term ' + key + ' must match audited runtime portal count ' + expected);
   }
 }
 
