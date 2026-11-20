@@ -45,28 +45,84 @@ function extractCandidates(raw) {
   const heading = /واژه(?:‌|\s)?(?:های|ها)(?:\s+جدید)?|واژه‌های\s+جدید|واژه\s+و\s+اصطلاحات|واژه‌ها\s+و\s+اصطلاحات|واژه\s+اصطلاحات/i.exec(page1);
   if (!heading) return { status: "no_vocabulary_heading", candidates: [] };
 
-  let section = page1.slice(heading.index + heading[0].length);
-  const stop = /انتظار\s*می‌رود|انتظار\s*میرود|اهداف?\s+درس|هدف\s+درس/i.exec(section);
-  if (stop) section = section.slice(0, stop.index);
+  // Start after the complete title line so words such as "واژه‌ها و اصطلاحات درس ۶"
+  // are not mistaken for vocabulary entries.
+  const titleEnd = page1.indexOf("\n", heading.index + heading[0].length);
+  let section = page1.slice(titleEnd < 0 ? heading.index + heading[0].length : titleEnd + 1);
+
+  // Many OCR pages bracket the vocabulary list with two dashed separators.
+  // When both exist, use only the text between them.
+  const separators = [...section.matchAll(/^\s*--\s*$/gm)];
+  if (separators.length >= 2) {
+    const firstEnd = separators[0].index + separators[0][0].length;
+    section = section.slice(firstEnd, separators[1].index);
+  } else if (separators.length === 1) {
+    const firstEnd = separators[0].index + separators[0][0].length;
+    section = section.slice(firstEnd);
+  }
+
+  // Stop before lesson objectives/instructions. The fallback catches OCR-damaged
+  // objective headings that still contain "با خواندن این درس" or begin with a
+  // page-layout number marker.
+  const stopPatterns = [
+    /با\s*خواندن\s*این\s*درس/i,
+    /اهداف?.{0,8}درس/i,
+    /انتظ[اآا]ر.{0,12}زبان/i,
+    /^\s*[0-9۰-۹٠-٩]+(?:\s+\S{1,8})?\s*$/m
+  ];
+  let stopIndex = -1;
+  for (const pattern of stopPatterns) {
+    const match = pattern.exec(section);
+    if (match && (stopIndex < 0 || match.index < stopIndex)) stopIndex = match.index;
+  }
+  if (stopIndex >= 0) section = section.slice(0, stopIndex);
 
   const candidates = new Map();
   for (const line of section.split(/\r?\n/)) {
     const cleanedLine = line
       .replace(/^[\s\d۰-۹٠-٩ـ•\-–—"'«»()]+/, "")
-      .replace(/[\s\d۰-۹٠-٩ـ•\-–—"'«»()]+$/, "")
-      .replace(/[؛;]/g, "،");
-    for (const part of cleanedLine.split(/[،,]/)) {
+      .replace(/[\s\d۰-۹٠-٩ـ•\-–—"'«»()]+$/, "");
+    for (const part of cleanedLine.split(/[،,؛;.»]/)) {
       const candidate = part.trim()
         .replace(/^[\s:؛،"'«»()[\]{}]+|[\s:؛،"'«»()[\]{}]+$/g, "")
         .replace(/\s+/g, " ")
         .trim();
       const key = normalize(candidate);
       if (!key || key.length < 2 || !/[\u0600-\u06ff]/.test(candidate)) continue;
+      if (candidate.length > 55 || candidate.split(/\s+/).length > 7) continue;
       if (/^(واژه|اصطلاحات|جدید|درس|صفحه)$/.test(candidate)) continue;
       if (!candidates.has(key)) candidates.set(key, candidate);
     }
   }
   return { status: candidates.size ? "parsed" : "heading_but_no_candidates", candidates: [...candidates].map(([key, text]) => ({ key, text })) };
+}
+
+function editDistance(a, b) {
+  const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let previous = row[0];
+    row[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const current = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, previous + (a[i - 1] === b[j - 1] ? 0 : 1));
+      previous = current;
+    }
+  }
+  return row[b.length];
+}
+
+function nearMatches(key) {
+  if (key.length < 5) return [];
+  const limit = key.length >= 9 ? 2 : 1;
+  const candidates = [];
+  for (const [known, items] of lexiconByHeadword) {
+    if (Math.abs(known.length - key.length) > limit) continue;
+    const distance = editDistance(key, known);
+    if (distance > 0 && distance <= limit) {
+      candidates.push({ headword: items[0].fa, distance });
+    }
+  }
+  return candidates.sort((a, b) => a.distance - b.distance).slice(0, 3);
 }
 
 const results = [];
@@ -86,11 +142,13 @@ for (let lesson = 1; lesson <= 20; lesson++) {
     const matchesInSource = sourceKeys.has(candidate.key);
     const matchesElsewhere = lexiconByHeadword.has(candidate.key);
     const matches = matchesInSource ? lexiconByHeadword.get(candidate.key) : (matchesElsewhere ? lexiconByHeadword.get(candidate.key) : []);
+    const suggestions = matchesInSource || matchesElsewhere ? [] : nearMatches(candidate.key);
     return {
       text: candidate.text,
       normalized: candidate.key,
-      status: matchesInSource ? "covered_in_source" : matchesElsewhere ? "present_elsewhere_check_source_link" : "unmatched_review",
-      existingHeadwords: matches.slice(0, 5).map(item => item.fa)
+      status: matchesInSource ? "covered_in_source" : matchesElsewhere ? "present_elsewhere_check_source_link" : suggestions.length ? "possible_ocr_variant" : "unmatched_review",
+      existingHeadwords: matches.slice(0, 5).map(item => item.fa),
+      nearMatches: suggestions
     };
   });
   results.push({ source, filename, status: extracted.status, candidateCount: candidates.length, candidates });
@@ -105,12 +163,14 @@ const totals = {
   candidates: results.reduce((n, x) => n + (x.candidates || []).length, 0),
   coveredInSource: 0,
   presentElsewhereCheckSourceLink: 0,
+  possibleOcrVariant: 0,
   unmatchedReview: 0
 };
 for (const result of results) {
   for (const candidate of result.candidates || []) {
     if (candidate.status === "covered_in_source") totals.coveredInSource++;
     else if (candidate.status === "present_elsewhere_check_source_link") totals.presentElsewhereCheckSourceLink++;
+    else if (candidate.status === "possible_ocr_variant") totals.possibleOcrVariant++;
     else totals.unmatchedReview++;
   }
 }
@@ -161,7 +221,9 @@ for (const result of results) {
     lines.push("OCR file: " + result.filename);
     lines.push("");
     for (const candidate of result.candidates || []) {
-      const suggestions = candidate.existingHeadwords.length ? " (existing: " + candidate.existingHeadwords.join("، ") + ")" : "";
+      const existing = candidate.existingHeadwords.length ? " (existing: " + candidate.existingHeadwords.join("، ") + ")" : "";
+      const near = candidate.nearMatches?.length ? " (possible: " + candidate.nearMatches.map(x => x.headword + " [" + x.distance + "]").join("، ") + ")" : "";
+      const suggestions = existing + near;
       lines.push("- [" + candidate.status + "] " + candidate.text + suggestions);
     }
     if (!result.candidates?.length) lines.push("No candidates extracted; inspect parser coverage manually.");
