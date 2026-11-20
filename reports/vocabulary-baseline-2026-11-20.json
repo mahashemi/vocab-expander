@@ -1,6 +1,7 @@
 {
   "generatedAt": "2026-11-20",
-  "mainCommit": "e773e8e8aab20f6d36e1a51b93f89a16a0af5328",
+  "mainCommit": "479dcd36f0a4334b3d500fa41ea6e5642781718d",
+  "auditContentCommit": "e412653a1210d3fcb850fb10dc45affee38bcd03",
   "inventory": {
     "totalFiles": 189,
     "terms": {
@@ -54,14 +55,14 @@
       "coveredSources": 60
     },
     "03": {
-      "vocabularyRows": 2234,
-      "uniqueNormalizedHeadwords": 2067,
-      "phraseEntries": 1093,
-      "sourceReferences": 2656,
-      "verifiedVerbs": 610,
+      "vocabularyRows": 2253,
+      "uniqueNormalizedHeadwords": 2086,
+      "phraseEntries": 1112,
+      "sourceReferences": 2712,
+      "verifiedVerbs": 629,
       "coveredSources": 60,
       "sourceReferenceDistribution": {
-        "FA3": 1302,
+        "FA3": 1358,
         "KH3": 573,
         "N3": 359,
         "SH3": 329
@@ -73,5 +74,16 @@
       "speechPrompts": 20
     }
   },
-  "caveat": "Curated source-linked lexicon metrics, not total OCR word counts. Gap review is ongoing."
+  "fa3ReadingGapScan": {
+    "generatedAt": "2026-11-20T17:57:10.568Z",
+    "workflowRun": 44788120365,
+    "commit": "479dcd36f0a4334b3d500fa41ea6e5642781718d",
+    "sourceFilesExpected": 20,
+    "sourceFilesFound": 20,
+    "paragraphsScanned": 1615,
+    "unknownRepeatedWordCandidates": 19,
+    "unmatchedPhraseCandidates": 213,
+    "candidateOnly": true
+  },
+  "caveat": "Curated source-linked lexicon metrics, not total OCR word counts. FA3 reading-passage gap figures are unreviewed candidates, not approved vocabulary."
 }
