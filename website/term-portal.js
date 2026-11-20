@@ -73,7 +73,7 @@
    results.innerHTML=hits.map((x,i)=>'<button type="button" class="global-search-result" data-result="'+i+'"><span class="global-result-top"><b class="fa" lang="fa">'+esc(x.label)+'</b><span class="global-result-kind">'+esc(x.kind)+' · Term '+String(x.bk).padStart(2,"0")+'</span></span><span class="global-result-tr">'+esc(x.tr)+'</span><span class="global-result-meaning">'+esc(x.meaning)+(x.forms?" · "+esc(x.forms):"")+'</span><span class="global-result-source">'+esc(x.source||"Source lesson not recorded")+(x.ch?" · Dars "+x.ch:"")+'</span></button>').join("");
    results.querySelectorAll("[data-result]").forEach(btn=>btn.onclick=async()=>{
     const x=hits[Number(btn.dataset.result)];if(!x)return;
-    if(x.kind==="Verb Treasury"){activeTerm=null;$id("termNav").hidden=true;await window.ensureAllTermsLoaded();if(window.openVerbSearch)window.openVerbSearch(x.label);else await window.gotoTab("verbs");return}
+    if(x.kind==="Verb Treasury"){activeTerm=null;$id("termNav").hidden=true;await window.ensureAllTermsLoaded();if(window.openVerbSearch)await window.openVerbSearch(x.label);else await window.gotoTab("verbs");return}
     await enterTerm(Number(x.bk));if(x.ch!=null){chSel.value=String(x.ch);render()}$id("termNav").scrollIntoView({behavior:"smooth",block:"start"});
    });
   };
