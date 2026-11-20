@@ -84,7 +84,7 @@ function extractCandidates(raw) {
       .replace(/^[\s\d۰-۹٠-٩ـ•\-–—"'«»()]+/, "")
       .replace(/[\s\d۰-۹٠-٩ـ•\-–—"'«»()]+$/, "");
     for (const part of cleanedLine.split(/[،,؛;.»]/)) {
-      const candidate = part.trim()
+      let candidate = part.trim()
         .replace(/^[\s:؛،"'«»()[\]{}]+|[\s:؛،"'«»()[\]{}]+$/g, "")
         .replace(/\s+/g, " ")
         .trim();
