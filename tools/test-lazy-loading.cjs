@@ -25,18 +25,25 @@ async function waitFor(page, expression, label) {
       term3DataType: typeof window.TERM3_DATA,
       dedupApplied: !!window.TERM03_DEDUP_APPLIED,
       loaderReady: typeof window.ensureTermLoaded === 'function',
+      loadedTerms: window.getLoadedTermNumbers ? window.getLoadedTermNumbers() : null,
       portalSummary: window.VOCAB_PORTAL_SUMMARY || null,
     }));
     if (initial.term3DataType !== 'undefined' || initial.dedupApplied) {
       throw new Error('Term 03 data was loaded on the initial portal visit; lazy loading did not hold.');
     }
-    if (!initial.loaderReady || !initial.portalSummary || initial.portalSummary[3] !== 2139) {
+    if (!initial.loaderReady || !initial.portalSummary || initial.portalSummary[3] !== 2139 || !Array.isArray(initial.loadedTerms) || initial.loadedTerms.length !== 0) {
       throw new Error('Initial portal summary or Term 03 loader is unavailable: ' + JSON.stringify(initial));
     }
     console.log('PASS: initial portal is visible without loading Term 03 data');
 
+    await page.goto(target + '#/term/1/fa', { waitUntil: 'load', timeout: 120000 });
+    await waitFor(page, 'window.getLoadedTermNumbers().includes(1)', 'Term 01 semantic layer loads only when Term 01 is opened');
+
+    await page.goto(target + '#/term/2/fa', { waitUntil: 'load', timeout: 120000 });
+    await waitFor(page, 'window.getLoadedTermNumbers().includes(2)', 'Term 02 semantic layer loads only when Term 02 is opened');
+
     await page.goto(target + '#/term/3/fa/chapter/1', { waitUntil: 'load', timeout: 120000 });
-    await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && Array.isArray(window.TERM3_DATA) && window.TERM3_DATA.length > 1800', 'direct Term 03 deep link loads the full deduplicated vocabulary');
+    await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && Array.isArray(window.TERM3_DATA) && window.TERM3_DATA.length > 1800 && window.getLoadedTermNumbers().includes(3)', 'direct Term 03 deep link loads the full deduplicated vocabulary');
     await page.waitForSelector('.term-welcome', { timeout: 60000 });
     const runtimeCounts = await page.evaluate(() => window.__getRuntimeVocabCounts());
     console.log('Runtime portal vocabulary counts (custom entries excluded): ' + JSON.stringify(runtimeCounts));
