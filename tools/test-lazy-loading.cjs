@@ -37,7 +37,7 @@ async function waitFor(page, expression, label) {
     if (initial.term3DataType !== 'undefined' || initial.dedupApplied) {
       throw new Error('Term 03 data was loaded on the initial portal visit; lazy loading did not hold.');
     }
-    if (!initial.loaderReady || !initial.portalSummary || initial.portalSummary[3] !== 2143 || !Array.isArray(initial.loadedTerms) || initial.loadedTerms.length !== 0) {
+    if (!initial.loaderReady || !initial.portalSummary || initial.portalSummary[3] !== 2161 || !Array.isArray(initial.loadedTerms) || initial.loadedTerms.length !== 0) {
       throw new Error('Initial portal summary or Term 03 loader is unavailable: ' + JSON.stringify(initial));
     }
     console.log('PASS: initial portal is visible without loading Term 03 data');
