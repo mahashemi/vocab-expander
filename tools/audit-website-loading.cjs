@@ -96,6 +96,7 @@ const forbiddenInitial = [
   'term03-data.js', 'term03-lexicon-additions.js', 'term03-dedup.js',
   'term03-core-semantics.js', 'term03-speeches.js', 'term03-khulasa.js',
   'term03-newestan-insha.js', 'term02-khulasa.js', 'term02-speeches.js',
+  'newestan-writing-library.js', 'newestan-language-lessons.js', 'newestan-writing-ui.js',
 ];
 for (const file of forbiddenInitial) {
   if (indexOf(file) >= 0) loaderOrderErrors.push(file + ' must remain out of the initial HTML payload');
