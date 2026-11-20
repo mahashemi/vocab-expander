@@ -8,7 +8,8 @@ for (const file of [
   "term03-lexicon-additions.js",
   "term03-matn-verbs.js",
   "term03-source-audit.js",
-  "term03-page1-additions.js"
+  "term03-page1-additions.js",
+  "term03-fa3-reviewed-additions.js"
 ]) require(path.join(root, "website", file));
 
 const entries = global.TERM3_DATA || [];
@@ -83,10 +84,12 @@ function extractCandidates(raw) {
       .replace(/^[\s\d۰-۹٠-٩ـ•\-–—"'«»()]+/, "")
       .replace(/[\s\d۰-۹٠-٩ـ•\-–—"'«»()]+$/, "");
     for (const part of cleanedLine.split(/[،,؛;.»]/)) {
-      const candidate = part.trim()
+      let candidate = part.trim()
         .replace(/^[\s:؛،"'«»()[\]{}]+|[\s:؛،"'«»()[\]{}]+$/g, "")
         .replace(/\s+/g, " ")
         .trim();
+      const parenthetical = candidate.search(/[()]/);
+      if (parenthetical >= 0) candidate = candidate.slice(0, parenthetical).trim();
       const key = normalize(candidate);
       if (!key || key.length < 2 || !/[\u0600-\u06ff]/.test(candidate)) continue;
       if (candidate.length > 55 || candidate.split(/\s+/).length > 7) continue;
@@ -120,14 +123,14 @@ function editDistance(a, b) {
 }
 
 function nearMatches(key) {
-  if (key.length < 5) return [];
+  if (key.length < 4) return [];
   const limit = key.length >= 6 ? 2 : 1;
   const candidates = [];
   for (const [known, items] of lexiconByHeadword) {
     if (Math.abs(known.length - key.length) > limit) continue;
     const distance = editDistance(key, known);
     if (distance > 0 && distance <= limit) {
-      candidates.push({ headword: items[0].fa, distance });
+      candidates.push({ headword: items[0].fa, distance, sourceRefs: Array.from(new Set(items.flatMap(item => [item.source, ...(item.sources || [])].filter(Boolean)))) });
     }
   }
   return candidates.sort((a, b) => a.distance - b.distance).slice(0, 3);
@@ -149,12 +152,15 @@ for (let lesson = 1; lesson <= 20; lesson++) {
   const candidates = extracted.candidates.map(candidate => {
     const matchesInSource = sourceKeys.has(candidate.key);
     const matchesElsewhere = lexiconByHeadword.has(candidate.key);
-    const matches = matchesInSource ? lexiconByHeadword.get(candidate.key) : (matchesElsewhere ? lexiconByHeadword.get(candidate.key) : []);
-    const suggestions = matchesInSource || matchesElsewhere ? [] : nearMatches(candidate.key);
+    const componentKeys = !matchesInSource && candidate.key.length >= 4 ? [...sourceKeys].filter(key => key.includes(candidate.key)) : [];
+    const matchesAsComponent = componentKeys.length > 0;
+    const matches = matchesInSource ? lexiconByHeadword.get(candidate.key) : matchesElsewhere ? lexiconByHeadword.get(candidate.key) : componentKeys.flatMap(key => lexiconByHeadword.get(key) || []);
+    const suggestions = matchesInSource || matchesElsewhere || matchesAsComponent ? [] : nearMatches(candidate.key);
+    const mappedSuggestion = suggestions.find(item => item.sourceRefs.includes(source));
     return {
       text: candidate.text,
       normalized: candidate.key,
-      status: matchesInSource ? "covered_in_source" : matchesElsewhere ? "present_elsewhere_check_source_link" : suggestions.length ? "possible_ocr_variant" : "unmatched_review",
+      status: matchesInSource ? "covered_in_source" : matchesAsComponent ? "covered_as_component" : matchesElsewhere ? "present_elsewhere_check_source_link" : mappedSuggestion ? "covered_via_ocr_variant" : suggestions.length ? "possible_ocr_variant" : "unmatched_review",
       existingHeadwords: matches.slice(0, 5).map(item => item.fa),
       nearMatches: suggestions
     };
@@ -170,6 +176,8 @@ const totals = {
   listsParsed: results.filter(x => x.status === "parsed").length,
   candidates: results.reduce((n, x) => n + (x.candidates || []).length, 0),
   coveredInSource: 0,
+  coveredAsComponent: 0,
+  coveredViaOcrVariant: 0,
   presentElsewhereCheckSourceLink: 0,
   possibleOcrVariant: 0,
   unmatchedReview: 0
@@ -177,6 +185,8 @@ const totals = {
 for (const result of results) {
   for (const candidate of result.candidates || []) {
     if (candidate.status === "covered_in_source") totals.coveredInSource++;
+    else if (candidate.status === "covered_as_component") totals.coveredAsComponent++;
+    else if (candidate.status === "covered_via_ocr_variant") totals.coveredViaOcrVariant++;
     else if (candidate.status === "present_elsewhere_check_source_link") totals.presentElsewhereCheckSourceLink++;
     else if (candidate.status === "possible_ocr_variant") totals.possibleOcrVariant++;
     else totals.unmatchedReview++;
@@ -212,7 +222,9 @@ const lines = [
   "- Source files found: " + totals.sourceFilesFound + "/20",
   "- Vocabulary lists parsed: " + totals.listsParsed + "/20",
   "- Extracted candidates: " + totals.candidates,
-  "- Covered in the same source: " + totals.coveredInSource,
+  "- Exact matches covered in the same source: " + totals.coveredInSource,
+  "- Vocabulary components covered by a linked phrase: " + totals.coveredAsComponent,
+  "- OCR variants mapped to reviewed canonical cards in the same source: " + totals.coveredViaOcrVariant,
   "- Present elsewhere; source link needs review: " + totals.presentElsewhereCheckSourceLink,
   "- Possible OCR variants: " + totals.possibleOcrVariant,
   "- Unmatched candidates requiring human review: " + totals.unmatchedReview,
