@@ -16,7 +16,13 @@ async function waitFor(page, expression, label) {
   const context = await browser.newContext({ viewport: { width: 1365, height: 900 } });
   const page = await context.newPage();
   const pageErrors = [];
+  const dedupAuditErrors = [];
   page.on('pageerror', error => pageErrors.push(String(error)));
+  page.on('console', message => {
+    if (message.type() === 'error' && message.text().includes('Term 03 deduplication audit requires attention')) {
+      dedupAuditErrors.push(message.text());
+    }
+  });
 
   try {
     await page.goto(target, { waitUntil: 'load', timeout: 120000 });
@@ -44,6 +50,12 @@ async function waitFor(page, expression, label) {
 
     await page.goto(target + '#/term/3/fa/chapter/1', { waitUntil: 'load', timeout: 120000 });
     await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && Array.isArray(window.TERM3_DATA) && window.TERM3_DATA.length > 1800 && window.getLoadedTermNumbers().includes(3)', 'direct Term 03 deep link loads the full deduplicated vocabulary');
+    const dedupAudit = await page.evaluate(() => window.TERM03_DEDUP_AUDIT);
+    if (!dedupAudit || dedupAudit.expectedAfter !== dedupAudit.after || dedupAudit.after !== dedupAudit.actualBefore - dedupAudit.approvedMerges - dedupAudit.decisionMerges || dedupAudit.missing.length || dedupAudit.duplicateIds.length || dedupAudit.duplicateHeadwordPos.length || dedupAudit.missingSemantics.length || dedupAudit.sourceLoss.length) {
+      throw new Error('Term 03 deduplication audit is inconsistent: ' + JSON.stringify(dedupAudit));
+    }
+    if (dedupAuditErrors.length) throw new Error('Term 03 deduplication emitted an audit error: ' + dedupAuditErrors.join(' | '));
+    console.log('PASS: Term 03 dedup audit reconciles against the live pre-merge dataset (' + dedupAudit.actualBefore + ' → ' + dedupAudit.after + ')');
     await page.waitForSelector('.term-welcome', { timeout: 60000 });
     const runtimeCounts = await page.evaluate(() => window.__getRuntimeVocabCounts());
     console.log('Runtime portal vocabulary counts (custom entries excluded): ' + JSON.stringify(runtimeCounts));
