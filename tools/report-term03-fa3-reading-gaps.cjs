@@ -35,7 +35,7 @@ const stopWords = new Set([
 ]);
 
 const verbForms = new Map();
-function addForms(canonical, forms) { for (const form of forms.split("|")) verbForms.set(normalize(form), canonical); }
+function addForms(canonical, forms) { verbForms.set(normalize(canonical), canonical); for (const form of forms.split("|")) verbForms.set(normalize(form), canonical); }
 addForms("کردن","کرد|کرده|کردند|کردیم|کردم|کردی|کن|کنید|کنند|کند|می‌کند|می‌کنم|می‌کنی|می‌کنند|می‌کنید|نمی‌کند|نمی‌کنند|نکن|نکنید|بکند|بکنند|بکن");
 addForms("شدن","شد|شده|شدند|شدیم|شدم|شو|شود|شوند|شوید|می‌شود|می‌شوند|می‌شوم|می‌شوی|نمی‌شود|نشد|نشود|بشود");
 addForms("داشتن","داشت|داشته|دارم|داری|دارد|دارند|دارید|داریم|می‌دارد|می‌دارند|ندارد|ندارند");
