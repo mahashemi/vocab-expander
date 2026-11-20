@@ -92,6 +92,17 @@ for (const [before, after] of loaderOrder) {
   if (a < 0 || b < 0 || a >= b) loaderOrderErrors.push(before + ' must precede ' + after + ' in term-loader.js');
 }
 
+const baselinePath = path.join(reportDir, 'vocabulary-baseline-2026-11-20.json');
+if (!fs.existsSync(baselinePath)) throw new Error('Missing vocabulary baseline used by the portal count manifest');
+const baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
+for (const term of [1, 2, 3]) {
+  const key = String(term).padStart(2, '0');
+  const expected = baseline.metrics[key].vocabularyRows;
+  if (!loaderText.includes(term + ': ' + expected)) {
+    loaderOrderErrors.push('Portal summary for Term ' + key + ' must match baseline row count ' + expected);
+  }
+}
+
 const forbiddenInitial = [
   'term03-data.js', 'term03-lexicon-additions.js', 'term03-dedup.js',
   'term03-core-semantics.js', 'term03-speeches.js', 'term03-khulasa.js',
