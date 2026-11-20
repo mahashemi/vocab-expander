@@ -237,6 +237,9 @@ jobs:
           node --check tools/audit-newestan-writing.cjs
           node tools/audit-newestan-writing.cjs
 
+      - name: Check browser performance measurement script syntax
+        run: node --check tools/measure-site-performance.cjs
+
       - name: Validate embedded application JavaScript
         run: |
           node -e "const fs=require('fs'); const html=fs.readFileSync('website/index.html','utf8'); const match=html.match(/<script>([\\s\\S]*?)<\\/script>/); if(!match) throw new Error('Inline application script not found'); fs.writeFileSync('/tmp/persian-trainer.js',match[1]);"
