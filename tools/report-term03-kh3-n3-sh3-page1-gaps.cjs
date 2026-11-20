@@ -39,39 +39,29 @@ for(const item of entries){
 
 function extractCandidates(raw,family){
  const page1=String(raw).split(/==========\s*PAGE\s*2\s*==========/i)[0];
- const heading=/واژه(?:‌|\s)?(?:های|ها)(?:\s+جدید)?|واژه‌های\s+جدید|واژه\s+و\s+اصطلاحات|واژه‌ها\s+و\s+اصطلاحات|واژه\s+اصطلاحات/i.exec(page1);
  let section="";
  let mode="";
- if(heading){
-  mode="heading";
+ if(family==="SH3"){
+  const heading=/واژه(?:‌|\s)*ها\s*و\s*اصطلاح(?:ات|احات)\s*درس|واژه\s*و\s*اصطلاحات/i.exec(page1);
+  if(!heading)return {status:"no_vocabulary_heading",mode:"none",candidates:[]};
+  mode="vocabulary-heading";
   const titleEnd=page1.indexOf("\n",heading.index+heading[0].length);
   section=page1.slice(titleEnd<0?heading.index+heading[0].length:titleEnd+1);
-  const separators=[...section.matchAll(/^\s*--\s*$/gm)];
-  if(separators.length>=2){
-   const firstEnd=separators[0].index+separators[0][0].length;
-   section=section.slice(firstEnd,separators[1].index);
-  }else if(separators.length===1){
-   const firstEnd=separators[0].index+separators[0][0].length;
-   section=section.slice(firstEnd);
-  }
- }else if(family==="KH3"||family==="N3"){
-  // In these OCR booklets the vocabulary list is printed immediately after
-  // "درس اول/دوم..." and before the learning objectives, without a heading.
-  const lesson=/درس\s*(?:اول|دوم|سوم|چهارم|پنجم|ششم|هفتم|هشتم|نهم|دهم|[۰-۹0-9]+)/i.exec(page1);
-  if(!lesson) return {status:"no_vocabulary_heading",mode:"none",candidates:[]};
+ }else{
+  // KH3 and N3 OCR pages place their lesson vocabulary directly after the
+  // lesson title, usually between dashed separators, without a reliable heading.
+  const lesson=/^\s*درس[\s‌]*[^\n]{1,24}/m.exec(page1);
+  if(!lesson)return {status:"no_vocabulary_heading",mode:"none",candidates:[]};
   mode="lesson-title-before-objectives";
   const titleEnd=page1.indexOf("\n",lesson.index+lesson[0].length);
   section=page1.slice(titleEnd<0?lesson.index+lesson[0].length:titleEnd+1);
- }else{
-  return {status:"no_vocabulary_heading",mode:"none",candidates:[]};
  }
-
  const stopPatterns=[
-  /با\s*خواندن\s*این\s*درس/i,
+  /با[\s‌]*خواندن[\s‌]*این[\s‌]*درس/i,
   /اهداف?.{0,8}درس/i,
-  /انتظ[اآا]ر.{0,12}زبان/i,
-  /انتظار\s*می‌رود/i,
-  /واژه‌ها\s*و\s*اصطلاحات\s*درس/i,
+  /انتظ[اآا]ر[\s‌]*می[\s‌]*رود/i,
+  /انتظار[\s‌]*می[\s‌]*رود/i,
+  /واژه(?:‌|\s)*ها\s*و\s*اصطلاح(?:ات|احات)\s*درس/i,
   /^\s*[0-9۰-۹٠-٩]+(?:\s+\S{1,8})?\s*$/m
  ];
  let stopIndex=-1;
@@ -88,7 +78,7 @@ function extractCandidates(raw,family){
    const key=normalize(candidate);
    if(!key||key.length<2||!/[\u0600-\u06ff]/.test(candidate))continue;
    if(candidate.length>65||candidate.split(/\s+/).length>8)continue;
-   if(/^(واژه|اصطلاحات|جدید|درس|صفحه|اهداف)$/.test(candidate))continue;
+   if(/^(واژه|اصطلاحات|جدید|درس|صفحه|اهداف)$/.test(candidate)||/^واژه.{0,18}(اصطلاح|اصطاح).{0,8}درس/.test(candidate))continue;
    if(!candidates.has(key))candidates.set(key,candidate);
   }
  }
