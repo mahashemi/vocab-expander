@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+"use strict";
+const assert=require("node:assert/strict");
+require("../website/learning/imla.js");
+require("../website/learning/skip-gram.js");
+const word={fa:"کتاب",en:"book",xe:"کتاب روی میز است."};
+const phrase={fa:"در نتیجه",en:"as a result",xe:"او درس خواند و در نتیجه قبول شد."};
+assert.equal(VocabImla.eligible(word),true);
+assert.equal(VocabImla.eligible(phrase),true);
+assert.equal(VocabImla.validate(word,"كتاب").correct,true,"Arabic kaf variant is accepted for typed response normalization");
+assert.equal(VocabImla.validate(word,"کت").correct,false);
+assert.equal(VocabSkipGram.eligible(word),true);
+assert.equal(VocabSkipGram.eligible({fa:"در",en:"in"}),false);
+const prompt=VocabSkipGram.createPrompt(phrase,0);
+assert.equal(prompt.chars.join(""),phrase.fa);
+assert.ok(prompt.hidden.length>=1);
+assert.ok(prompt.hidden.length<VocabSkipGram.positions(phrase).length);
+assert.ok(VocabSkipGram.mask(prompt).includes(" "));
+assert.equal(VocabSkipGram.validate(phrase,"در نتیجه").correct,true);
+assert.equal(VocabSkipGram.validate(phrase,"درنتیجه").correct,false,"unreviewed phrase variants are not silently accepted");
+assert.ok(VocabSkipGram.hint(phrase,prompt,0).includes("as a result"));
+console.log("PASS: Imla and Skip-gram eligibility, phrase support, accepted orthographic normalization, masking and hints");
