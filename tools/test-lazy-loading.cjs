@@ -48,8 +48,14 @@ async function waitFor(page, expression, label) {
     const directPage = await context.newPage();
     directPage.on('pageerror', error => pageErrors.push(String(error)));
     await directPage.goto(target + '?route-test=fresh-term03#/term/3/fa/chapter/1', { waitUntil: 'domcontentloaded', timeout: 120000 });
-    const freshRouteGuard = await directPage.evaluate(() => document.documentElement.classList.contains('route-boot'));
-    if (!freshRouteGuard) throw new Error('Fresh Term 03 deep link did not activate the route loading guard.');
+    const freshRouteState = await directPage.evaluate(() => ({
+      boot: document.documentElement.classList.contains('route-boot'),
+      requestedRoute: location.hash === '#/term/3/fa/chapter/1',
+      contentReady: !!document.querySelector('.term-welcome')
+    }));
+    if (!freshRouteState.boot && !(freshRouteState.requestedRoute && freshRouteState.contentReady)) {
+      throw new Error('Fresh Term 03 deep link exposed the portal before its requested route was ready: ' + JSON.stringify(freshRouteState));
+    }
     await waitFor(directPage, 'window.TERM03_DEDUP_APPLIED === true && Array.isArray(window.TERM3_DATA) && window.TERM3_DATA.length > 1800', 'fresh Term 03 deep link loads independently of prior term navigation');
     const freshTermIsolation = await directPage.evaluate(() => ({ term1: typeof window.TERM1_DATA, term2: typeof window.TERM2_DATA }));
     if (freshTermIsolation.term1 !== 'undefined' || freshTermIsolation.term2 !== 'undefined') throw new Error('A direct Term 03 route downloaded unrelated Term 01/02 data: ' + JSON.stringify(freshTermIsolation));
@@ -90,8 +96,14 @@ async function waitFor(page, expression, label) {
     console.log('PASS: Term 01/02 data reconciles after both terms are opened');
 
     await page.goto(target + '?route-test=deep-link#/term/3/fa/chapter/1', { waitUntil: 'domcontentloaded', timeout: 120000 });
-    const routeBootVisible = await page.evaluate(() => document.documentElement.classList.contains('route-boot'));
-    if (!routeBootVisible) throw new Error('A direct deep link did not suppress the static portal while its route data was loading.');
+    const directRouteState = await page.evaluate(() => ({
+      boot: document.documentElement.classList.contains('route-boot'),
+      requestedRoute: location.hash === '#/term/3/fa/chapter/1',
+      contentReady: !!document.querySelector('.term-welcome')
+    }));
+    if (!directRouteState.boot && !(directRouteState.requestedRoute && directRouteState.contentReady)) {
+      throw new Error('A direct deep link exposed the static portal before the requested route was ready: ' + JSON.stringify(directRouteState));
+    }
     await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && Array.isArray(window.TERM3_DATA) && window.TERM3_DATA.length > 1800 && window.getLoadedTermNumbers().includes(3)', 'direct Term 03 deep link loads the full deduplicated vocabulary');
     await waitFor(page, '!document.documentElement.classList.contains("route-boot") && location.hash === "#/term/3/fa/chapter/1" && document.querySelector(".term-welcome")', 'deep link reveals its requested page without a portal flash');
     await page.reload({ waitUntil: 'domcontentloaded', timeout: 120000 });
