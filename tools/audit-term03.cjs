@@ -155,7 +155,7 @@ for (const source of expectedSources) {
 }
 assert(studyFiles.length === 60, "Expected exactly 60 original Term 03 source files");
 
-const appSource = fs.readFileSync(require.resolve("../website/index.html"), "utf8");
+const appSource = fs.readFileSync(require.resolve("../website/index.html"), "utf8") + "\\n" + fs.readFileSync(require.resolve("../website/app-bootstrap.js"), "utf8");
 
 assert(global.TERM3_NEWESTAN_FINAL_INSHA?.source?.startsWith("N3-10"), "Expected final Newestan Insha model to cite Dars 10");
 assert(global.TERM3_NEWESTAN_FINAL_INSHA.mainQuestion && global.TERM3_NEWESTAN_FINAL_INSHA.method &&

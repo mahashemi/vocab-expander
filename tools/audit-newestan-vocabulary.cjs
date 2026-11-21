@@ -14,7 +14,7 @@ const load=p=>require(path.join(root,p));
  "website/newestan-writing-library.js","website/newestan-language-lessons.js","website/term03-newestan-insha.js","website/term03-newestan-teaching.js","website/term03-newestan-final-insha.js",
  "website/term02-khulasa.js","website/term03-khulasa.js","website/term02-speeches.js","website/term03-speeches.js"
 ].forEach(load);
-const index=fs.readFileSync(path.join(root,"website/index.html"),"utf8");
+const index=fs.readFileSync(path.join(root,"website/index.html"),"utf8")+"\\n"+fs.readFileSync(path.join(root,"website/app-bootstrap.js"),"utf8");
 const aliasMatch=index.match(/const curatedVocabAliases\s*=\s*(\{[\s\S]*?\n\});/);
 if(!aliasMatch)throw new Error("Cannot read reviewed alternate-form list from the shared linker");
 const aliases=vm.runInNewContext("("+aliasMatch[1]+")");

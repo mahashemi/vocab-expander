@@ -55,7 +55,7 @@ def test_newestan_fourth_chapter_is_mapped_to_unit_two_consistently() -> None:
 
 
 def test_shared_vocabulary_is_available_in_every_linked_unit() -> None:
-    index = read("index.html")
+    index = read("index.html") + "\n" + read("app-bootstrap.js")
     for script in (
         "term03-lexicon-additions.js",
         "term03-matn-verbs.js",
@@ -115,7 +115,7 @@ def test_all_curated_verb_examples_match_their_masdar_and_imperative() -> None:
 
 
 def test_term03_deduplication_plan_and_runtime_audit_are_wired_before_mapping() -> None:
-    index = read("index.html")
+    index = read("index.html") + "\n" + read("app-bootstrap.js")
     loader = read("term-loader.js")
     page1 = read("term03-page1-additions.js")
     dedup = read("term03-dedup.js")
@@ -156,7 +156,7 @@ def test_term03_dedup_runtime_audit_is_part_of_ci() -> None:
 
 
 def test_newestan_standalone_curriculum_keeps_all_lessons_and_final_insha() -> None:
-    index = read("index.html")
+    index = read("index.html") + "\n" + read("app-bootstrap.js")
     picker = read("term03-newestan-insha.js")
     renderer = read("term03-newestan-standalone.js")
     final_insha = read("term03-newestan-final-insha.js")
