@@ -37,15 +37,20 @@
   if(!queue.length){current=null;prompt=null;return}
   if(index>=queue.length)index=0;
   current=queue[index];
-  const recent=reviewMap.get(reviewKey(canonicalItemId(current.id),mode))||[];
-  const correctAttempts=recent.filter(x=>x.correct).length;
-  prompt=mode==="skip-gram"?modes[mode].createPrompt(current,correctAttempts):modes[mode].createPrompt(current);
+  const review=reviewFor(current);
+  prompt=mode==="skip-gram"?modes[mode].createPrompt(current,review.streak):modes[mode].createPrompt(current);
   hints=0;started=Date.now();checked=false;
  }
  function record(result){
   const rows=read();
   rows.push({itemId:canonicalItemId(current.id),legacyId:current.id,modeId:mode,occurredAt:new Date().toISOString(),correct:result.correct,response:result.response,errorTypes:result.errorTypes||[],hintsUsed:hints,elapsedMs:Math.max(0,Date.now()-started),promptVersion:prompt.version||1});
-  write(rows);buildReviewMap();
+  write(rows);buildReviewMap();updateQueueStats();
+ }
+ function updateQueueStats(){
+  reviewCounts={new:0,due:0,weak:0};
+  for(const item of eligibleRows()){const state=reviewFor(item);if(state.isNew)reviewCounts.new++;if(state.due)reviewCounts.due++;if(state.weak)reviewCounts.weak++;}
+  const queueSelect=$("#learningQueue");if(queueSelect){queueSelect.querySelector('option[value="new"]').textContent="New · "+reviewCounts.new;queueSelect.querySelector('option[value="due"]').textContent="Due · "+reviewCounts.due;queueSelect.querySelector('option[value="weak"]').textContent="Needs review · "+reviewCounts.weak;}
+  const notebook=$("#learningNotebook");if(notebook)notebook.textContent="Mistake notebook · "+notebookRows().length;
  }
  function shell(){
   const s=stats(),m=identitySnapshot?.stats||{indexedItems:0,ambiguousAliases:0},mistakes=s.mistakes;
