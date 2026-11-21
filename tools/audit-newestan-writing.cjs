@@ -134,7 +134,6 @@ assert(index.includes("if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3
 console.log(JSON.stringify({term01:library[1].length,term02:library[2].length,term03:Object.keys(t3).length,term03Lessons:10,term03ResearchLessons:1},null,2));
 const rubricSource=require("node:fs").readFileSync(path.join(__dirname,"../website/newestan-rubric.js"),"utf8");
 const term01Ui=require("node:fs").readFileSync(path.join(__dirname,"../website/newestan-writing-ui.js"),"utf8");
-const term03Ui=require("node:fs").readFileSync(path.join(__dirname,"../website/term03-newestan-standalone.js"),"utf8");
 assert(rubricSource.includes("newestan-writing-rubric-scores-v1")&&rubricSource.includes("points:5")&&rubricSource.includes("points:6"),"Source-based Newestan self-assessment rubric is incomplete");
 assert(rubricSource.includes("defaults[term]")&&rubricSource.includes("if(!sourceRows)return")&&rubricSource.includes("practice self-assessment"),"Rubric must be source-gated and clearly labelled as self-assessment");
 assert(term01Ui.includes("renderNewestanRubric")&&term01Ui.includes("bindNewestanRubric"),"Term 01 workshop must render and bind the source rubric");
