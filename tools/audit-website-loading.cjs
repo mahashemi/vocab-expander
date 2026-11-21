@@ -63,10 +63,7 @@ for (const script of external) {
 const indexOf = name => scripts.findIndex(x => x.file === name);
 const inlineIndex = scripts.findIndex(x => x.kind === 'inline');
 const requiredOrder = [
-  ['term01-data.js', '(inline application bootstrap)'],
-  ['term02-data.js', 'term02-lexicon-additions.js'],
-  ['term02-lexicon-additions.js', '(inline application bootstrap)'],
-  ['(inline application bootstrap)', 'term-loader.js'],
+  ['app-bootstrap.js', 'term-loader.js'],
   ['term-loader.js', 'verb-treasury.js'],
   ['verb-treasury.js', 'term-portal.js'],
 ];
@@ -78,6 +75,9 @@ for (const [before, after] of requiredOrder) {
 }
 
 const loaderOrder = [
+  ['term01-data.js', 'term02-data.js'],
+  ['term02-data.js', 'newestan-lexicon-additions.js'],
+  ['newestan-lexicon-additions.js', 'newestan-essay-vocabulary.js'],
   ['semantic-meanings.js', 'term01-semantic-additions.js'],
   ['semantic-meanings.js', 'term01-core-semantics.js'],
   ['semantic-meanings.js', 'term02-core-semantics.js'],
@@ -85,8 +85,7 @@ const loaderOrder = [
   ['term03-data.js', 'term03-lexicon-additions.js'],
   ['term03-lexicon-additions.js', 'term03-matn-verbs.js'],
   ['term03-chapter-mapping.js', 'term03-dedup.js'],
-  ['term03-dedup.js', 'newestan-lexicon-additions.js'],
-  ['newestan-lexicon-additions.js', 'newestan-essay-vocabulary.js'],
+  ['term03-dedup.js', 'await loadScript("newestan-lexicon-additions.js", true)'],
 ];
 const loaderOrderErrors = [];
 for (const [before, after] of loaderOrder) {
@@ -107,6 +106,8 @@ for (const term of [1, 2, 3]) {
 }
 
 const forbiddenInitial = [
+  'term01-data.js','term01-chapters-11-15.js','term01-chapters-16-20.js','term01-supplementary.js','term01-amr-verbs.js',
+  'term02-data.js','term02-lexicon-additions.js','term02-proverbs.js','newestan-lexicon-additions.js','newestan-essay-vocabulary.js',
   'term03-data.js', 'term03-lexicon-additions.js', 'term03-dedup.js',
   'term03-core-semantics.js', 'term03-speeches.js', 'term03-khulasa.js',
   'term03-newestan-insha.js', 'term02-khulasa.js', 'term02-speeches.js',
@@ -123,6 +124,12 @@ if (!loaderText.includes('length: 46') || !loaderText.includes('term03-additiona
 }
 
 const quotedJsFiles = value => value.split('"').filter(x => x.endsWith('.js'));
+const coreStart = loaderText.indexOf('const coreTermScripts');
+const coreEnd = loaderText.indexOf('const term01SemanticScripts');
+const coreScriptFiles = quotedJsFiles(loaderText.slice(coreStart, coreEnd));
+for (const required of ['term01-data.js','term01-chapters-11-15.js','term01-chapters-16-20.js','term01-supplementary.js','term01-amr-verbs.js','term02-data.js','term02-lexicon-additions.js','term02-proverbs.js','newestan-lexicon-additions.js','newestan-essay-vocabulary.js']) {
+  if (!coreScriptFiles.includes(required)) loaderOrderErrors.push(required + ' must be included in the deferred Term 01/02 core bundle');
+}
 const term3CoreStart = loaderText.indexOf('const term03CoreScripts');
 const term3CoreEnd = loaderText.indexOf('const sharedEssayScripts');
 const featureStart = loaderText.indexOf('const featureScripts');
@@ -138,7 +145,9 @@ const inlineBytes = inline.reduce((sum, item) => sum + item.bytes, 0);
 if (external.length > 18) loaderOrderErrors.push('Initial external script count exceeds the 18-file budget: ' + external.length);
 if (externalBytes > 0.75 * 1024 * 1024) loaderOrderErrors.push('Initial external JavaScript exceeds the 0.75 MiB source budget: ' + externalBytes + ' bytes');
 if (inlineBytes > 250 * 1024) loaderOrderErrors.push('Inline application JavaScript exceeds the 250 KiB source budget: ' + inlineBytes + ' bytes');
-const noLoadHints = scripts.filter(x => x.kind !== 'remote' && !x.async && !x.defer).length;
+const noLoadHints = scripts.filter(x => x.kind !== 'remote' && !x.defer).length;
+if (scripts.some(x => x.async)) loaderOrderErrors.push('Initial app scripts must not use async; preserve ordered deferred execution.');
+if (inlineBytes !== 0) loaderOrderErrors.push('Application bootstrap must remain external; unexpected inline JavaScript was found.');
 const report = {
   generatedAt: new Date().toISOString(),
   measurementType: 'static-source-inventory-not-browser-performance',
@@ -173,7 +182,7 @@ const md = [
   '| Script tags | ' + report.scriptTagCount + ' |',
   '| External scripts | ' + report.externalScriptCount + ' (budget: 18) |',
   '| External JavaScript bytes | ' + report.externalScriptBytes.toLocaleString('en-US') + ' (budget: 0.75 MiB) |',
-  '| Inline script bytes | ' + report.inlineScriptBytes.toLocaleString('en-US') + ' (budget: 250 KiB) |',
+  '| Inline script bytes | ' + report.inlineScriptBytes.toLocaleString('en-US') + ' (budget: 0 B) |',
   '| Scripts without async/defer | ' + report.scriptTagsWithoutAsyncOrDefer + ' |',
   '| Term 03 core scripts deferred until needed | ' + lazyTerm03CoreScriptCount + ' |',
   '| Feature scripts deferred until opened | ' + lazyFeatureScriptCount + ' |',
@@ -190,7 +199,7 @@ const md = [
   '',
   '## Dependency order checks',
   '',
-  ...(orderErrors.length ? orderErrors.map(x => '- FAIL: ' + x) : ['- PASS: initial app/loader/Verb Treasury/portal order.']),
+  ...(orderErrors.length ? orderErrors.map(x => '- FAIL: ' + x) : ['- PASS: deferred app-bootstrap/loader/Verb Treasury/portal order.']),
   ...(loaderOrderErrors.length ? loaderOrderErrors.map(x => '- FAIL: ' + x) : ['- PASS: Term 03 and feature dependencies remain lazy and ordered.']),
   '',
 ].join('\n');
