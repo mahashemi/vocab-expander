@@ -1363,7 +1363,7 @@ let speechDrafts=readLocal(speechStoreKey),speechCh=20;
 function printCurrent(){document.body.classList.add("printing");window.onafterprint=()=>document.body.classList.remove("printing")}
 function essays(){
  const picker=document.getElementById("newestanLesson");
- const lesson=picker?Number(picker.value):(window.__vocabRouteLesson||undefined);
+ const lesson=window.__vocabRouteLesson||(picker?Number(picker.value):undefined);
  if(lesson)window.__vocabRouteLesson=lesson;
  if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1(lesson);window.bindNewestanWorkshop();return}
  if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3(lesson);window.bindNewestanTerm3();return}

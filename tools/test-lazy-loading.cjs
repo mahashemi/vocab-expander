@@ -102,6 +102,7 @@ async function waitFor(page, expression, label) {
     if (await page.locator('.newestan-rubric').count()) throw new Error('A 20-point rubric was invented for Term 02 despite no such rubric in the reviewed OCR pages.');
 
     await page.goto(target + '#/term/3/newestan/lesson/2', { waitUntil: 'load', timeout: 120000 });
+    await waitFor(page, 'window.__vocabRouteLesson === 2 && document.querySelector("#newestanLesson")?.value === "2"', 'Term 03 URL lesson overrides the previous term lesson selector');
     await waitFor(page, 'document.querySelectorAll(".newestan-rubric-score").length === 4', 'Term 03 source rubric is visible');
     await page.locator('.newestan-rubric-score').first().selectOption('5');
     rubricState = await page.evaluate(() => JSON.parse(localStorage.getItem('newestan-writing-rubric-scores-v1') || '{}'));
