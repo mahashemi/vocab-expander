@@ -7,7 +7,7 @@
  function targetFor(item,language){
   const sem=item?.sem||{};
   if(language==="ar")return {target:sem.arMeaning||"",synonyms:sem.arSynonyms||[]};
-  return {target:sem.enMeaning||item?.en||"",synonyms:sem.enSynonyms||[]};
+  return {target:sem.enMeaning||"",synonyms:sem.enSynonyms||[]};
  }
  function eligible(item,context={}){
   const language=context.language||"en",t=targetFor(item,language);
