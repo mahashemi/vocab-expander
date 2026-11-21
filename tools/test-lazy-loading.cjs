@@ -55,8 +55,15 @@ async function waitFor(page, expression, label) {
     await page.goto(target + '#/term/2/fa', { waitUntil: 'load', timeout: 120000 });
     await waitFor(page, 'window.getLoadedTermNumbers().includes(2)', 'Term 02 semantic layer loads only when Term 02 is opened');
 
-    await page.goto(target + '#/term/3/fa/chapter/1', { waitUntil: 'load', timeout: 120000 });
+    await page.goto(target + '#/term/3/fa/chapter/1', { waitUntil: 'domcontentloaded', timeout: 120000 });
+    const routeBootVisible = await page.evaluate(() => document.documentElement.classList.contains('route-boot'));
+    if (!routeBootVisible) throw new Error('A direct deep link did not suppress the static portal while its route data was loading.');
     await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && Array.isArray(window.TERM3_DATA) && window.TERM3_DATA.length > 1800 && window.getLoadedTermNumbers().includes(3)', 'direct Term 03 deep link loads the full deduplicated vocabulary');
+    await waitFor(page, '!document.documentElement.classList.contains("route-boot") && location.hash === "#/term/3/fa/chapter/1" && document.querySelector(".term-welcome")', 'deep link reveals its requested page without a portal flash');
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 120000 });
+    const refreshBootVisible = await page.evaluate(() => document.documentElement.classList.contains('route-boot'));
+    if (!refreshBootVisible) throw new Error('Refreshing a deep link briefly exposed the portal instead of the route loading shell.');
+    await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && !document.documentElement.classList.contains("route-boot") && location.hash === "#/term/3/fa/chapter/1" && document.querySelector(".term-welcome")', 'hard refresh restores the exact Term 03 chapter route');
     const dedupAudit = await page.evaluate(() => window.TERM03_DEDUP_AUDIT);
     if (!dedupAudit || dedupAudit.expectedAfter !== dedupAudit.after || dedupAudit.after !== dedupAudit.actualBefore - dedupAudit.approvedMerges - dedupAudit.decisionMerges || dedupAudit.missing.length || dedupAudit.duplicateIds.length || dedupAudit.duplicateHeadwordPos.length || dedupAudit.missingSemantics.length || dedupAudit.sourceLoss.length) {
       throw new Error('Term 03 deduplication audit is inconsistent: ' + JSON.stringify(dedupAudit));
@@ -119,6 +126,12 @@ async function waitFor(page, expression, label) {
     await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
     await page.locator('#globalSearchInput').fill('کتاب');
     await waitFor(page, 'document.querySelectorAll(".global-search-result").length > 0', 'global search loads Term 03 and returns results');
+    const searchIndexFirst = await page.evaluate(() => window.__getGlobalSearchDiagnostics?.());
+    if (!searchIndexFirst || !searchIndexFirst.built || searchIndexFirst.size < 3000) throw new Error('Global search did not build a complete reusable index: ' + JSON.stringify(searchIndexFirst));
+    await page.locator('#globalSearchInput').fill('return');
+    await waitFor(page, 'window.__getGlobalSearchDiagnostics?.().built === 1', 'global search reuses its pre-normalized index for later queries');
+    const searchIndexSecond = await page.evaluate(() => window.__getGlobalSearchDiagnostics());
+    if (searchIndexSecond.built !== searchIndexFirst.built || searchIndexSecond.size !== searchIndexFirst.size) throw new Error('Global search rebuilt its index on a subsequent query: ' + JSON.stringify({first:searchIndexFirst,second:searchIndexSecond}));
 
     await page.goto(target, { waitUntil: 'load', timeout: 120000 });
     await page.waitForSelector('[data-open-verbs]', { state: 'visible', timeout: 60000 });

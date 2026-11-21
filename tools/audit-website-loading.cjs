@@ -147,7 +147,12 @@ if (externalBytes > 0.75 * 1024 * 1024) loaderOrderErrors.push('Initial external
 if (inlineBytes > 250 * 1024) loaderOrderErrors.push('Inline application JavaScript exceeds the 250 KiB source budget: ' + inlineBytes + ' bytes');
 const noLoadHints = scripts.filter(x => x.kind !== 'remote' && !x.defer).length;
 if (scripts.some(x => x.async)) loaderOrderErrors.push('Initial app scripts must not use async; preserve ordered deferred execution.');
-if (inlineBytes !== 0) loaderOrderErrors.push('Application bootstrap must remain external; unexpected inline JavaScript was found.');
+// Permit only the tiny synchronous route-visibility guard: it must run before
+// CSS/paint to prevent a deep-link refresh from exposing the static portal.
+const routeGuardAllowed = inline.length === 1 && inline[0].bytes <= 512 &&
+  /var hash=window\.location\.hash\|\|"#\/";[\s\S]*route-boot/.test(html);
+if (inline.length && !routeGuardAllowed) loaderOrderErrors.push('Only the <=512-byte synchronous route-visibility guard may be inline; application bootstrap must remain external.');
+if (inlineBytes > 512) loaderOrderErrors.push('Synchronous route-visibility guard exceeds its 512-byte budget: ' + inlineBytes + ' bytes.');
 const report = {
   generatedAt: new Date().toISOString(),
   measurementType: 'static-source-inventory-not-browser-performance',
@@ -182,7 +187,7 @@ const md = [
   '| Script tags | ' + report.scriptTagCount + ' |',
   '| External scripts | ' + report.externalScriptCount + ' (budget: 18) |',
   '| External JavaScript bytes | ' + report.externalScriptBytes.toLocaleString('en-US') + ' (budget: 0.75 MiB) |',
-  '| Inline script bytes | ' + report.inlineScriptBytes.toLocaleString('en-US') + ' (budget: 0 B) |',
+  '| Inline script bytes | ' + report.inlineScriptBytes.toLocaleString('en-US') + ' (route guard budget: 512 B) |',
   '| Scripts without async/defer | ' + report.scriptTagsWithoutAsyncOrDefer + ' |',
   '| Term 03 core scripts deferred until needed | ' + lazyTerm03CoreScriptCount + ' |',
   '| Feature scripts deferred until opened | ' + lazyFeatureScriptCount + ' |',

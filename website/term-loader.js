@@ -90,6 +90,13 @@
   let coreTermsPromise = null;
   let learningSchoolPromise = null;
 
+  // Dynamic scripts with async=false execute in insertion order. Insert an entire
+  // dependency-ordered batch immediately so the browser can fetch files in parallel
+  // without changing the original script execution order.
+  function loadScriptsInOrder(files, replay) {
+    return Promise.all(files.map(file => loadScript(file, replay)));
+  }
+
   function loadScript(file, replay) {
     const src = replay ? file + "?term03-replay=1" : file;
     if (scriptLoads.has(src)) return scriptLoads.get(src);
@@ -113,7 +120,7 @@
   async function ensureCoreTerms() {
     if (!coreTermsPromise) {
       coreTermsPromise = (async () => {
-        for (const file of coreTermScripts) await loadScript(file, false);
+        await loadScriptsInOrder(coreTermScripts, false);
         if (typeof window.__refreshVocabBooks !== "function") {
           throw new Error("The vocabulary app bootstrap is not ready to accept Term 01/02 data.");
         }
@@ -146,11 +153,11 @@
       await ensureSharedSemantics();
 
       if (number === 1) {
-        for (const file of term01SemanticScripts) await loadScript(file, false);
+        await loadScriptsInOrder(term01SemanticScripts, false);
       } else if (number === 2) {
-        for (const file of term02SemanticScripts) await loadScript(file, false);
+        await loadScriptsInOrder(term02SemanticScripts, false);
       } else if (number === 3) {
-        for (const file of term03CoreScripts) await loadScript(file, false);
+        await loadScriptsInOrder(term03CoreScripts, false);
 
         // These two shared additions ran on the initial page for Terms 01/02.
         // Re-run them after Term 03 exists so their Term 03 records are added too.
@@ -175,7 +182,9 @@
   }
 
   async function ensureAllTermsLoaded() {
-    for (const term of [1, 2, 3]) await ensureTermLoaded(term);
+    // All terms share the same core payload; once it resolves, independent term
+    // semantic layers can be downloaded together.
+    await Promise.all([1, 2, 3].map(term => ensureTermLoaded(term)));
   }
 
   async function ensureFeatureLoaded(term, feature) {
@@ -187,7 +196,7 @@
     if (featureLoads.has(key)) return featureLoads.get(key);
 
     const promise = (async () => {
-      for (const file of files) await loadScript(file, false);
+      await loadScriptsInOrder(files, false);
     })().catch(error => {
       featureLoads.delete(key);
       throw error;
@@ -200,9 +209,7 @@
     if (!learningSchoolPromise) {
       learningSchoolPromise = (async () => {
         await ensureAllTermsLoaded();
-        for (const file of ["learning/identity.js", "learning/manifest.js", "learning/imla.js", "learning/skip-gram.js", "learning/review-scheduler.js", "learning/meaning-recall.js", "learning/learning-school.js"]) {
-          await loadScript(file, false);
-        }
+        await loadScriptsInOrder(["learning/identity.js", "learning/manifest.js", "learning/imla.js", "learning/skip-gram.js", "learning/review-scheduler.js", "learning/meaning-recall.js", "learning/learning-school.js"], false);
       })().catch(error => {
         learningSchoolPromise = null;
         throw error;

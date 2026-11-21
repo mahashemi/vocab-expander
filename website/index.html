@@ -1,10 +1,22 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+(function(){
+  var hash=window.location.hash||"#/";
+  if(hash!=="#"&&hash!=="#/")document.documentElement.classList.add("route-boot");
+})();
+</script>
 <meta name="description" content="A source-based Persian learning library for Terms 01–03: vocabulary, grammar, reading, writing and speaking practice.">
 <title>Vocab Expander · Persian Terms 01–03</title>
 
 <style>
+/* Direct deep links: keep the static portal from flashing while the requested
+   route's data and feature modules load. The real route replaces this shell. */
+html.route-boot body>main{visibility:hidden}
+html.route-boot body::before{content:"Opening your page…";position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:#f6f3ec;color:#52665d;font:600 14px/1.5 system-ui,sans-serif;letter-spacing:.02em}
+@media(prefers-color-scheme:dark){html.route-boot body::before{background:#171614;color:#c2c9c1}}
+
 :root{--bg:#faf8f4;--fg:#1f1d1a;--mut:#6b665e;--card:#fff;--bd:#e3ddd2;--ac:#0f766e;--acf:#fff;--ok:#15803d;--no:#b91c1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171614;--fg:#f1ede6;--mut:#a39d92;--card:#22201d;--bd:#3a3631;--ac:#2dd4bf;--acf:#0b1f1c;--ok:#4ade80;--no:#f87171}}
 :root[data-theme="dark"]{--bg:#171614;--fg:#f1ede6;--mut:#a39d92;--card:#22201d;--bd:#3a3631;--ac:#2dd4bf;--acf:#0b1f1c;--ok:#4ade80;--no:#f87171}
