@@ -42,6 +42,7 @@
   '<section class="global-search" aria-label="Search all terms and verbs"><div class="global-search-heading"><div><div class="eyebrow">ONE SEARCH · THE WHOLE LIBRARY</div><h3>Find a word, phrase or verb</h3><p>Search Persian, Arabic, Urdu, English or transliteration across all three terms and the Verb Treasury.</p></div></div><div class="global-search-box"><span aria-hidden="true">⌕</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="مثلاً: برگشتن · برگرد · return · sit down" aria-label="Search all terms and verb treasury"><button type="button" id="globalSearchClear" aria-label="Clear search">Clear</button></div><div class="global-search-meta" id="globalSearchMeta" aria-live="polite">Search the complete vocabulary and verb collection.</div><div id="globalSearchResults" class="global-search-results"></div></section>'+
   '<div class="term-grid">'+data.map(t=>{const count=counts[t.b]||0,mem=doneByTerm[t.b]||0,p=count?Math.round(mem*100/count):0;return '<button class="term-entry '+t.theme+'" data-enter="'+t.b+'"><span class="term-no">'+t.no+'</span><span class="term-name">'+t.name+'</span><span class="term-sub">'+t.sub+'</span><div class="term-stats"><span>'+count.toLocaleString()+' words</span><span>'+mem.toLocaleString()+' memorised</span></div><div class="bar"><i style="width:'+p+'%"></i></div><span class="term-cta">Enter term →</span></button>'}).join("")+'</div>'+
   '<div class="verb-entry-wrap"><button class="verb-entry" data-open-verbs><span class="term-no">A SHARED GRAMMAR COLLECTION</span><span class="term-name">گنجینهٔ فعل‌ها · Verb Treasury</span><span class="term-sub">Masdar, amr, example sentences and revision cards across terms</span><span class="term-cta">Enter the verb treasury →</span></button></div>'+
+  '<div class="learning-school-entry"><button class="verb-entry" data-open-school><span class="term-no">A NEW WAY TO LEARN</span><span class="term-name">مدرسهٔ یادگیری · Learning School</span><span class="term-sub">Practise spelling with Imla and rebuild words with Skip-gram across all three terms</span><span class="term-cta">Start learning →</span></button></div>'+
   '<div class="portal-summary"><span><b>'+stats.total.toLocaleString()+'</b> total vocabulary entries</span><span><b>'+stats.done.toLocaleString()+'</b> memorised</span><span><b>'+(stats.total?Math.round(stats.done*100/stats.total):0)+'%</b> overall progress</span></div>';
   data.forEach(t=>{
    const count=counts[t.b]||0,mem=doneByTerm[t.b]||0,p=count?Math.round(mem*100/count):0;
@@ -59,6 +60,8 @@
   v.querySelectorAll("[data-enter]").forEach(btn=>btn.onclick=()=>enterTerm(Number(btn.dataset.enter)));
   const verbs=v.querySelector("[data-open-verbs]");
   if(verbs)verbs.onclick=()=>{activeTerm=null;$id("termNav").hidden=true;window.gotoTab("verbs")};
+  const school=v.querySelector("[data-open-school]");
+  if(school)school.onclick=()=>{activeTerm=null;$id("termNav").hidden=true;window.gotoTab("school")};
   const input=$id("globalSearchInput"),results=$id("globalSearchResults"),meta=$id("globalSearchMeta");
   let searchRequest=0;
   const renderResults=async()=>{
@@ -106,6 +109,7 @@
  function currentRoute(){
   if(tab==="portal")return "#/";
   if(tab==="verbs")return "#/verbs";
+  if(tab==="school")return "#/learning";
   const term=activeTerm||3,name=routeNames[tab]||"study";
   let path="#/term/"+term+"/"+name;
   let lesson=null;
@@ -132,6 +136,12 @@
   const raw=location.hash||"#/";
   if(raw==="#/"||raw==="#"){
    applyingRoute=true;activeTerm=null;tab="portal";bkSel.value="all";fillCh();$id("termNav").hidden=true;window.__vocabRouteLesson=null;render();applyingRoute=false;return;
+  }
+  if(raw==="#/learning"){
+   applyingRoute=true;
+   try{await window.ensureLearningSchool()}catch(error){if(request===routeRequest)applyingRoute=false;console.error(error);return}
+   if(request!==routeRequest)return;
+   activeTerm=null;tab="school";$id("termNav").hidden=true;window.__vocabRouteLesson=null;render();applyingRoute=false;return;
   }
   if(raw==="#/verbs"){
    applyingRoute=true;
@@ -163,11 +173,12 @@
   bkSel.hidden=true;chSel.hidden=![ "cards","quiz","khulasa"].includes(tab);
   deck=[];idx=0;flip=false;render();applyingRoute=false;
  }
- window.render=function(){if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();updateStats();syncRoute()};
+ window.render=function(){if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();else if(tab==="school")window.learningSchool();updateStats();syncRoute()};
  window.gotoTab=async function(t){
   const request=++tabRequest;
   try{
    if(t==="verbs")await window.ensureAllTermsLoaded();
+   else if(t==="school")await window.ensureLearningSchool();
    else if(["khulasa","speeches","essays"].includes(t)&&activeTerm)await window.ensureFeatureLoaded(activeTerm,t==="essays"?"essays":t);
   }catch(error){const status=$id("globalSearchMeta");if(status)status.textContent="This learning section could not be loaded. Please retry.";console.error(error);return}
   if(request!==tabRequest)return;
