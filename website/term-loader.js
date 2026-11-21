@@ -66,6 +66,7 @@
     "newestan-writing-ui.js"
   ];
   const featureScripts = {
+    "1:essays": sharedEssayScripts,
     "2:khulasa": ["term02-khulasa.js"],
     "2:speeches": ["term02-speeches.js"],
     "2:essays": sharedEssayScripts,
