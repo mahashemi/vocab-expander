@@ -185,6 +185,7 @@
   document.documentElement.classList.remove("route-boot");
   if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();else if(tab==="school")window.learningSchool();
   updateStats();syncRoute();
+  if(activeTerm===3&&window.performance&&window.performance.mark)window.performance.mark("vocab-term03-route-ready");
   // Let the browser paint the requested Term 03 lesson before downloading and
   // evaluating the 46 supplementary trilingual meaning batches.
   if(activeTerm===3&&tab!=="portal"&&!window.TERM03_SEMANTICS_READY&&window.ensureTerm03Semantics&&!term03SemanticsScheduled){
