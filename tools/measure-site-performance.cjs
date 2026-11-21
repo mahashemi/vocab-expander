@@ -58,14 +58,14 @@ async function measureViewport(name, config) {
   page.on('request', () => { requestCount += 1; });
   page.on('pageerror', error => { pageErrors.push(String(error)); });
 
-  async function capture(label, navigate) {
+  async function capture(label, navigate, url = target, readySelector = '#globalSearchInput') {
     requestCount = 0;
     pageErrors = [];
     const startedAt = Date.now();
     const response = navigate
-      ? await page.goto(target, { waitUntil: 'load', timeout: 120000 })
+      ? await page.goto(url, { waitUntil: 'load', timeout: 120000 })
       : await page.reload({ waitUntil: 'load', timeout: 120000 });
-    await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
+    await page.waitForSelector(readySelector, { state: 'visible', timeout: 120000 });
     await delay(1800);
 
     const browserMetrics = await page.evaluate(() => {
@@ -92,6 +92,7 @@ async function measureViewport(name, config) {
 
     return {
       label,
+      scenario: readySelector === '#globalSearchInput' ? 'Portal' : 'Term 03 direct chapter route',
       elapsedWallMs: Date.now() - startedAt,
       mainDocumentStatus: response?.status() ?? null,
       requestCount,
@@ -101,13 +102,21 @@ async function measureViewport(name, config) {
   }
 
   try {
-    const cold = await capture(name + ' cold cache', true);
-    const warm = await capture(name + ' warm cache', false);
+    const cold = await capture(name + ' portal cold cache', true);
+    const warm = await capture(name + ' portal warm cache', false);
+    // Measure the expensive real-world path separately: a direct Term 03 URL
+    // with an empty HTTP cache, followed by a refresh with a warm cache.
+    await cdp.send('Network.clearBrowserCache');
+    const deepUrl = target + '#/term/3/fa/chapter/1';
+    const deepCold = await capture(name + ' Term 03 deep-route cold cache', true, deepUrl, '.term-welcome');
+    const deepWarm = await capture(name + ' Term 03 deep-route warm refresh', false, deepUrl, '.term-welcome');
     return {
       viewport: name,
       conditions: config,
       cold,
       warm,
+      deepCold,
+      deepWarm,
     };
   } finally {
     await cdp.detach();
@@ -164,12 +173,13 @@ async function measureViewport(name, config) {
     '',
     '> Synthetic Chromium lab data. Not field/Core Web Vitals data. INP is not measured.',
     '',
-    '| Viewport | Cache | FCP ms | LCP ms | CLS | Long-task ms | Requests | Transfer bytes | JS bytes | CSS bytes | Load ms |',
-    '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
+    '| Viewport | Scenario | Cache | FCP ms | LCP ms | CLS | Long-task ms | Requests | Transfer bytes | JS bytes | CSS bytes | Load ms |',
+    '|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
   ];
   for (const viewport of results) {
-    for (const sample of [viewport.cold, viewport.warm]) {
-      lines.push('| ' + viewport.viewport + ' | ' + (sample.label.includes('cold') ? 'cold' : 'warm') +
+    for (const sample of [viewport.cold, viewport.warm, viewport.deepCold, viewport.deepWarm]) {
+      lines.push('| ' + viewport.viewport + ' | ' + sample.scenario + ' | ' +
+        (sample.label.toLowerCase().includes('cold') ? 'cold' : 'warm') +
         ' | ' + fmt(sample.fcpMs) + ' | ' + fmt(sample.lcpMs) + ' | ' +
         (sample.cls == null ? 'n/a' : sample.cls.toFixed(4)) + ' | ' + fmt(sample.longTaskMs) +
         ' | ' + sample.requestCount + ' | ' + fmt(sample.transferBytes) + ' | ' +
@@ -181,7 +191,7 @@ async function measureViewport(name, config) {
   fs.writeFileSync(path.join(outDir, 'site-performance-baseline.md'), lines.join('\n'));
 
   console.log(lines.join('\n'));
-  const errors = results.flatMap(viewport => [viewport.cold, viewport.warm]).flatMap(sample => sample.pageErrors);
+  const errors = results.flatMap(viewport => [viewport.cold, viewport.warm, viewport.deepCold, viewport.deepWarm]).flatMap(sample => sample.pageErrors);
   if (errors.length) {
     console.error('Browser page errors were observed:', errors);
     process.exitCode = 1;
