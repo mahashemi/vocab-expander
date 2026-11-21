@@ -13,15 +13,19 @@
   });
 
   const sharedSemanticScript = "semantic-meanings.js";
-  const coreTermScripts = [
+  const term01CoreScripts = [
     "term01-data.js",
     "term01-chapters-11-15.js",
     "term01-chapters-16-20.js",
     "term01-supplementary.js",
-    "term01-amr-verbs.js",
+    "term01-amr-verbs.js"
+  ];
+  const term02CoreScripts = [
     "term02-data.js",
     "term02-lexicon-additions.js",
-    "term02-proverbs.js",
+    "term02-proverbs.js"
+  ];
+  const sharedTermAdditions = [
     "newestan-lexicon-additions.js",
     "newestan-essay-vocabulary.js"
   ];
@@ -110,8 +114,8 @@
     return Promise.all(files.map(file => loadScript(file, replay)));
   }
 
-  function loadScript(file, replay) {
-    const src = replay ? file + "?term03-replay=1" : file;
+  function loadScript(file, replay, replayKey) {
+    const src = replay ? file + "?term-replay=" + String(replayKey || "1") : file;
     if (scriptLoads.has(src)) return scriptLoads.get(src);
 
     const promise = new Promise((resolve, reject) => {
@@ -131,19 +135,26 @@
   }
 
   async function ensureCoreTerms() {
+    // The app bootstrap is loaded up front; term data itself is fetched only for
+    // the active term. This keeps a Term 03 deep link from downloading Terms 01/02.
     if (!coreTermsPromise) {
-      coreTermsPromise = (async () => {
-        await loadScriptsInOrder(coreTermScripts, false);
+      coreTermsPromise = Promise.resolve().then(() => {
         if (typeof window.__refreshVocabBooks !== "function") {
-          throw new Error("The vocabulary app bootstrap is not ready to accept Term 01/02 data.");
+          throw new Error("The vocabulary app bootstrap is not ready to accept term data.");
         }
-        window.__refreshVocabBooks();
-      })().catch(error => {
+      }).catch(error => {
         coreTermsPromise = null;
         throw error;
       });
     }
     return coreTermsPromise;
+  }
+
+  async function loadSharedTermAdditions(term) {
+    // These source-backed additions can target any term. Replay after each term's
+    // data arrives so later terms receive their own rows without preloading them.
+    for (const file of sharedTermAdditions) await loadScript(file, true, "term-" + term);
+    if (typeof window.__refreshVocabBooks === "function") window.__refreshVocabBooks();
   }
 
   async function ensureSharedSemantics() {
@@ -166,8 +177,14 @@
       await ensureSharedSemantics();
 
       if (number === 1) {
+        await loadScriptsInOrder(term01CoreScripts, false);
+        window.__refreshVocabBooks();
+        await loadSharedTermAdditions(1);
         await loadScriptsInOrder(term01SemanticScripts, false);
       } else if (number === 2) {
+        await loadScriptsInOrder(term02CoreScripts, false);
+        window.__refreshVocabBooks();
+        await loadSharedTermAdditions(2);
         await loadScriptsInOrder(term02SemanticScripts, false);
       } else if (number === 3) {
         // The dedup plan audits semantic coverage, but its data transformation does
@@ -177,10 +194,8 @@
         await loadScriptsInOrder([...term03SharedSemanticDependencies, ...term03CoreScripts], false);
         window.TERM03_CORE_READY = true;
 
-        // These two shared additions ran on the initial page for Terms 01/02.
-        // Re-run them after Term 03 exists so their Term 03 records are added too.
-        await loadScript("newestan-lexicon-additions.js", true);
-        await loadScript("newestan-essay-vocabulary.js", true);
+        // Add Newestan vocabulary for Term 03 without loading Term 01/02 data.
+        await loadSharedTermAdditions(3);
 
         if (typeof window.__refreshVocabBooks !== "function") {
           throw new Error("The vocabulary app bootstrap is not ready to accept Term 03 data.");
