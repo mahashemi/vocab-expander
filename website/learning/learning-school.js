@@ -11,7 +11,7 @@
  function eligibleRows(){return items().filter(x=>(term==="all"||Number(x.bk)===Number(term))&&modes[mode].eligible(x))}
  function buildIdentity(){identitySnapshot=window.VocabLearningManifest.build(items());}
  function canonicalItemId(legacyId){const result=window.VocabLearningIdentity.resolveLegacyId(identitySnapshot?.aliasIndex,String(legacyId||""));return result.status==="resolved"?result.itemId:"legacy:"+String(legacyId||"unknown")}
- function history(){return read().map(event=>{const legacyId=event.legacyId||event.itemId;return {...event,legacyId,itemId:event.legacyId?event.itemId:canonicalItemId(legacyId)}})}
+ function history(){return read().map(event=>{const legacyId=event.legacyId||event.itemId;const storedId=String(event.itemId||"");const itemId=storedId.startsWith("vocab:source:")?storedId:canonicalItemId(legacyId);return {...event,legacyId,itemId}})}
  function stats(){const h=history();return {attempts:h.length,correct:h.filter(x=>x.correct).length,items:new Set(h.map(x=>x.itemId)).size}}
  function makeQueue(){buildIdentity();queue=eligibleRows();const counts=new Map();for(const event of history())if(event.modeId===mode)counts.set(event.itemId,(counts.get(event.itemId)||0)+1);queue.sort((a,b)=>(counts.get(canonicalItemId(a.id))||0)-(counts.get(canonicalItemId(b.id))||0));index=0;loadCurrent()}
  function loadCurrent(){if(!queue.length){current=null;prompt=null;return}if(index>=queue.length)index=0;current=queue[index];const itemId=canonicalItemId(current.id);const recent=history().filter(x=>x.itemId===itemId&&x.modeId===mode);const correctAttempts=recent.filter(x=>x.correct).length;prompt=mode==="skip-gram"?modes[mode].createPrompt(current,correctAttempts):modes[mode].createPrompt(current);hints=0;started=Date.now();checked=false}
