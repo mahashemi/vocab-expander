@@ -107,7 +107,7 @@ async function measureViewport(name, config) {
     // Measure the expensive real-world path separately: a direct Term 03 URL
     // with an empty HTTP cache, followed by a refresh with a warm cache.
     await cdp.send('Network.clearBrowserCache');
-    const deepUrl = target + '#/term/3/fa/chapter/1';
+    const deepUrl = target + '?route-test=deep-link#/term/3/fa/chapter/1';
     const deepCold = await capture(name + ' Term 03 deep-route cold cache', true, deepUrl, '.term-welcome');
     const deepWarm = await capture(name + ' Term 03 deep-route warm refresh', false, deepUrl, '.term-welcome');
     return {
