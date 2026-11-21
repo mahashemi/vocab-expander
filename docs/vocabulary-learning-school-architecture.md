@@ -168,10 +168,10 @@ Do not generate exercises for every item by force. A phrase may be suitable for 
 - [x] Specify and test the legacy-ID alias map without changing current IDs.
 
 ### P1 — shared foundation
-- [x] Read-only manifest validator and legacy alias resolver. Live source-row manifest builder is still pending.
+- [x] Read-only source-row manifest builder, validator and legacy alias resolver; 4,045 source rows validate with no ambiguous aliases.
 - [x] Independent mode eligibility checks for Imla and Skip-gram; shared explainable registry remains pending.
 - [x] Independent Imla and Skip-gram APIs with deterministic Skip-gram masks and unit tests.
-- [x] Separate local attempt event store with correctness, error categories, hints and elapsed time. Canonical-ID migration is pending and legacy completion remains untouched.
+- [x] Separate local attempt event store with canonical item IDs, preserved legacy aliases, correctness, error categories, hints and elapsed time. Legacy completion remains untouched.
 
 ### P1 — first modes
 - [x] Imla module and independent tests.
@@ -180,7 +180,7 @@ Do not generate exercises for every item by force. A phrase may be suitable for 
 
 ### P2 — retention and additional modes
 - [ ] Confusable letters, reconstruction, meaning retrieval and contextual completion.
-- [ ] Mistake notebook, evidence-based difficulty and spaced revision.
+- [x] Mistake notebook, evidence-based difficulty and 1/3/7/14/30-day spaced revision.
 - [ ] Cross-term practice summaries.
 
 ### P3 — audio
