@@ -85,7 +85,7 @@ const loaderOrder = [
   ['term03-data.js', 'term03-lexicon-additions.js'],
   ['term03-lexicon-additions.js', 'term03-matn-verbs.js'],
   ['term03-chapter-mapping.js', 'term03-dedup.js'],
-  ['term03-dedup.js', 'await loadScript("newestan-lexicon-additions.js", true)'],
+  ['term03-dedup.js', 'await loadSharedTermAdditions(3)'],
 ];
 const loaderOrderErrors = [];
 for (const [before, after] of loaderOrder) {
@@ -124,11 +124,19 @@ if (!loaderText.includes('length: 46') || !loaderText.includes('term03-additiona
 }
 
 const quotedJsFiles = value => value.split('"').filter(x => x.endsWith('.js'));
-const coreStart = loaderText.indexOf('const coreTermScripts');
-const coreEnd = loaderText.indexOf('const term01SemanticScripts');
-const coreScriptFiles = quotedJsFiles(loaderText.slice(coreStart, coreEnd));
-for (const required of ['term01-data.js','term01-chapters-11-15.js','term01-chapters-16-20.js','term01-supplementary.js','term01-amr-verbs.js','term02-data.js','term02-lexicon-additions.js','term02-proverbs.js','newestan-lexicon-additions.js','newestan-essay-vocabulary.js']) {
-  if (!coreScriptFiles.includes(required)) loaderOrderErrors.push(required + ' must be included in the deferred Term 01/02 core bundle');
+const term01CoreStart = loaderText.indexOf('const term01CoreScripts');
+const term02CoreStart = loaderText.indexOf('const term02CoreScripts');
+const term01SemanticStart = loaderText.indexOf('const term01SemanticScripts');
+const term01CoreFiles = quotedJsFiles(loaderText.slice(term01CoreStart, term02CoreStart));
+const term02CoreFiles = quotedJsFiles(loaderText.slice(term02CoreStart, term01SemanticStart));
+for (const required of ['term01-data.js','term01-chapters-11-15.js','term01-chapters-16-20.js','term01-supplementary.js','term01-amr-verbs.js']) {
+  if (!term01CoreFiles.includes(required)) loaderOrderErrors.push(required + ' must be included in the Term 01-only core bundle');
+}
+for (const required of ['term02-data.js','term02-lexicon-additions.js','term02-proverbs.js']) {
+  if (!term02CoreFiles.includes(required)) loaderOrderErrors.push(required + ' must be included in the Term 02-only core bundle');
+}
+if (!loaderText.includes('async function loadSharedTermAdditions(term)')) {
+  loaderOrderErrors.push('Newestan shared vocabulary must be replayed after each active term data bundle loads');
 }
 const term3CoreStart = loaderText.indexOf('const term03CoreScripts');
 const term3CoreEnd = loaderText.indexOf('const sharedEssayScripts');
@@ -169,7 +177,7 @@ const report = {
   orderErrors,
   loaderOrder,
   loaderOrderErrors,
-  lazyLoadPlan: { term03CoreScriptCount: lazyTerm03CoreScriptCount, term03SemanticEnrichmentScriptCount, featureScriptCount: lazyFeatureScriptCount },
+  lazyLoadPlan: { term01CoreScriptCount: term01CoreFiles.length, term02CoreScriptCount: term02CoreFiles.length, term03CoreScriptCount: lazyTerm03CoreScriptCount, term03SemanticEnrichmentScriptCount, featureScriptCount: lazyFeatureScriptCount },
   scripts,
 };
 
@@ -190,6 +198,8 @@ const md = [
   '| External JavaScript bytes | ' + report.externalScriptBytes.toLocaleString('en-US') + ' (budget: 0.75 MiB) |',
   '| Inline script bytes | ' + report.inlineScriptBytes.toLocaleString('en-US') + ' (route guard budget: 512 B) |',
   '| Scripts without async/defer | ' + report.scriptTagsWithoutAsyncOrDefer + ' |',
+  '| Term 01 core scripts deferred until Term 01 opens | ' + term01CoreFiles.length + ' |',
+  '| Term 02 core scripts deferred until Term 02 opens | ' + term02CoreFiles.length + ' |',
   '| Term 03 core scripts deferred until needed | ' + lazyTerm03CoreScriptCount + ' |',
   '| Term 03 supplementary semantic batches deferred until enrichment | ' + term03SemanticEnrichmentScriptCount + ' |',
   '| Feature scripts deferred until opened | ' + lazyFeatureScriptCount + ' |',

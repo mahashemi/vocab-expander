@@ -51,7 +51,9 @@ async function waitFor(page, expression, label) {
     const freshRouteGuard = await directPage.evaluate(() => document.documentElement.classList.contains('route-boot'));
     if (!freshRouteGuard) throw new Error('Fresh Term 03 deep link did not activate the route loading guard.');
     await waitFor(directPage, 'window.TERM03_DEDUP_APPLIED === true && Array.isArray(window.TERM3_DATA) && window.TERM3_DATA.length > 1800', 'fresh Term 03 deep link loads independently of prior term navigation');
-    await waitFor(directPage, '!document.documentElement.classList.contains("route-boot") && document.querySelector(".term-welcome")', 'fresh Term 03 lesson renders before supplementary semantics finish loading');
+    const freshTermIsolation = await directPage.evaluate(() => ({ term1: typeof window.TERM1_DATA, term2: typeof window.TERM2_DATA }));
+    if (freshTermIsolation.term1 !== 'undefined' || freshTermIsolation.term2 !== 'undefined') throw new Error('A direct Term 03 route downloaded unrelated Term 01/02 data: ' + JSON.stringify(freshTermIsolation));
+    await waitFor(directPage, '!document.documentElement.classList.contains("route-boot") && document.querySelector(".term-welcome")', 'fresh Term 03 lesson renders without loading unrelated term data or supplementary semantics');
     await waitFor(directPage, 'window.TERM03_SEMANTICS_READY === true', 'fresh Term 03 route completes background trilingual enrichment');
     let freshDedupAudit = await directPage.evaluate(() => window.TERM03_DEDUP_AUDIT);
     if (!freshDedupAudit || freshDedupAudit.missingSemantics.length || freshDedupAudit.missing.length || freshDedupAudit.duplicateIds.length || freshDedupAudit.duplicateHeadwordPos.length || freshDedupAudit.sourceLoss.length) {
@@ -66,15 +68,20 @@ async function waitFor(page, expression, label) {
     console.log('PASS: fresh Term 03 deep link and hard refresh retain complete trilingual dedup semantics');
 
     await page.goto(target + '#/term/1/fa', { waitUntil: 'load', timeout: 120000 });
-    await waitFor(page, 'window.getLoadedTermNumbers().includes(1) && Array.isArray(window.TERM1_DATA) && window.TERM1_DATA.length > 0 && Array.isArray(window.TERM2_DATA) && window.TERM2_DATA.length > 0', 'Term 01/02 core data and Term 01 semantics load on first term entry');
+    await waitFor(page, 'window.getLoadedTermNumbers().includes(1) && Array.isArray(window.TERM1_DATA) && window.TERM1_DATA.length > 0 && typeof window.TERM2_DATA === "undefined"', 'Term 01 loads its own core data without downloading Term 02');
     const firstTermCounts = await page.evaluate(() => window.__getRuntimeVocabCounts());
-    if (firstTermCounts[1] !== initial.portalSummary[1] || firstTermCounts[2] !== initial.portalSummary[2]) {
-      throw new Error('Deferred Term 01/02 core counts do not match the portal manifest: ' + JSON.stringify(firstTermCounts));
+    if (firstTermCounts[1] !== initial.portalSummary[1]) {
+      throw new Error('Deferred Term 01 core count does not match the portal manifest: ' + JSON.stringify(firstTermCounts));
     }
-    console.log('PASS: deferred Term 01/02 data reconciles to the portal manifest');
+    console.log('PASS: Term 01 data loads independently');
 
     await page.goto(target + '#/term/2/fa', { waitUntil: 'load', timeout: 120000 });
-    await waitFor(page, 'window.getLoadedTermNumbers().includes(2)', 'Term 02 semantic layer loads only when Term 02 is opened');
+    await waitFor(page, 'window.getLoadedTermNumbers().includes(2) && Array.isArray(window.TERM2_DATA) && window.TERM2_DATA.length > 0', 'Term 02 loads its own core data and semantic layer');
+    const allTermCounts = await page.evaluate(() => window.__getRuntimeVocabCounts());
+    if (allTermCounts[1] !== initial.portalSummary[1] || allTermCounts[2] !== initial.portalSummary[2]) {
+      throw new Error('Deferred Term 01/02 data does not reconcile to the portal manifest: ' + JSON.stringify(allTermCounts));
+    }
+    console.log('PASS: Term 01/02 data reconciles after both terms are opened');
 
     await page.goto(target + '?route-test=deep-link#/term/3/fa/chapter/1', { waitUntil: 'domcontentloaded', timeout: 120000 });
     const routeBootVisible = await page.evaluate(() => document.documentElement.classList.contains('route-boot'));
