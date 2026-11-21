@@ -88,6 +88,7 @@
   const loadedTerms = new Set();
   let sharedSemanticsPromise = null;
   let coreTermsPromise = null;
+  let learningSchoolPromise = null;
 
   function loadScript(file, replay) {
     const src = replay ? file + "?term03-replay=1" : file;
@@ -195,6 +196,22 @@
     return promise;
   }
 
+  async function ensureLearningSchool() {
+    if (!learningSchoolPromise) {
+      learningSchoolPromise = (async () => {
+        await ensureAllTermsLoaded();
+        for (const file of ["learning/imla.js", "learning/skip-gram.js", "learning/learning-school.js"]) {
+          await loadScript(file, false);
+        }
+      })().catch(error => {
+        learningSchoolPromise = null;
+        throw error;
+      });
+    }
+    return learningSchoolPromise;
+  }
+
+  window.ensureLearningSchool = ensureLearningSchool;
   window.ensureTermLoaded = ensureTermLoaded;
   window.ensureAllTermsLoaded = ensureAllTermsLoaded;
   window.ensureFeatureLoaded = ensureFeatureLoaded;
