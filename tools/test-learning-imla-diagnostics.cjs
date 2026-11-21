@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+"use strict";
+const assert=require("node:assert/strict");
+require("../website/learning/imla.js");
+const word={fa:"کتاب",en:"book"};
+assert.equal(VocabImla.validate(word,"كتاب",VocabImla.createPrompt(word)).correct,true,"Arabic kaf normalizes to Persian kaf");
+const omission=VocabImla.validate(word,"کتب",VocabImla.createPrompt(word));
+assert.equal(omission.correct,false);
+assert.ok(omission.errorTypes.includes("omission"));
+assert.ok(omission.errorPositions.length>0);
+const insertion=VocabImla.validate(word,"کتااب",VocabImla.createPrompt(word));
+assert.ok(insertion.errorTypes.includes("insertion"));
+const substitution=VocabImla.validate(word,"کباب",VocabImla.createPrompt(word));
+assert.ok(substitution.errorTypes.includes("substitution"));
+const transposition=VocabImla.validate(word,"کتبا",VocabImla.createPrompt(word));
+assert.ok(transposition.errorTypes.includes("transposition"));
+const zwnj={fa:"خانه‌دار",en:"householder"};
+const spacing=VocabImla.validate(zwnj,"خانه دار",VocabImla.createPrompt(zwnj));
+assert.ok(spacing.errorTypes.includes("spacing-or-zwnj"),"ZWNJ is not silently normalized to a regular space");
+const reviewed={fa:"خانه‌دار",en:"householder",acceptedForms:["خانه دار"]};
+assert.equal(VocabImla.validate(reviewed,"خانه دار",VocabImla.createPrompt(reviewed)).correct,true,"only an explicit reviewed spacing variant is accepted");
+assert.equal(VocabImla.graphemes("بَ").length,1,"combining marks stay attached to their base grapheme");
+console.log("PASS: Imla grapheme-level omission, insertion, substitution, transposition and ZWNJ diagnostics");

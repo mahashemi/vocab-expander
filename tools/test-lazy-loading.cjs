@@ -199,11 +199,13 @@ async function waitFor(page, expression, label) {
     await page.locator('#learningAnswer').fill('not-the-right-answer');
     await page.locator('#learningCheck').click();
     await page.waitForSelector('.learning-feedback.incorrect', { timeout: 10000 });
+    if (!(await page.locator('#learningFeedback').textContent()).includes('Letter-level feedback')) throw new Error('Imla did not provide grapheme-level error feedback.');
     const dueLabel = await page.locator('#learningQueue option[value="due"]').textContent();
     if (!dueLabel.includes('1')) throw new Error('A missed Imla answer was not immediately due for review: ' + dueLabel);
     await page.locator('#learningNotebook').click();
     await page.waitForSelector('.learning-notebook', { timeout: 10000 });
     if (await page.locator('.learning-mistake-entry').count() < 1) throw new Error('The mistake notebook did not list the missed item.');
+    if (!(await page.locator('.learning-mistake-entry').first().textContent()).includes('positions:')) throw new Error('The mistake notebook did not retain error positions.');
     const mistakeId = await page.locator('[data-practice-mistake]').first().getAttribute('data-practice-mistake');
     await page.locator('[data-practice-mistake]').first().click();
     await page.waitForSelector('.learning-question', { timeout: 10000 });
