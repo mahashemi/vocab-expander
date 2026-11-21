@@ -78,7 +78,7 @@ assert(has(1,4,"ضمیر پیوسته")&&has(1,5,"جمع با ـان"),"Term 01 
 assert(has(2,1,"تبدیل فعل گفتاری")&&has(2,2,"چهار نوع جمله")&&has(2,5,"حروف ربط مرکب")&&has(2,10,"نقطه‌ویرگول"),"Term 02 language lessons must include spoken/written forms, sentence types, compound links and punctuation");
 assert(has(3,3,"گذشتهٔ بعید")&&has(3,5,"اندام‌های جمع")&&has(3,8,"شش گام خلاصه")&&has(3,9,"نوشتار علمی")&&has(3,10,"مراحل سازمان‌دهی تحقیق"),"Term 03 must include the source-specific grammar, summary and research lessons");
 
-const index=require("node:fs").readFileSync(path.join(__dirname,"../website/index.html"),"utf8");
+const index=require("node:fs").readFileSync(path.join(__dirname,"../website/index.html"),"utf8")+"\\n"+require("node:fs").readFileSync(path.join(__dirname,"../website/app-bootstrap.js"),"utf8");
 const loader=require("node:fs").readFileSync(path.join(__dirname,"../website/term-loader.js"),"utf8");
 for(const script of ["newestan-writing-library.js","newestan-writing-ui.js","term03-newestan-teaching.js","term03-newestan-teaching-ui.js"])assert(loader.includes(script),"Missing lazy script integration: "+script);
 assert(index.includes("window.renderNewestanTerm1(lesson)"),"Term 01 Newestan view is not wired with route-aware lesson selection");
