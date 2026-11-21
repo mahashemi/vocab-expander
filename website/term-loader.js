@@ -213,6 +213,7 @@
           throw new Error("Term 03 semantic enrichment is incomplete: " + missing.join(", "));
         }
         window.TERM03_SEMANTICS_READY = true;
+        if (window.performance && window.performance.mark) window.performance.mark("vocab-term03-semantics-ready");
       })().catch(error => {
         term03SemanticsPromise = null;
         window.TERM03_SEMANTICS_PENDING = true;
