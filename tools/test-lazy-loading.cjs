@@ -128,7 +128,7 @@ async function waitFor(page, expression, label) {
 
     await page.goto(target + '#/learning', { waitUntil: 'load', timeout: 120000 });
     await page.waitForSelector('.learning-school', { timeout: 120000 });
-    await waitFor(page, 'typeof window.VocabImla?.validate === "function" && typeof window.VocabSkipGram?.validate === "function" && typeof window.__getAllVocabRows === "function"', 'Learning School and independent Imla/Skip-gram modules load on demand');
+    await waitFor(page, 'typeof window.VocabImla?.validate === "function" && typeof window.VocabSkipGram?.validate === "function" && typeof window.VocabReviewScheduler?.evaluate === "function" && typeof window.__getAllVocabRows === "function"', 'Learning School and independent Imla/Skip-gram modules load on demand');
     const manifestStatus = await page.evaluate(() => {
       const built = window.VocabLearningManifest.build(window.__getAllVocabRows());
       return {valid: built.validation.valid, errors: built.validation.errors, count: built.stats.indexedItems, ambiguous: built.stats.ambiguousAliases};
@@ -158,8 +158,31 @@ async function waitFor(page, expression, label) {
     }
     await page.reload({ waitUntil: 'load' });
     await page.waitForSelector('.learning-school', { timeout: 120000 });
-    await waitFor(page, 'JSON.parse(localStorage.getItem("vocab_learning_attempts_v1") || "[]").length >= 2', 'Learning School attempt history persists after refresh');
+    await waitFor(page, 'JSON.parse(localStorage.getItem("vocab_learning_attempts_v1") || "[]").length >= 4', 'Learning School attempt history persists after refresh');
     console.log('PASS: Skip-gram reconstruction and cross-mode attempt persistence');
+
+    await page.locator('[data-mode="imla"]').click();
+    await page.locator('#learningAnswer').fill('not-the-right-answer');
+    await page.locator('#learningCheck').click();
+    await page.waitForSelector('.learning-feedback.incorrect', { timeout: 10000 });
+    const dueLabel = await page.locator('#learningQueue option[value="due"]').textContent();
+    if (!dueLabel.includes('1')) throw new Error('A missed Imla answer was not immediately due for review: ' + dueLabel);
+    await page.locator('#learningNotebook').click();
+    await page.waitForSelector('.learning-notebook', { timeout: 10000 });
+    if (await page.locator('.learning-mistake-entry').count() < 1) throw new Error('The mistake notebook did not list the missed item.');
+    const mistakeId = await page.locator('[data-practice-mistake]').first().getAttribute('data-practice-mistake');
+    await page.locator('[data-practice-mistake]').first().click();
+    await page.waitForSelector('.learning-question', { timeout: 10000 });
+    const mistakeAnswer = await page.evaluate(id => window.__getAllVocabRows().find(item => item.id === id)?.fa, mistakeId);
+    if (!mistakeAnswer) throw new Error('The mistake notebook did not preserve its source item identity.');
+    await page.locator('#learningAnswer').fill(mistakeAnswer);
+    await page.locator('#learningCheck').click();
+    await page.waitForSelector('.learning-feedback.correct', { timeout: 10000 });
+    await page.locator('#learningNotebook').click();
+    await page.waitForSelector('.learning-notebook', { timeout: 10000 });
+    if (await page.locator('.learning-mistake-entry').count() !== 0) throw new Error('A successfully recalled item should leave the unresolved mistake notebook.');
+    console.log('PASS: a later correct recall clears the unresolved notebook entry');
+    await page.locator('#closeLearningNotebook').click();
 
     // Verify that a learner's saved legacy completion ID is carried to its canonical merged ID.
     const migrationContext = await browser.newContext({ viewport: { width: 1365, height: 900 } });

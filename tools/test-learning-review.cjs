@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+"use strict";
+const assert=require("node:assert/strict");
+require("../website/learning/review-scheduler.js");
+const now=Date.parse("2026-11-21T12:00:00Z");
+assert.equal(VocabReviewScheduler.evaluate([],now).isNew,true);
+assert.equal(VocabReviewScheduler.evaluate([],now).due,false);
+const wrong=[{correct:false,hintsUsed:0,occurredAt:new Date(now-1000).toISOString()}];
+assert.equal(VocabReviewScheduler.evaluate(wrong,now).due,true);
+assert.equal(VocabReviewScheduler.evaluate(wrong,now).weak,true);
+const recent=[{correct:true,hintsUsed:0,occurredAt:new Date(now-3600000).toISOString()}];
+assert.equal(VocabReviewScheduler.evaluate(recent,now).due,false);
+const old=[{correct:true,hintsUsed:0,occurredAt:new Date(now-2*86400000).toISOString()}];
+assert.equal(VocabReviewScheduler.evaluate(old,now).due,true);
+const streak=[1,2,3].map(days=>({correct:true,hintsUsed:0,occurredAt:new Date(now-days*3600000).toISOString()}));
+assert.equal(VocabReviewScheduler.evaluate(streak,now).streak,3);
+assert.equal(VocabReviewScheduler.evaluate(streak,now).intervalDays,7);
+const hinted=[{correct:true,hintsUsed:2,occurredAt:new Date(now-1000).toISOString()}];
+assert.equal(VocabReviewScheduler.evaluate(hinted,now).due,true);
+console.log("PASS: new, weak and due review scheduling with adaptive intervals");
