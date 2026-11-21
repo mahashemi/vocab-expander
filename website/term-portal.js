@@ -113,7 +113,7 @@
  };
  const routeTabs={fa:"home",study:"home",flashcards:"cards",quiz:"quiz",khulasa:"khulasa",newestan:"essays",sukhanrani:"speeches"};
  const routeNames={home:"fa",cards:"flashcards",quiz:"quiz",khulasa:"khulasa",essays:"newestan",speeches:"sukhanrani"};
- let applyingRoute=false,routeRequest=0,tabRequest=0;
+ let applyingRoute=false,routeRequest=0,tabRequest=0,term03SemanticsScheduled=false;
  function currentRoute(){
   if(tab==="portal")return "#/";
   if(tab==="verbs")return "#/verbs";
@@ -181,7 +181,19 @@
   bkSel.hidden=true;chSel.hidden=![ "cards","quiz","khulasa"].includes(tab);
   deck=[];idx=0;flip=false;render();applyingRoute=false;
  }
- window.render=function(){document.documentElement.classList.remove("route-boot");if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();else if(tab==="school")window.learningSchool();updateStats();syncRoute()};
+ window.render=function(){
+  document.documentElement.classList.remove("route-boot");
+  if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();else if(tab==="school")window.learningSchool();
+  updateStats();syncRoute();
+  // Let the browser paint the requested Term 03 lesson before downloading and
+  // evaluating the 46 supplementary trilingual meaning batches.
+  if(activeTerm===3&&tab!=="portal"&&!window.TERM03_SEMANTICS_READY&&window.ensureTerm03Semantics&&!term03SemanticsScheduled){
+   term03SemanticsScheduled=true;
+   const enrich=()=>{term03SemanticsScheduled=false;window.ensureTerm03Semantics().catch(error=>console.error("Term 03 semantic enrichment failed",error));};
+   if(typeof window.requestIdleCallback==="function")window.requestIdleCallback(enrich,{timeout:1800});
+   else window.setTimeout(enrich,0);
+  }
+ };
  window.gotoTab=async function(t){
   const request=++tabRequest;
   try{
