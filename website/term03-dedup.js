@@ -308,7 +308,8 @@
  }
  const duplicateHeadwordPos=[...headwordPos].filter(([,count])=>count>1).map(([key])=>key);
  const plannedHeadwords=new Set(PLAN.groups.map(g=>norm(g.headword)));
- const missingSemantics=D.filter(x=>plannedHeadwords.has(norm(x._term03OriginalFa))&&(!S[x.fa]||!S[x.fa].faMeaning||!S[x.fa].enMeaning||!S[x.fa].arMeaning)).map(x=>x.fa);
+ const getMissingSemantics=()=>D.filter(x=>plannedHeadwords.has(norm(x._term03OriginalFa))&&(!S[x.fa]||!S[x.fa].faMeaning||!S[x.fa].enMeaning||!S[x.fa].arMeaning)).map(x=>x.fa);
+ const missingSemantics=getMissingSemantics();
  const sourceLoss=D.filter(x=>!Array.isArray(x.sources)||!x.sources.length||!Array.isArray(x.units)||!x.units.length).map(x=>x.fa);
  const idAliasCount=PLAN.groups.reduce((n,g)=>n+g.clusters.reduce((m,c)=>m+c.merges.filter(x=>x.proposed&&x.proposed.idAlias).length,0),0);
  window.TERM03_DEDUP_AUDIT={
@@ -319,9 +320,16 @@
   distinctHeadwordGroups:[...finalByGroup].filter(([,refs])=>refs.filter(x=>!removed.has(x)).length>1).length,
   missing,duplicateIds,duplicateHeadwordPos,missingSemantics,sourceLoss
  };
+ // The route can render before supplementary semantic batches arrive. Recompute
+ // this part of the audit after enrichment, using the same reviewed semantic map.
+ window.__refreshTerm03DedupSemanticAudit=()=>{
+  const refreshed=getMissingSemantics();
+  window.TERM03_DEDUP_AUDIT.missingSemantics=refreshed;
+  return refreshed;
+ };
  window.TERM03_DEDUP_APPLIED=true;
  console.info("Term 03 deduplication",JSON.stringify(window.TERM03_DEDUP_AUDIT));
- if(approvedMerges!==EXPECTED.approvedMerges||decisionMerges!==EXPECTED.decisionMerges||D.length!==expectedAfter||missing.length||duplicateIds.length||duplicateHeadwordPos.length||missingSemantics.length||sourceLoss.length){
+ if(approvedMerges!==EXPECTED.approvedMerges||decisionMerges!==EXPECTED.decisionMerges||D.length!==expectedAfter||missing.length||duplicateIds.length||duplicateHeadwordPos.length||(!window.TERM03_SEMANTICS_PENDING&&missingSemantics.length)||sourceLoss.length){
   console.error("Term 03 deduplication audit requires attention",JSON.stringify(window.TERM03_DEDUP_AUDIT));
  }
 })();
