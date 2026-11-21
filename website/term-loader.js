@@ -44,15 +44,18 @@
     "term02-additional-semantics-02.js"
   ];
 
+  // Supplementary Term 03 meanings are not needed to draw the first lesson view.
+  // Keep them as a separate, lazy enrichment layer so the route can render first.
+  const term03AdditionalSemanticScripts = Array.from({ length: 46 }, (_, i) =>
+    "term03-additional-semantics-" + String(i + 1).padStart(2, "0") + ".js"
+  );
+
   const term03CoreScripts = [
     "term03-data.js",
     "term03-lexicon-additions.js",
     "term03-matn-verbs.js",
     "term03-source-audit.js",
     "term03-core-semantics.js",
-    ...Array.from({ length: 46 }, (_, i) =>
-      "term03-additional-semantics-" + String(i + 1).padStart(2, "0") + ".js"
-    ),
     "term03-page1-additions.js",
     "term03-fa3-reviewed-additions.js",
     "term03-fa3-reading-additions.js",
@@ -98,6 +101,7 @@
   let sharedSemanticsPromise = null;
   let coreTermsPromise = null;
   let learningSchoolPromise = null;
+  let term03SemanticsPromise = null;
 
   // Dynamic scripts with async=false execute in insertion order. Insert an entire
   // dependency-ordered batch immediately so the browser can fetch files in parallel
@@ -166,7 +170,12 @@
       } else if (number === 2) {
         await loadScriptsInOrder(term02SemanticScripts, false);
       } else if (number === 3) {
+        // The dedup plan audits semantic coverage, but its data transformation does
+        // not require all 46 supplementary meaning batches. Mark the audit pending
+        // until the background enrichment layer has completed.
+        window.TERM03_SEMANTICS_PENDING = true;
         await loadScriptsInOrder([...term03SharedSemanticDependencies, ...term03CoreScripts], false);
+        window.TERM03_CORE_READY = true;
 
         // These two shared additions ran on the initial page for Terms 01/02.
         // Re-run them after Term 03 exists so their Term 03 records are added too.
@@ -190,10 +199,35 @@
     return promise;
   }
 
+  async function ensureTerm03Semantics() {
+    if (window.TERM03_SEMANTICS_READY) return;
+    if (!term03SemanticsPromise) {
+      term03SemanticsPromise = (async () => {
+        await ensureTermLoaded(3);
+        await loadScriptsInOrder(term03AdditionalSemanticScripts, false);
+        window.TERM03_SEMANTICS_PENDING = false;
+        const missing = typeof window.__refreshTerm03DedupSemanticAudit === "function"
+          ? window.__refreshTerm03DedupSemanticAudit()
+          : (window.TERM03_DEDUP_AUDIT && window.TERM03_DEDUP_AUDIT.missingSemantics) || [];
+        if (missing.length) {
+          throw new Error("Term 03 semantic enrichment is incomplete: " + missing.join(", "));
+        }
+        window.TERM03_SEMANTICS_READY = true;
+        if (window.performance && window.performance.mark) window.performance.mark("vocab-term03-semantics-ready");
+      })().catch(error => {
+        term03SemanticsPromise = null;
+        window.TERM03_SEMANTICS_PENDING = true;
+        throw error;
+      });
+    }
+    return term03SemanticsPromise;
+  }
+
   async function ensureAllTermsLoaded() {
-    // All terms share the same core payload; once it resolves, independent term
-    // semantic layers can be downloaded together.
+    // Search and cross-term study require complete semantics; ordinary lesson
+    // navigation only waits for the smaller core data needed to render the page.
     await Promise.all([1, 2, 3].map(term => ensureTermLoaded(term)));
+    await ensureTerm03Semantics();
   }
 
   async function ensureFeatureLoaded(term, feature) {
@@ -202,6 +236,7 @@
     const files = featureScripts[key];
     if (!files) return;
     await ensureTermLoaded(number);
+    if (number === 3) await ensureTerm03Semantics();
     if (featureLoads.has(key)) return featureLoads.get(key);
 
     const promise = (async () => {
@@ -228,6 +263,7 @@
   }
 
   window.ensureLearningSchool = ensureLearningSchool;
+  window.ensureTerm03Semantics = ensureTerm03Semantics;
   window.ensureTermLoaded = ensureTermLoaded;
   window.ensureAllTermsLoaded = ensureAllTermsLoaded;
   window.ensureFeatureLoaded = ensureFeatureLoaded;

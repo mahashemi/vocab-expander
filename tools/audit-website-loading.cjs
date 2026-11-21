@@ -135,7 +135,8 @@ const term3CoreEnd = loaderText.indexOf('const sharedEssayScripts');
 const featureStart = loaderText.indexOf('const featureScripts');
 const featureEnd = loaderText.indexOf('const scriptLoads');
 const explicitTerm3Files = quotedJsFiles(loaderText.slice(term3CoreStart, term3CoreEnd));
-const lazyTerm03CoreScriptCount = explicitTerm3Files.length + 46;
+const lazyTerm03CoreScriptCount = explicitTerm3Files.length;
+const term03SemanticEnrichmentScriptCount = 46;
 const lazyFeatureFiles = quotedJsFiles(loaderText.slice(featureStart, featureEnd));
 const sharedFeatureFiles = ['newestan-writing-library.js', 'newestan-language-lessons.js', 'newestan-rubric.js', 'newestan-writing-ui.js'];
 const lazyFeatureScriptCount = new Set([...lazyFeatureFiles, ...sharedFeatureFiles]).size;
@@ -168,7 +169,7 @@ const report = {
   orderErrors,
   loaderOrder,
   loaderOrderErrors,
-  lazyLoadPlan: { term03CoreScriptCount: lazyTerm03CoreScriptCount, featureScriptCount: lazyFeatureScriptCount },
+  lazyLoadPlan: { term03CoreScriptCount: lazyTerm03CoreScriptCount, term03SemanticEnrichmentScriptCount, featureScriptCount: lazyFeatureScriptCount },
   scripts,
 };
 
@@ -190,6 +191,7 @@ const md = [
   '| Inline script bytes | ' + report.inlineScriptBytes.toLocaleString('en-US') + ' (route guard budget: 512 B) |',
   '| Scripts without async/defer | ' + report.scriptTagsWithoutAsyncOrDefer + ' |',
   '| Term 03 core scripts deferred until needed | ' + lazyTerm03CoreScriptCount + ' |',
+  '| Term 03 supplementary semantic batches deferred until enrichment | ' + term03SemanticEnrichmentScriptCount + ' |',
   '| Feature scripts deferred until opened | ' + lazyFeatureScriptCount + ' |',
   '',
   '## Initial external scripts by group',

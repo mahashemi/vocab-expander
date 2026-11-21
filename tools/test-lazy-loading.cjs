@@ -51,13 +51,15 @@ async function waitFor(page, expression, label) {
     const freshRouteGuard = await directPage.evaluate(() => document.documentElement.classList.contains('route-boot'));
     if (!freshRouteGuard) throw new Error('Fresh Term 03 deep link did not activate the route loading guard.');
     await waitFor(directPage, 'window.TERM03_DEDUP_APPLIED === true && Array.isArray(window.TERM3_DATA) && window.TERM3_DATA.length > 1800', 'fresh Term 03 deep link loads independently of prior term navigation');
+    await waitFor(directPage, '!document.documentElement.classList.contains("route-boot") && document.querySelector(".term-welcome")', 'fresh Term 03 lesson renders before supplementary semantics finish loading');
+    await waitFor(directPage, 'window.TERM03_SEMANTICS_READY === true', 'fresh Term 03 route completes background trilingual enrichment');
     let freshDedupAudit = await directPage.evaluate(() => window.TERM03_DEDUP_AUDIT);
     if (!freshDedupAudit || freshDedupAudit.missingSemantics.length || freshDedupAudit.missing.length || freshDedupAudit.duplicateIds.length || freshDedupAudit.duplicateHeadwordPos.length || freshDedupAudit.sourceLoss.length) {
       throw new Error('Fresh Term 03 route is missing reviewed cross-term semantic dependencies: ' + JSON.stringify(freshDedupAudit));
     }
-    await waitFor(directPage, '!document.documentElement.classList.contains("route-boot") && document.querySelector(".term-welcome")', 'fresh Term 03 route renders after its dependency audit passes');
     await directPage.reload({ waitUntil: 'domcontentloaded', timeout: 120000 });
     await waitFor(directPage, 'window.TERM03_DEDUP_APPLIED === true && !document.documentElement.classList.contains("route-boot") && document.querySelector(".term-welcome")', 'fresh Term 03 route survives a hard refresh');
+    await waitFor(directPage, 'window.TERM03_SEMANTICS_READY === true', 'fresh Term 03 refresh restores the complete semantic layer');
     freshDedupAudit = await directPage.evaluate(() => window.TERM03_DEDUP_AUDIT);
     if (freshDedupAudit.missingSemantics.length) throw new Error('Term 03 semantic dependencies disappeared after refresh: ' + JSON.stringify(freshDedupAudit.missingSemantics));
     await directPage.close();
@@ -83,6 +85,7 @@ async function waitFor(page, expression, label) {
     const refreshBootVisible = await page.evaluate(() => document.documentElement.classList.contains('route-boot'));
     if (!refreshBootVisible) throw new Error('Refreshing a deep link briefly exposed the portal instead of the route loading shell.');
     await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && !document.documentElement.classList.contains("route-boot") && location.hash === "#/term/3/fa/chapter/1" && document.querySelector(".term-welcome")', 'hard refresh restores the exact Term 03 chapter route');
+    await waitFor(page, 'window.TERM03_SEMANTICS_READY === true', 'Term 03 supplementary semantics load after the first route render');
     const dedupAudit = await page.evaluate(() => window.TERM03_DEDUP_AUDIT);
     if (!dedupAudit || dedupAudit.expectedAfter !== dedupAudit.after || dedupAudit.after !== dedupAudit.actualBefore - dedupAudit.approvedMerges - dedupAudit.decisionMerges || dedupAudit.missing.length || dedupAudit.duplicateIds.length || dedupAudit.duplicateHeadwordPos.length || dedupAudit.missingSemantics.length || dedupAudit.sourceLoss.length) {
       throw new Error('Term 03 deduplication audit is inconsistent: ' + JSON.stringify(dedupAudit));

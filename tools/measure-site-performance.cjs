@@ -87,6 +87,8 @@ async function measureViewport(name, config) {
         transferBytes: sum(resources),
         scriptTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'script' || /\\.js(?:[?#]|$)/i.test(entry.name))),
         cssTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'css' || /\\.css(?:[?#]|$)/i.test(entry.name))),
+        term03RouteReadyMs: performance.getEntriesByName('vocab-term03-route-ready').at(-1)?.startTime ?? null,
+        term03SemanticsReadyMs: performance.getEntriesByName('vocab-term03-semantics-ready').at(-1)?.startTime ?? null,
       };
     });;
 
@@ -173,14 +175,15 @@ async function measureViewport(name, config) {
     '',
     '> Synthetic Chromium lab data. Not field/Core Web Vitals data. INP is not measured.',
     '',
-    '| Viewport | Scenario | Cache | FCP ms | LCP ms | CLS | Long-task ms | Requests | Transfer bytes | JS bytes | CSS bytes | Load ms |',
-    '|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
+    '| Viewport | Scenario | Cache | FCP ms | LCP ms | Route ready ms | Semantics ready ms | CLS | Long-task ms | Requests | Transfer bytes | JS bytes | CSS bytes | Load ms |',
+    '|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
   ];
   for (const viewport of results) {
     for (const sample of [viewport.cold, viewport.warm, viewport.deepCold, viewport.deepWarm]) {
       lines.push('| ' + viewport.viewport + ' | ' + sample.scenario + ' | ' +
         (sample.label.toLowerCase().includes('cold') ? 'cold' : 'warm') +
         ' | ' + fmt(sample.fcpMs) + ' | ' + fmt(sample.lcpMs) + ' | ' +
+        fmt(sample.term03RouteReadyMs) + ' | ' + fmt(sample.term03SemanticsReadyMs) + ' | ' +
         (sample.cls == null ? 'n/a' : sample.cls.toFixed(4)) + ' | ' + fmt(sample.longTaskMs) +
         ' | ' + sample.requestCount + ' | ' + fmt(sample.transferBytes) + ' | ' +
         fmt(sample.scriptTransferBytes) + ' | ' + fmt(sample.cssTransferBytes) + ' | ' +
