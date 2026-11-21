@@ -178,7 +178,11 @@ async function waitFor(page, expression, label) {
     await page.locator('#learningAnswer').fill(mistakeAnswer);
     await page.locator('#learningCheck').click();
     await page.waitForSelector('.learning-feedback.correct', { timeout: 10000 });
-    console.log('PASS: missed items enter the due queue and can be practised again from the mistake notebook');
+    await page.locator('#learningNotebook').click();
+    await page.waitForSelector('.learning-notebook', { timeout: 10000 });
+    if (await page.locator('.learning-mistake-entry').count() !== 0) throw new Error('A successfully recalled item should leave the unresolved mistake notebook.');
+    console.log('PASS: a later correct recall clears the unresolved notebook entry');
+    await page.locator('#closeLearningNotebook').click();
 
     // Verify that a learner's saved legacy completion ID is carried to its canonical merged ID.
     const migrationContext = await browser.newContext({ viewport: { width: 1365, height: 900 } });
