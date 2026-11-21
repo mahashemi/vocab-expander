@@ -28,13 +28,15 @@ async function waitFor(page, expression, label) {
     await page.goto(target, { waitUntil: 'load', timeout: 120000 });
     await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
     const initial = await page.evaluate(() => ({
+      term1DataType: typeof window.TERM1_DATA,
+      term2DataType: typeof window.TERM2_DATA,
       term3DataType: typeof window.TERM3_DATA,
       dedupApplied: !!window.TERM03_DEDUP_APPLIED,
       loaderReady: typeof window.ensureTermLoaded === 'function',
       loadedTerms: window.getLoadedTermNumbers ? window.getLoadedTermNumbers() : null,
       portalSummary: window.VOCAB_PORTAL_SUMMARY || null,
     }));
-    if (initial.term3DataType !== 'undefined' || initial.dedupApplied) {
+    if (initial.term1DataType !== 'undefined' || initial.term2DataType !== 'undefined' || initial.term3DataType !== 'undefined' || initial.dedupApplied) {
       throw new Error('Term 03 data was loaded on the initial portal visit; lazy loading did not hold.');
     }
     if (!initial.loaderReady || !initial.portalSummary || initial.portalSummary[3] !== 2161 || !Array.isArray(initial.loadedTerms) || initial.loadedTerms.length !== 0) {
@@ -43,7 +45,12 @@ async function waitFor(page, expression, label) {
     console.log('PASS: initial portal is visible without loading Term 03 data');
 
     await page.goto(target + '#/term/1/fa', { waitUntil: 'load', timeout: 120000 });
-    await waitFor(page, 'window.getLoadedTermNumbers().includes(1)', 'Term 01 semantic layer loads only when Term 01 is opened');
+    await waitFor(page, 'window.getLoadedTermNumbers().includes(1) && Array.isArray(window.TERM1_DATA) && window.TERM1_DATA.length > 0 && Array.isArray(window.TERM2_DATA) && window.TERM2_DATA.length > 0', 'Term 01/02 core data and Term 01 semantics load on first term entry');
+    const firstTermCounts = await page.evaluate(() => window.__getRuntimeVocabCounts());
+    if (firstTermCounts[1] !== initial.portalSummary[1] || firstTermCounts[2] !== initial.portalSummary[2]) {
+      throw new Error('Deferred Term 01/02 core counts do not match the portal manifest: ' + JSON.stringify(firstTermCounts));
+    }
+    console.log('PASS: deferred Term 01/02 data reconciles to the portal manifest');
 
     await page.goto(target + '#/term/2/fa', { waitUntil: 'load', timeout: 120000 });
     await waitFor(page, 'window.getLoadedTermNumbers().includes(2)', 'Term 02 semantic layer loads only when Term 02 is opened');
