@@ -142,4 +142,4 @@ assert(term03Ui.includes("renderNewestanRubric")&&term03Ui.includes("bindNewesta
 const termLoaderSource=require("node:fs").readFileSync(path.join(__dirname,"../website/term-loader.js"),"utf8");
 const portalSource=require("node:fs").readFileSync(path.join(__dirname,"../website/term-portal.js"),"utf8");
 assert(termLoaderSource.includes('"1:essays": sharedEssayScripts'),"Term 01 Newestan must load its shared writing school on demand");
-assert(portalSource.includes("data-t=\\"essays\\"")&&portalSource.includes("x.hidden=false"),"Newestan tab must remain accessible in Term 01");
+assert(portalSource.includes('data-t="essays"')&&portalSource.includes("x.hidden=false"),"Newestan tab must remain accessible in Term 01");
