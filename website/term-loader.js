@@ -106,6 +106,8 @@
   let coreTermsPromise = null;
   let learningSchoolPromise = null;
   let term03SemanticsPromise = null;
+  let sharedTermAdditionsPromise = null;
+  const sharedTermAdditionsAppliedTerms = new Set();
 
   // Dynamic scripts with async=false execute in insertion order. Insert an entire
   // dependency-ordered batch immediately so the browser can fetch files in parallel
@@ -157,6 +159,30 @@
     if (typeof window.__refreshVocabBooks === "function") window.__refreshVocabBooks();
   }
 
+  async function ensureSharedTermAdditions() {
+    if (!loadedTerms.has(1) || !loadedTerms.has(2)) return;
+    if (!sharedTermAdditionsPromise) {
+      sharedTermAdditionsPromise = (async () => {
+        // Wait until both source datasets exist so the shared Newestan additions
+        // can preserve exact cross-term duplicate checks.
+        await loadSharedTermAdditions("terms-1-2");
+        sharedTermAdditionsAppliedTerms.add(1);
+        sharedTermAdditionsAppliedTerms.add(2);
+        if (loadedTerms.has(3)) sharedTermAdditionsAppliedTerms.add(3);
+      })().catch(error => {
+        sharedTermAdditionsPromise = null;
+        throw error;
+      });
+    }
+    return sharedTermAdditionsPromise;
+  }
+
+  async function ensureLateTermAdditions(term) {
+    if (Number(term) !== 3 || !loadedTerms.has(1) || !loadedTerms.has(2) || sharedTermAdditionsAppliedTerms.has(3)) return;
+    await loadSharedTermAdditions(3);
+    sharedTermAdditionsAppliedTerms.add(3);
+  }
+
   async function ensureSharedSemantics() {
     if (!sharedSemanticsPromise) {
       sharedSemanticsPromise = loadScript(sharedSemanticScript, false).catch(error => {
@@ -179,12 +205,10 @@
       if (number === 1) {
         await loadScriptsInOrder(term01CoreScripts, false);
         window.__refreshVocabBooks();
-        await loadSharedTermAdditions(1);
         await loadScriptsInOrder(term01SemanticScripts, false);
       } else if (number === 2) {
         await loadScriptsInOrder(term02CoreScripts, false);
         window.__refreshVocabBooks();
-        await loadSharedTermAdditions(2);
         await loadScriptsInOrder(term02SemanticScripts, false);
       } else if (number === 3) {
         // The dedup plan audits semantic coverage, but its data transformation does
@@ -194,9 +218,6 @@
         await loadScriptsInOrder([...term03SharedSemanticDependencies, ...term03CoreScripts], false);
         window.TERM03_CORE_READY = true;
 
-        // Add Newestan vocabulary for Term 03 without loading Term 01/02 data.
-        await loadSharedTermAdditions(3);
-
         if (typeof window.__refreshVocabBooks !== "function") {
           throw new Error("The vocabulary app bootstrap is not ready to accept Term 03 data.");
         }
@@ -204,8 +225,13 @@
       }
 
       loadedTerms.add(number);
+      if (loadedTerms.has(1) && loadedTerms.has(2)) {
+        await ensureSharedTermAdditions();
+        await ensureLateTermAdditions(number);
+      }
       if (window.updateGlobalStats) window.updateGlobalStats();
     })().catch(error => {
+      loadedTerms.delete(number);
       termLoads.delete(number);
       throw error;
     });
@@ -250,7 +276,8 @@
     const key = number + ":" + feature;
     const files = featureScripts[key];
     if (!files) return;
-    await ensureTermLoaded(number);
+    if (feature === "essays") await ensureAllTermsLoaded();
+    else await ensureTermLoaded(number);
     if (number === 3) await ensureTerm03Semantics();
     if (featureLoads.has(key)) return featureLoads.get(key);
 
