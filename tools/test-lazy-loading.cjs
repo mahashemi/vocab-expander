@@ -107,8 +107,14 @@ async function waitFor(page, expression, label) {
     await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && Array.isArray(window.TERM3_DATA) && window.TERM3_DATA.length > 1800 && window.getLoadedTermNumbers().includes(3)', 'direct Term 03 deep link loads the full deduplicated vocabulary');
     await waitFor(page, '!document.documentElement.classList.contains("route-boot") && location.hash === "#/term/3/fa/chapter/1" && document.querySelector(".term-welcome")', 'deep link reveals its requested page without a portal flash');
     await page.reload({ waitUntil: 'domcontentloaded', timeout: 120000 });
-    const refreshBootVisible = await page.evaluate(() => document.documentElement.classList.contains('route-boot'));
-    if (!refreshBootVisible) throw new Error('Refreshing a deep link briefly exposed the portal instead of the route loading shell.');
+    const refreshRouteState = await page.evaluate(() => ({
+      boot: document.documentElement.classList.contains('route-boot'),
+      requestedRoute: location.hash === '#/term/3/fa/chapter/1',
+      contentReady: !!document.querySelector('.term-welcome')
+    }));
+    if (!refreshRouteState.boot && !(refreshRouteState.requestedRoute && refreshRouteState.contentReady)) {
+      throw new Error('Refreshing a deep link exposed the portal before the requested route was ready: ' + JSON.stringify(refreshRouteState));
+    }
     await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && !document.documentElement.classList.contains("route-boot") && location.hash === "#/term/3/fa/chapter/1" && document.querySelector(".term-welcome")', 'hard refresh restores the exact Term 03 chapter route');
     await waitFor(page, 'window.TERM03_SEMANTICS_READY === true', 'Term 03 supplementary semantics load after the first route render');
     const dedupAudit = await page.evaluate(() => window.TERM03_DEDUP_AUDIT);
