@@ -14,5 +14,6 @@
   const due=!last.correct||hinted||!Number.isFinite(lastAt)||now>=nextReviewAt;
   return {attempts,correct,accuracy,streak,isNew:false,weak,due,nextReviewAt,intervalDays};
  }
- root.VocabReviewScheduler=Object.freeze({evaluate,intervals:intervals.slice()});
+ function compare(a,b){const rank=x=>x.isNew?0:x.due?1:x.weak?2:3;return rank(a)-rank(b)||a.attempts-b.attempts;}
+ root.VocabReviewScheduler=Object.freeze({evaluate,compare,intervals:intervals.slice()});
 })(typeof window!=="undefined"?window:globalThis);

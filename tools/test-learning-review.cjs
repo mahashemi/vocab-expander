@@ -17,4 +17,6 @@ assert.equal(VocabReviewScheduler.evaluate(streak,now).streak,3);
 assert.equal(VocabReviewScheduler.evaluate(streak,now).intervalDays,7);
 const hinted=[{correct:true,hintsUsed:2,occurredAt:new Date(now-1000).toISOString()}];
 assert.equal(VocabReviewScheduler.evaluate(hinted,now).due,true);
+assert.equal(VocabReviewScheduler.compare({isNew:true,due:false,weak:false,attempts:0},{isNew:false,due:true,weak:true,attempts:1})<0,true);
+assert.equal(VocabReviewScheduler.compare({isNew:true,due:false,weak:false,attempts:0},{isNew:true,due:false,weak:false,attempts:0}),0,"equal-priority items retain stable source order");
 console.log("PASS: new, weak and due review scheduling with adaptive intervals");

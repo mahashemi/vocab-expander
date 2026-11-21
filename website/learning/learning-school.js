@@ -29,7 +29,7 @@
   if(focusedLegacyId)chosen=chosen.filter(x=>String(x.item.id)===String(focusedLegacyId));
   chosen.sort((a,b)=>{
    const rank=x=>x.state.isNew?0:x.state.due?1:x.state.weak?2:3;
-   return rank(a)-rank(b)||a.state.attempts-b.state.attempts||String(a.item.fa).localeCompare(String(b.item.fa));
+   return rank(a)-rank(b)||a.state.attempts-b.state.attempts;
   });
   queue=chosen.map(x=>x.item);index=0;loadCurrent();
  }
