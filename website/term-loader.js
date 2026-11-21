@@ -6,9 +6,9 @@
   "use strict";
 
   window.VOCAB_PORTAL_SUMMARY = Object.freeze({
-    version: "2026-11-20-batch06",
-    1: 775,
-    2: 1109,
+    version: "2026-11-21-cross-term-dedup01",
+    1: 762,
+    2: 1107,
     3: 2161
   });
 
