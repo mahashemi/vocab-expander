@@ -46,6 +46,8 @@ jobs:
 
       - name: Validate Learning School modules and exercises
         run: |
+          node --check website/learning/identity.js
+          node --check website/learning/manifest.js
           node --check website/learning/imla.js
           node --check website/learning/skip-gram.js
           node --check website/learning/learning-school.js
@@ -53,6 +55,7 @@ jobs:
           node --check website/term-portal.js
           node --check website/app-bootstrap.js
           node tools/test-learning-identity.cjs
+          node tools/test-learning-manifest.cjs
           node tools/test-learning-modes.cjs
 
       - name: Validate Term 01 source-based vocabulary
