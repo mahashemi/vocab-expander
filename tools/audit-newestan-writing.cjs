@@ -138,3 +138,8 @@ assert(rubricSource.includes("newestan-writing-rubric-scores-v1")&&rubricSource.
 assert(rubricSource.includes("defaults[term]")&&rubricSource.includes("if(!sourceRows)return")&&rubricSource.includes("practice self-assessment"),"Rubric must be source-gated and clearly labelled as self-assessment");
 assert(term01Ui.includes("renderNewestanRubric")&&term01Ui.includes("bindNewestanRubric"),"Term 01 workshop must render and bind the source rubric");
 assert(term03Ui.includes("renderNewestanRubric")&&term03Ui.includes("bindNewestanRubric"),"Term 03 workshop must render and bind the source rubric");
+
+const termLoaderSource=require("node:fs").readFileSync(path.join(__dirname,"../website/term-loader.js"),"utf8");
+const portalSource=require("node:fs").readFileSync(path.join(__dirname,"../website/term-portal.js"),"utf8");
+assert(termLoaderSource.includes('"1:essays": sharedEssayScripts'),"Term 01 Newestan must load its shared writing school on demand");
+assert(portalSource.includes("data-t=\\"essays\\"")&&portalSource.includes("x.hidden=false"),"Newestan tab must remain accessible in Term 01");
