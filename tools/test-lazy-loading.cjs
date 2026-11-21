@@ -129,6 +129,14 @@ async function waitFor(page, expression, label) {
     await page.goto(target + '#/learning', { waitUntil: 'load', timeout: 120000 });
     await page.waitForSelector('.learning-school', { timeout: 120000 });
     await waitFor(page, 'typeof window.VocabImla?.validate === "function" && typeof window.VocabSkipGram?.validate === "function" && typeof window.__getAllVocabRows === "function"', 'Learning School and independent Imla/Skip-gram modules load on demand');
+    const manifestStatus = await page.evaluate(() => {
+      const built = window.VocabLearningManifest.build(window.__getAllVocabRows());
+      return {valid: built.validation.valid, errors: built.validation.errors, count: built.stats.indexedItems, ambiguous: built.stats.ambiguousAliases};
+    });
+    if (!manifestStatus.valid || manifestStatus.count < 3000 || manifestStatus.ambiguous !== 0) {
+      throw new Error('Canonical source identity manifest is invalid or incomplete: ' + JSON.stringify(manifestStatus));
+    }
+    console.log('PASS: canonical manifest indexes all term records with no ambiguous legacy IDs (' + manifestStatus.count + ')');
     await page.locator('#learningTerm').selectOption('1');
     const imlaTarget = await page.evaluate(() => window.__getAllVocabRows().find(item => item.bk === 1 && window.VocabImla.eligible(item))?.fa);
     if (!imlaTarget) throw new Error('No eligible Term 01 Imla sample was found.');
@@ -144,6 +152,7 @@ async function waitFor(page, expression, label) {
     await page.locator('#learningCheck').click();
     await page.waitForSelector('.learning-feedback.correct', { timeout: 10000 });
     const learningEvents = await page.evaluate(() => JSON.parse(localStorage.getItem('vocab_learning_attempts_v1') || '[]'));
+    if (!learningEvents.every(event => String(event.itemId).startsWith('vocab:source:') && event.legacyId)) throw new Error('Practice events must use canonical IDs and preserve legacy aliases: ' + JSON.stringify(learningEvents));
     if (!learningEvents.some(event => event.modeId === 'imla' && event.correct) || !learningEvents.some(event => event.modeId === 'skip-gram' && event.correct)) {
       throw new Error('Imla and Skip-gram attempts were not persisted independently: ' + JSON.stringify(learningEvents));
     }
