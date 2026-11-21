@@ -8,7 +8,7 @@
 
 The school teaches learners to remember and correctly write the Persian vocabulary they have studied. It is not a second dictionary, a random quiz generator, or a replacement for Newestan. Every activity is a distinct learning mode with its own teaching and interaction logic; all modes share one vocabulary identity model and one learner-progress model.
 
-The first release should expose **Imla (املاء)** and **Skip-gram** as independent modes. Other modes can be registered later without changing the item model or progress schema.
+The first release exposes **Imla (املاء)**, **Skip-gram**, and **Meaning Recall** (English and Arabic directions) as independent modes. Other modes can be registered later without changing the item model or progress schema.
 
 ## 2. Existing data inventory
 
@@ -113,7 +113,7 @@ Suggested interface:
 - Shared services own identity, attempt history, error aggregation, persistence and revision scheduling.
 - Every mode declares why an item is eligible/ineligible; the UI should not show meaningless activities.
 
-## 6. First two independent modes
+## 6. Independent learning modes
 
 ### Imla (املاء)
 
@@ -126,6 +126,17 @@ Suggested interface:
 - Record error classes such as substitution, omission, insertion, transposition, spacing/ZWNJ, and unaccepted variant.
 
 ### Skip-gram
+### Meaning Recall
+
+**Purpose:** retrieve a reviewed English or Arabic meaning from a Persian headword.
+
+- The learner chooses English or Arabic as the target language.
+- Eligibility requires a reviewed semantic record for that language; a missing meaning never becomes a generated prompt.
+- Accept only the reviewed meaning and explicit synonyms from the semantic record, after conservative script/diacritic normalization.
+- Keep English and Arabic attempt histories separate for each canonical item.
+- After checking, reveal the Persian explanation, English meaning and Arabic meaning together.
+- Items without the selected language are excluded from that direction's queue.
+
 
 **Purpose:** reconstruct a word or phrase from progressively hidden letters.
 
@@ -144,7 +155,6 @@ Future registry modules may include:
 
 - Confusable-letter discrimination (only when a defensible contrast exists in context).
 - Letter/syllable sequencing and full-word reconstruction.
-- Meaning-to-word retrieval.
 - Contextual sentence completion.
 - Listening dictation, only for verified audio.
 
@@ -175,6 +185,7 @@ Do not generate exercises for every item by force. A phrase may be suitable for 
 
 ### P1 — first modes
 - [x] Imla module and independent tests.
+- [x] English/Arabic Meaning Recall module with reviewed-synonym validation and independent progress histories.
 - [x] Skip-gram module and independent tests.
 - [x] Mobile-responsive practice UI, keyboard submission, term filters and persistent route. Central flashcard deep-link integration remains a follow-up.
 
