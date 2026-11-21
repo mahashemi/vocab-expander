@@ -17,6 +17,6 @@ assert.ok(prompt.hidden.length>=1);
 assert.ok(prompt.hidden.length<VocabSkipGram.positions(phrase).length);
 assert.ok(VocabSkipGram.mask(prompt).includes(" "));
 assert.equal(VocabSkipGram.validate(phrase,"در نتیجه").correct,true);
-assert.equal(VocabSkipGram.validate(phrase,"درنتیجه").correct,true,"spacing/ZWNJ normalization supports common phrase spacing");
+assert.equal(VocabSkipGram.validate(phrase,"درنتیجه").correct,false,"unreviewed phrase variants are not silently accepted");
 assert.ok(VocabSkipGram.hint(phrase,prompt,0).includes("as a result"));
 console.log("PASS: Imla and Skip-gram eligibility, phrase support, accepted orthographic normalization, masking and hints");
