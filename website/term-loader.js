@@ -110,8 +110,8 @@
   // Dynamic scripts with async=false execute in insertion order. Insert an entire
   // dependency-ordered batch immediately so the browser can fetch files in parallel
   // without changing the original script execution order.
-  function loadScriptsInOrder(files, replay) {
-    return Promise.all(files.map(file => loadScript(file, replay)));
+  function loadScriptsInOrder(files, replay, replayKey) {
+    return Promise.all(files.map(file => loadScript(file, replay, replayKey)));
   }
 
   function loadScript(file, replay, replayKey) {
@@ -153,7 +153,7 @@
   async function loadSharedTermAdditions(term) {
     // These source-backed additions can target any term. Replay after each term's
     // data arrives so later terms receive their own rows without preloading them.
-    for (const file of sharedTermAdditions) await loadScript(file, true, "term-" + term);
+    await loadScriptsInOrder(sharedTermAdditions, true, "term-" + term);
     if (typeof window.__refreshVocabBooks === "function") window.__refreshVocabBooks();
   }
 
