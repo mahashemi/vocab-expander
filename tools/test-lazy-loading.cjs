@@ -89,6 +89,7 @@ async function waitFor(page, expression, label) {
     }
 
     await page.goto(target + '#/term/1/newestan/lesson/1', { waitUntil: 'load', timeout: 120000 });
+    if (!await page.locator('#termTabs [data-t="essays"]').isVisible()) throw new Error('Term 01 Newestan tab is not visible.');
     await waitFor(page, 'document.querySelectorAll(".newestan-rubric-score").length === 4', 'Term 01 Newestan source rubric is visible');
     await page.locator('.newestan-rubric-score').first().selectOption('4');
     let rubricState = await page.evaluate(() => JSON.parse(localStorage.getItem('newestan-writing-rubric-scores-v1') || '{}'));
