@@ -11,6 +11,8 @@ const rows=[
 const before=JSON.stringify(rows),built=VocabLearningManifest.build(rows);
 assert.equal(built.validation.valid,true,JSON.stringify(built.validation.errors));
 assert.equal(built.stats.indexedItems,3);
+const reordered=VocabLearningManifest.build(rows.slice().reverse());
+assert.deepEqual(reordered.manifest.items.map(x=>x.itemId),built.manifest.items.map(x=>x.itemId),"canonical IDs must not depend on row order");
 assert.equal(built.manifest.items.find(x=>x.headword==="در نتیجه").kind,"phrase");
 assert.equal(VocabLearningIdentity.resolveLegacyId(built.aliasIndex,"1|1|FA1-01|کتاب").status,"resolved");
 assert.equal(VocabLearningIdentity.resolveLegacyId(built.aliasIndex,"2|0|در نتیجه").status,"resolved");
