@@ -89,7 +89,7 @@
   if(request!==termEntryRequest)return;
   activeTerm=b;bkSel.value=String(b);fillCh();chSel.value="all";if(b===2){speechCh=1;}
   $id("termNav").hidden=false;$id("activeTermTitle").textContent="TERM 0"+b+(b===3?" · PERSIAN":"");
-  document.querySelectorAll('#termTabs [data-t="essays"],#termTabs [data-t="speeches"],#termTabs [data-t="khulasa"]').forEach(x=>x.hidden=!(b===2||b===3));
+  document.querySelectorAll('#termTabs [data-t="essays"]').forEach(x=>x.hidden=false);document.querySelectorAll('#termTabs [data-t="speeches"],#termTabs [data-t="khulasa"]').forEach(x=>x.hidden=!(b===2||b===3));
   await window.gotoTab("home");
  }
  function back(){activeTerm=null;tab="portal";bkSel.value="all";fillCh();$id("termNav").hidden=true;render()}
@@ -158,7 +158,7 @@
    if(chSel.selectedIndex<0)chSel.value="all";
   }else chSel.value="all";
   $id("termNav").hidden=false;$id("activeTermTitle").textContent="TERM 0"+term+(term===3?" · PERSIAN":"");
-  document.querySelectorAll('#termTabs [data-t="essays"],#termTabs [data-t="speeches"],#termTabs [data-t="khulasa"]').forEach(x=>x.hidden=!(term===2||term===3));
+  document.querySelectorAll('#termTabs [data-t="essays"]').forEach(x=>x.hidden=false);document.querySelectorAll('#termTabs [data-t="speeches"],#termTabs [data-t="khulasa"]').forEach(x=>x.hidden=!(term===2||term===3));
   tab=nextTab;document.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",x.dataset.t===tab));
   bkSel.hidden=true;chSel.hidden=![ "cards","quiz","khulasa"].includes(tab);
   deck=[];idx=0;flip=false;render();applyingRoute=false;
