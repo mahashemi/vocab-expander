@@ -75,6 +75,7 @@ async function waitFor(page, expression, label) {
     console.log('PASS: portal summary counts match the loaded runtime books');
 
     const features = [
+      ['1', 'newestan', 'lesson', '1', 'renderNewestanTerm1'],
       ['2', 'khulasa', 'lesson', '1', 'TERM2_KHULASA'],
       ['2', 'sukhanrani', 'lesson', '1', 'TERM2_SPEECHES'],
       ['2', 'newestan', 'lesson', '1', 'NEWESTAN_WRITING_LIBRARY'],
@@ -86,6 +87,25 @@ async function waitFor(page, expression, label) {
       await page.goto(target + '#/term/' + term + '/' + route + '/' + kind + '/' + lesson, { waitUntil: 'load', timeout: 120000 });
       await waitFor(page, 'typeof window[' + JSON.stringify(globalName) + '] !== "undefined"', 'Term ' + term + ' ' + route + ' feature loads on demand');
     }
+
+    await page.goto(target + '#/term/1/newestan/lesson/1', { waitUntil: 'load', timeout: 120000 });
+    await waitFor(page, 'document.querySelectorAll(".newestan-rubric-score").length === 4', 'Term 01 Newestan source rubric is visible');
+    await page.locator('.newestan-rubric-score').first().selectOption('4');
+    let rubricState = await page.evaluate(() => JSON.parse(localStorage.getItem('newestan-writing-rubric-scores-v1') || '{}'));
+    if (rubricState['t1-1']?.content !== 4) throw new Error('Term 01 rubric self-score was not saved: ' + JSON.stringify(rubricState));
+    await page.reload({ waitUntil: 'load' });
+    await waitFor(page, 'document.querySelector(".newestan-rubric-score")?.value === "4"', 'Term 01 rubric score persists after refresh');
+
+    await page.goto(target + '#/term/2/newestan/lesson/1', { waitUntil: 'load', timeout: 120000 });
+    await waitFor(page, 'typeof window.renderNewestanTerm1 === "function" && document.querySelector(".newestan-workshop")', 'Term 02 Newestan workshop opens');
+    if (await page.locator('.newestan-rubric').count()) throw new Error('A 20-point rubric was invented for Term 02 despite no such rubric in the reviewed OCR pages.');
+
+    await page.goto(target + '#/term/3/newestan/lesson/2', { waitUntil: 'load', timeout: 120000 });
+    await waitFor(page, 'document.querySelectorAll(".newestan-rubric-score").length === 4', 'Term 03 source rubric is visible');
+    await page.locator('.newestan-rubric-score').first().selectOption('5');
+    rubricState = await page.evaluate(() => JSON.parse(localStorage.getItem('newestan-writing-rubric-scores-v1') || '{}'));
+    if (rubricState['t3-2']?.['criterion-0'] !== 5) throw new Error('Term 03 rubric self-score was not saved: ' + JSON.stringify(rubricState));
+    console.log('PASS: Term 01/03 rubric self-assessment persists; Term 02 correctly has no invented rubric');
 
     await page.goto(target, { waitUntil: 'load', timeout: 120000 });
     await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
