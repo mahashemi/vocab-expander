@@ -1,7 +1,7 @@
 (function(root){
  "use strict";
  const marks=/[\u064b-\u065f\u0670\u0640]/g;
- const norm=s=>String(s||"").normalize("NFC").replace(/[يى]/g,"ی").replace(/ك/g,"ک").replace(marks,"").replace(/[\u200c\u200d]/g," ").replace(/\s+/g," ").trim();
+ const norm=s=>String(s||"").normalize("NFC").replace(/[يى]/g,"ی").replace(/ك/g,"ک").replace(marks,"").replace(/\u200d/g,"").replace(/\s+/g," ").trim();
  const clusters=s=>Array.from(String(s||"").normalize("NFC")).reduce((a,ch)=>{if(/[\u064b-\u065f\u0670]/.test(ch)&&a.length)a[a.length-1]+=ch;else a.push(ch);return a},[]);
  function positions(item){return clusters(item.fa).map((ch,i)=>({ch,i})).filter(x=>/[\u0620-\u064a\u066e-\u06d3\u06fa-\u06fc]/.test(x.ch)).map(x=>x.i)}
  function eligible(item){return !!(item&&typeof item.fa==="string"&&item.fa.trim()&&String(item.en||item.sem?.enMeaning||"").trim()&&positions(item).length>=3)}
