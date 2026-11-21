@@ -52,6 +52,7 @@ jobs:
           node --check website/learning/skip-gram.js
           node --check website/learning/review-scheduler.js
           node --check website/learning/learning-school.js
+          node --check tools/test-learning-review.cjs
           node --check website/term-loader.js
           node --check website/term-portal.js
           node --check website/app-bootstrap.js
