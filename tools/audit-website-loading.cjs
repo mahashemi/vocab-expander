@@ -137,7 +137,7 @@ const featureEnd = loaderText.indexOf('const scriptLoads');
 const explicitTerm3Files = quotedJsFiles(loaderText.slice(term3CoreStart, term3CoreEnd));
 const lazyTerm03CoreScriptCount = explicitTerm3Files.length + 46;
 const lazyFeatureFiles = quotedJsFiles(loaderText.slice(featureStart, featureEnd));
-const sharedFeatureFiles = ['newestan-writing-library.js', 'newestan-language-lessons.js', 'newestan-writing-ui.js'];
+const sharedFeatureFiles = ['newestan-writing-library.js', 'newestan-language-lessons.js', 'newestan-rubric.js', 'newestan-writing-ui.js'];
 const lazyFeatureScriptCount = new Set([...lazyFeatureFiles, ...sharedFeatureFiles]).size;
 
 const externalBytes = external.reduce((sum, item) => sum + item.bytes, 0);

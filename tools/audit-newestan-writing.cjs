@@ -80,7 +80,7 @@ assert(has(3,3,"گذشتهٔ بعید")&&has(3,5,"اندام‌های جمع")&&
 
 const index=require("node:fs").readFileSync(path.join(__dirname,"../website/index.html"),"utf8")+"\\n"+require("node:fs").readFileSync(path.join(__dirname,"../website/app-bootstrap.js"),"utf8");
 const loader=require("node:fs").readFileSync(path.join(__dirname,"../website/term-loader.js"),"utf8");
-for(const script of ["newestan-writing-library.js","newestan-writing-ui.js","term03-newestan-teaching.js","term03-newestan-teaching-ui.js"])assert(loader.includes(script),"Missing lazy script integration: "+script);
+for(const script of ["newestan-writing-library.js","newestan-language-lessons.js","newestan-rubric.js","newestan-writing-ui.js","term03-newestan-teaching.js","term03-newestan-teaching-ui.js"])assert(loader.includes(script),"Missing lazy script integration: "+script);
 assert(index.includes("window.renderNewestanTerm1(lesson)"),"Term 01 Newestan view is not wired with route-aware lesson selection");
 assert(index.includes("if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1(lesson);window.bindNewestanWorkshop();return}"),"Term 01/02 Newestan view is not wired");
 assert(loader.includes("term03-newestan-standalone.js")&&loader.includes("term03-newestan-teaching-ui.js"),"Term 03 lesson teaching modules are not lazy-loaded");
@@ -132,3 +132,9 @@ global.activeTerm=3;
 assert(loader.includes("term03-newestan-standalone.js"),"Term 03 standalone Newestan UI must be lazy-loaded");
 assert(index.includes("if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3(lesson);window.bindNewestanTerm3();return}"),"Term 03 must return before the FA writing renderer with route-aware lesson selection");
 console.log(JSON.stringify({term01:library[1].length,term02:library[2].length,term03:Object.keys(t3).length,term03Lessons:10,term03ResearchLessons:1},null,2));
+const rubricSource=require("node:fs").readFileSync(path.join(__dirname,"../website/newestan-rubric.js"),"utf8");
+const term01Ui=require("node:fs").readFileSync(path.join(__dirname,"../website/newestan-writing-ui.js"),"utf8");
+assert(rubricSource.includes("newestan-writing-rubric-scores-v1")&&rubricSource.includes("points:5")&&rubricSource.includes("points:6"),"Source-based Newestan self-assessment rubric is incomplete");
+assert(rubricSource.includes("defaults[term]")&&rubricSource.includes("if(!sourceRows)return")&&rubricSource.includes("practice self-assessment"),"Rubric must be source-gated and clearly labelled as self-assessment");
+assert(term01Ui.includes("renderNewestanRubric")&&term01Ui.includes("bindNewestanRubric"),"Term 01 workshop must render and bind the source rubric");
+assert(term03Ui.includes("renderNewestanRubric")&&term03Ui.includes("bindNewestanRubric"),"Term 03 workshop must render and bind the source rubric");

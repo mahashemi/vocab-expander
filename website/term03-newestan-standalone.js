@@ -29,7 +29,7 @@
   const steps=teach.steps?'<div class="newestan-model-section"><b>Writing steps · روش نگارش</b><ol class="newestan-support">'+teach.steps.map(x=>'<li>'+escText(x)+'</li>').join("")+'</ol></div>':'';
   const timeline=teach.timeline?'<div class="newestan-model-section"><b>Chronological timeline · جدول زمانی</b><ol class="newestan-support">'+teach.timeline.map(x=>'<li><b>'+escText(x.date)+'</b> — '+escText(x.event)+'</li>').join("")+'</ol><p class="mut">The lesson asks you to prepare a timeline before writing. Check dates against reliable sources.</p></div>':'';
   const connectors=teach.timeConnectors?'<div class="newestan-model-section"><b>Time connectors · عوامل ربط زمانی</b><p class="fa-block">'+teach.timeConnectors.map(escText).join(" · ")+'</p><p class="mut">Use these to show sequence; do not repeat the same connector in every sentence.</p></div>':'';
-  const rubric=teach.examRubric?'<div class="newestan-model-section"><b>Exam marking rubric · بارم‌بندی امتحان (۲۰ نمره)</b><ul class="newestan-support">'+teach.examRubric.map(x=>'<li><b>'+escText(x.label)+' — '+x.points+'/20</b>: '+escText(x.detail)+'</li>').join("")+'</ul><p class="mut">Use this as a final self-check before submitting your writing.</p></div>':'';
+  const rubric=window.renderNewestanRubric?window.renderNewestanRubric(3,selected,teach.examRubric):"";
   const examNote=teach.examNote?'<div class="newestan-model-section"><b>Important exam note · نکتهٔ مهم امتحانی</b><p>'+escText(teach.examNote)+'</p></div>':'';
   const sourceNote=teach.sourceNote?'<p class="mut">'+escText(teach.sourceNote)+'</p>':'';
   const model=teach.model?'<details open><summary><b>Model essay · نمونهٔ انشا</b></summary><div class="dc">'+
@@ -71,6 +71,7 @@
    const status=document.getElementById("newestanDraftSaved");
    if(status)status.textContent="Saved locally · "+new Date().toLocaleTimeString();
   };
+  if(window.bindNewestanRubric)window.bindNewestanRubric(3,selected);
   if(typeof attachVocabularyLinks==="function"){const scope=document.querySelector(".writing-wrap");if(scope)attachVocabularyLinks(scope)}
   const print=document.getElementById("printNewestanLesson");if(print)print.onclick=printCurrent;
  };

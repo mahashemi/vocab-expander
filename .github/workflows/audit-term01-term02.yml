@@ -59,6 +59,7 @@ jobs:
           for file in website/term01-*.js website/term02-*.js website/term03-*.js; do
             node --check "$file"
           done
+          node --check website/newestan-rubric.js
           node --check tools/audit-website-loading.cjs
 
       - name: Audit website initial loading and script dependencies
