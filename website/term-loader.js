@@ -62,6 +62,7 @@
   const sharedEssayScripts = [
     "newestan-writing-library.js",
     "newestan-language-lessons.js",
+    "newestan-rubric.js",
     "newestan-writing-ui.js"
   ];
   const featureScripts = {
