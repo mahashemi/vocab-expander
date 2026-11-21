@@ -128,7 +128,7 @@ async function waitFor(page, expression, label) {
 
     await page.goto(target + '#/learning', { waitUntil: 'load', timeout: 120000 });
     await page.waitForSelector('.learning-school', { timeout: 120000 });
-    await waitFor(page, 'typeof window.VocabImla?.validate === "function" && typeof window.VocabSkipGram?.validate === "function" && typeof window.VocabReviewScheduler?.evaluate === "function" && typeof window.__getAllVocabRows === "function"', 'Learning School and independent Imla/Skip-gram modules load on demand');
+    await waitFor(page, 'typeof window.VocabImla?.validate === "function" && typeof window.VocabSkipGram?.validate === "function" && typeof window.VocabReviewScheduler?.evaluate === "function" && typeof window.VocabMeaningRecall?.validate === "function" && typeof window.__getAllVocabRows === "function"', 'Learning School and independent Imla/Skip-gram modules load on demand');
     const manifestStatus = await page.evaluate(() => {
       const built = window.VocabLearningManifest.build(window.__getAllVocabRows());
       return {valid: built.validation.valid, errors: built.validation.errors, count: built.stats.indexedItems, ambiguous: built.stats.ambiguousAliases};
@@ -161,6 +161,40 @@ async function waitFor(page, expression, label) {
     await waitFor(page, 'JSON.parse(localStorage.getItem("vocab_learning_attempts_v1") || "[]").length >= 2', 'Imla and Skip-gram attempt history persists after refresh');
     console.log('PASS: Skip-gram reconstruction and cross-mode attempt persistence');
 
+    const meaningCoverage = await page.evaluate(() => {
+      const rows = window.__getAllVocabRows();
+      return {
+        english: rows.filter(item => item.bk === 3 && window.VocabMeaningRecall.eligible(item, {language: 'en'})).length,
+        arabic: rows.filter(item => item.bk === 3 && window.VocabMeaningRecall.eligible(item, {language: 'ar'})).length
+      };
+    });
+    if (meaningCoverage.english < 100 || meaningCoverage.arabic < 100) throw new Error('Term 03 reviewed trilingual meaning coverage is unexpectedly low: ' + JSON.stringify(meaningCoverage));
+    await page.locator('#learningTerm').selectOption('3');
+    await page.locator('[data-mode="meaning-recall"]').click();
+    await page.locator('#learningMeaningLanguage').selectOption('ar');
+    const arabicMeaning = await page.evaluate(() => {
+      const item = window.__getAllVocabRows().find(x => x.bk === 3 && window.VocabMeaningRecall.eligible(x, {language: 'ar'}));
+      return item ? {id: item.id, answer: item.sem.arSynonyms?.[0] || item.sem.arMeaning} : null;
+    });
+    if (!arabicMeaning?.answer) throw new Error('No reviewed Arabic meaning was available for Term 03.');
+    await page.locator('#learningAnswer').fill(arabicMeaning.answer);
+    await page.locator('#learningCheck').click();
+    await page.waitForSelector('.learning-feedback.correct', { timeout: 10000 });
+    await page.locator('#learningMeaningLanguage').selectOption('en');
+    const englishMeaning = await page.evaluate(() => {
+      const item = window.__getAllVocabRows().find(x => x.bk === 3 && window.VocabMeaningRecall.eligible(x, {language: 'en'}));
+      return item ? {id: item.id, answer: item.sem.enSynonyms?.[0] || item.sem.enMeaning} : null;
+    });
+    if (!englishMeaning?.answer) throw new Error('No reviewed English meaning was available for Term 03.');
+    await page.locator('#learningAnswer').fill(englishMeaning.answer);
+    await page.locator('#learningCheck').click();
+    await page.waitForSelector('.learning-feedback.correct', { timeout: 10000 });
+    const meaningEvents = await page.evaluate(() => JSON.parse(localStorage.getItem('vocab_learning_attempts_v1') || '[]'));
+    if (!meaningEvents.some(event => event.modeId === 'meaning-recall-ar' && event.correct) || !meaningEvents.some(event => event.modeId === 'meaning-recall-en' && event.correct)) {
+      throw new Error('English and Arabic meaning attempts were not tracked independently: ' + JSON.stringify(meaningEvents));
+    }
+    console.log('PASS: Term 03 English and Arabic meaning recall use reviewed trilingual semantics');
+
     await page.locator('[data-mode="imla"]').click();
     await page.locator('#learningAnswer').fill('not-the-right-answer');
     await page.locator('#learningCheck').click();
@@ -185,7 +219,7 @@ async function waitFor(page, expression, label) {
     await page.locator('#closeLearningNotebook').click();
     await page.reload({ waitUntil: 'load' });
     await page.waitForSelector('.learning-school', { timeout: 120000 });
-    await waitFor(page, 'JSON.parse(localStorage.getItem("vocab_learning_attempts_v1") || "[]").length >= 4', 'Mistake and re-practice attempts persist after refresh');
+    await waitFor(page, 'JSON.parse(localStorage.getItem("vocab_learning_attempts_v1") || "[]").length >= 6', 'Meaning, mistake and re-practice attempts persist after refresh');
     await page.locator('#learningNotebook').click();
     await page.waitForSelector('.learning-notebook', { timeout: 10000 });
     if (await page.locator('.learning-mistake-entry').count() !== 0) throw new Error('Resolved mistakes reappeared after refresh.');
