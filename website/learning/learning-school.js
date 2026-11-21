@@ -86,7 +86,7 @@
   const sem=current.sem||{};
   const details=mode==="meaning-recall"
    ?'<div class="semantic-feedback"><p><b>فارسی:</b> '+esc(sem.faMeaning||current.fa)+'</p><p><b>English:</b> '+esc(sem.enMeaning||current.en||"")+'</p><p dir="rtl" lang="ar"><b>العربية:</b> '+esc(sem.arMeaning||"")+'</p></div>'
-   :'<div>'+esc(current.tr||"")+' · '+esc(current.en||"")+'</div>';
+   :'<div>'+esc(current.tr||"")+' · '+esc(current.en||"")+'</div>'+(sem.arMeaning?'<div dir="rtl" lang="ar">العربية: '+esc(sem.arMeaning)+'</div>':"");
   $("#learningFeedback").innerHTML='<div class="learning-feedback '+(result.correct?"correct":"incorrect")+'"><b>'+(result.correct?"آفرین! Correct":"Not quite · Let’s learn it")+'</b><div class="fa" lang="fa" dir="rtl">'+esc(current.fa)+'</div>'+details+(result.correct?'<p>Good retrieval. Your next review interval is '+reviewFor(current).intervalDays+' day(s).</p>':'<p>Review the answer, then continue. Error pattern: '+esc((result.errorTypes||[]).join(", ")||"not classified")+'</p>')+'</div>';
  }
  function hint(){if(checked||!current)return;const text=modes[mode].hint(current,prompt,hints);hints++;const el=$("#learningFeedback");el.innerHTML='<div class="mut learning-hint">'+esc(text)+'</div>';const b=$("#learningHint");b.textContent="Hint · "+hints}
