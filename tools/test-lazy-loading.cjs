@@ -126,6 +126,32 @@ async function waitFor(page, expression, label) {
     await page.waitForSelector('#verbSearch', { state: 'visible', timeout: 120000 });
     console.log('PASS: Verb Treasury loads all-term data on demand');
 
+    await page.goto(target + '#/learning', { waitUntil: 'load', timeout: 120000 });
+    await page.waitForSelector('.learning-school', { timeout: 120000 });
+    await waitFor(page, 'typeof window.VocabImla?.validate === "function" && typeof window.VocabSkipGram?.validate === "function" && typeof window.__getAllVocabRows === "function"', 'Learning School and independent Imla/Skip-gram modules load on demand');
+    await page.locator('#learningTerm').selectOption('1');
+    const imlaTarget = await page.evaluate(() => window.__getAllVocabRows().find(item => item.bk === 1 && window.VocabImla.eligible(item))?.fa);
+    if (!imlaTarget) throw new Error('No eligible Term 01 Imla sample was found.');
+    await page.locator('#learningAnswer').fill(imlaTarget);
+    await page.locator('#learningCheck').click();
+    await page.waitForSelector('.learning-feedback.correct', { timeout: 10000 });
+    console.log('PASS: Imla accepts a source-backed Term 01 vocabulary answer');
+
+    await page.locator('[data-mode="skip-gram"]').click();
+    const skipTarget = await page.evaluate(() => window.__getAllVocabRows().find(item => item.bk === 1 && window.VocabSkipGram.eligible(item))?.fa);
+    if (!skipTarget) throw new Error('No eligible Term 01 Skip-gram sample was found.');
+    await page.locator('#learningAnswer').fill(skipTarget);
+    await page.locator('#learningCheck').click();
+    await page.waitForSelector('.learning-feedback.correct', { timeout: 10000 });
+    const learningEvents = await page.evaluate(() => JSON.parse(localStorage.getItem('vocab_learning_attempts_v1') || '[]'));
+    if (!learningEvents.some(event => event.modeId === 'imla' && event.correct) || !learningEvents.some(event => event.modeId === 'skip-gram' && event.correct)) {
+      throw new Error('Imla and Skip-gram attempts were not persisted independently: ' + JSON.stringify(learningEvents));
+    }
+    await page.reload({ waitUntil: 'load' });
+    await page.waitForSelector('.learning-school', { timeout: 120000 });
+    await waitFor(page, 'JSON.parse(localStorage.getItem("vocab_learning_attempts_v1") || "[]").length >= 2', 'Learning School attempt history persists after refresh');
+    console.log('PASS: Skip-gram reconstruction and cross-mode attempt persistence');
+
     // Verify that a learner's saved legacy completion ID is carried to its canonical merged ID.
     const migrationContext = await browser.newContext({ viewport: { width: 1365, height: 900 } });
     const migrationPage = await migrationContext.newPage();
