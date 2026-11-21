@@ -164,19 +164,19 @@ Do not generate exercises for every item by force. A phrase may be suitable for 
 ### P0 — design and safety
 - [x] Inspect the three source schemas, shared adapter, current ID generation, local completion store and lazy-loader ordering.
 - [x] Record the canonical identity, legacy alias and progress migration constraints.
-- [ ] Finalize manifest schema and representative cross-term fixtures, including phrases, duplicate headwords, homographs and multiple source occurrences.
-- [ ] Specify and test the legacy-ID alias map without changing current IDs.
+- [x] Finalize the initial manifest schema and representative Term 01/02/03 fixtures, including a phrase, explicit aliases, ambiguous aliases and invalid-manifest behavior. Full live-source fixture coverage remains a follow-up.
+- [x] Specify and test the legacy-ID alias map without changing current IDs.
 
 ### P1 — shared foundation
-- [ ] Read-only canonical item adapter and manifest validator.
-- [ ] Explainable mode-eligibility resolver.
-- [ ] Mode registry and deterministic prompt test harness.
-- [ ] Shared attempt event schema, persistence and migration tests.
+- [x] Read-only manifest validator and legacy alias resolver. Live source-row manifest builder is still pending.
+- [x] Independent mode eligibility checks for Imla and Skip-gram; shared explainable registry remains pending.
+- [x] Independent Imla and Skip-gram APIs with deterministic Skip-gram masks and unit tests.
+- [x] Separate local attempt event store with correctness, error categories, hints and elapsed time. Canonical-ID migration is pending and legacy completion remains untouched.
 
 ### P1 — first modes
-- [ ] Imla module and independent tests.
-- [ ] Skip-gram module and independent tests.
-- [ ] Accessible practice UI and central-card integration.
+- [x] Imla module and independent tests.
+- [x] Skip-gram module and independent tests.
+- [x] Mobile-responsive practice UI, keyboard submission, term filters and persistent route. Central flashcard deep-link integration remains a follow-up.
 
 ### P2 — retention and additional modes
 - [ ] Confusable letters, reconstruction, meaning retrieval and contextual completion.
