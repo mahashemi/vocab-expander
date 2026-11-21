@@ -150,7 +150,7 @@ if (scripts.some(x => x.async)) loaderOrderErrors.push('Initial app scripts must
 // Permit only the tiny synchronous route-visibility guard: it must run before
 // CSS/paint to prevent a deep-link refresh from exposing the static portal.
 const routeGuardAllowed = inline.length === 1 && inline[0].bytes <= 512 &&
-  /var hash=window\\.location\\.hash\\|\\|"#\\/";[\\s\\S]*route-boot/.test(html);
+  /var hash=window\.location\.hash\|\|"#\/";[\s\S]*route-boot/.test(html);
 if (inline.length && !routeGuardAllowed) loaderOrderErrors.push('Only the <=512-byte synchronous route-visibility guard may be inline; application bootstrap must remain external.');
 if (inlineBytes > 512) loaderOrderErrors.push('Synchronous route-visibility guard exceeds its 512-byte budget: ' + inlineBytes + ' bytes.');
 const report = {
