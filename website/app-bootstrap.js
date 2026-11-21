@@ -1012,6 +1012,8 @@ const all=()=>{
  });
  return out.concat(custom.map(r=>toItem(r.slice(1),Number(r[0]))));
 };
+// Read-only adapter consumed by the lazy-loaded cross-term Learning School.
+window.__getAllVocabRows=()=>all();
 window.__getRuntimeVocabCounts=()=>{
  const rows=all(),customCounts={1:0,2:0,3:0};
  for(const row of custom)if(customCounts[Number(row[0])]!==undefined)customCounts[Number(row[0])]++;
