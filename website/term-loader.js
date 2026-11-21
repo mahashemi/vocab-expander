@@ -200,7 +200,7 @@
     if (!learningSchoolPromise) {
       learningSchoolPromise = (async () => {
         await ensureAllTermsLoaded();
-        for (const file of ["learning/imla.js", "learning/skip-gram.js", "learning/learning-school.js"]) {
+        for (const file of ["learning/identity.js", "learning/manifest.js", "learning/imla.js", "learning/skip-gram.js", "learning/learning-school.js"]) {
           await loadScript(file, false);
         }
       })().catch(error => {
