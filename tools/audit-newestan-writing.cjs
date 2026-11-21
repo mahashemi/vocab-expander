@@ -143,3 +143,6 @@ const termLoaderSource=require("node:fs").readFileSync(path.join(__dirname,"../w
 const portalSource=require("node:fs").readFileSync(path.join(__dirname,"../website/term-portal.js"),"utf8");
 assert(termLoaderSource.includes('"1:essays": sharedEssayScripts'),"Term 01 Newestan must load its shared writing school on demand");
 assert(portalSource.includes('data-t="essays"')&&portalSource.includes("x.hidden=false"),"Newestan tab must remain accessible in Term 01");
+
+const appBootstrapSource=require("node:fs").readFileSync(path.join(__dirname,"../website/app-bootstrap.js"),"utf8");
+assert(appBootstrapSource.includes("const lesson=window.__vocabRouteLesson||(picker?Number(picker.value):undefined);"),"Newestan deep-link lesson must take precedence over a stale selector from the previous term");
