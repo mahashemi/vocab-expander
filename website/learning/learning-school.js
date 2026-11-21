@@ -39,7 +39,7 @@
   if(index>=queue.length)index=0;
   current=queue[index];
   const review=reviewFor(current);
-  prompt=mode==="skip-gram"?modes[mode].createPrompt(current,review.streak):modes[mode].createPrompt(current);
+  prompt=mode==="skip-gram"?modes[mode].createPrompt(current,review.streak):mode==="meaning-recall"?modes[mode].createPrompt(current,{language:meaningLanguage}):modes[mode].createPrompt(current);
   hints=0;started=Date.now();checked=false;
  }
  function record(result){
