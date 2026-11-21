@@ -26,11 +26,18 @@
   $id("overallPercent").textContent=p+"% memorised";
   $id("termProgressMini").textContent=[1,2,3].map(b=>"T"+b+" "+stats.counts[b].toLocaleString()).join(" · ")+" words";
  }
+ let cachedSearchIndex=null,searchIndexBuilds=0;
  function searchIndex(){
+  if(cachedSearchIndex)return cachedSearchIndex;
   const words=all().map(x=>({kind:"Vocabulary",label:x.fa||"",tr:x.tr||"",meaning:x.en||"",source:(x.sources||[x.source]).filter(Boolean).join(" · "),bk:x.bk,ch:x.ch,id:x.id,record:x}));
   const verbs=(window.getVerbSearchRows?window.getVerbSearchRows():[]).map(x=>({kind:"Verb Treasury",label:x.fa||"",tr:x.tr||"",meaning:x.en||"",forms:[x.ms,x.amr].filter(Boolean).join(" · "),source:(x.sources||[x.source]).filter(Boolean).join(" · "),bk:x.bk,ch:x.ch,id:x.id,record:x}));
-  const seen=new Set();return words.concat(verbs).filter(x=>{const k=x.kind+"|"+x.bk+"|"+x.id;if(seen.has(k))return false;seen.add(k);return true});
+  const seen=new Set();
+  cachedSearchIndex=words.concat(verbs).filter(x=>{const k=x.kind+"|"+x.bk+"|"+x.id;if(seen.has(k))return false;seen.add(k);return true})
+   .map(x=>({...x,_label:normalize(x.label),_hay:normalize(flatten([x.label,x.tr,x.meaning,x.forms,x.source,x.record&&x.record.sem,x.record&&x.record.pos]).join(" "))}));
+  searchIndexBuilds++;
+  return cachedSearchIndex;
  }
+ window.__getGlobalSearchDiagnostics=()=>({built:searchIndexBuilds,size:cachedSearchIndex?cachedSearchIndex.length:0});
  function portal(){
   const stats=portalCounts(),counts=stats.counts,doneByTerm=stats.doneByTerm;
   const data=[
@@ -70,8 +77,9 @@
    meta.textContent="Loading the complete vocabulary and verb index…";
    try{await window.ensureAllTermsLoaded()}catch(error){meta.textContent="Search data could not be loaded. Please retry.";console.error(error);return}
    if(request!==searchRequest||q!==normalize(input.value))return;
-   const terms=q.split(" ").filter(Boolean),rows=searchIndex().map(x=>({...x,_hay:normalize(flatten([x.label,x.tr,x.meaning,x.forms,x.source,x.record&&x.record.sem,x.record&&x.record.pos]).join(" "))}));
-   const hits=rows.filter(x=>terms.every(t=>x._hay.includes(t))).sort((a,b)=>{const exact=normalize(a.label).startsWith(q)?-1:normalize(b.label).startsWith(q)?1:0;return exact||((a.kind==="Verb Treasury"?-1:0)-(b.kind==="Verb Treasury"?-1:0))}).slice(0,60);
+   const terms=q.split(" ").filter(Boolean),rows=searchIndex();
+   const rank=x=>x._label===q?0:x._label.startsWith(q)?1:terms.every(t=>x._label.includes(t))?2:3;
+   const hits=rows.filter(x=>terms.every(t=>x._hay.includes(t))).sort((a,b)=>rank(a)-rank(b)||((a.kind==="Verb Treasury"?-1:0)-(b.kind==="Verb Treasury"?-1:0))).slice(0,60);
    meta.textContent=hits.length?hits.length+" result"+(hits.length===1?"":"s")+" shown · search includes all terms and verbs":"No matches yet. Try another spelling or language.";
    results.innerHTML=hits.map((x,i)=>'<button type="button" class="global-search-result" data-result="'+i+'"><span class="global-result-top"><b class="fa" lang="fa">'+esc(x.label)+'</b><span class="global-result-kind">'+esc(x.kind)+' · Term '+String(x.bk).padStart(2,"0")+'</span></span><span class="global-result-tr">'+esc(x.tr)+'</span><span class="global-result-meaning">'+esc(x.meaning)+(x.forms?" · "+esc(x.forms):"")+'</span><span class="global-result-source">'+esc(x.source||"Source lesson not recorded")+(x.ch?" · Dars "+x.ch:"")+'</span></button>').join("");
    results.querySelectorAll("[data-result]").forEach(btn=>btn.onclick=async()=>{
@@ -139,13 +147,13 @@
   }
   if(raw==="#/learning"){
    applyingRoute=true;
-   try{await window.ensureLearningSchool()}catch(error){if(request===routeRequest)applyingRoute=false;console.error(error);return}
+   try{await window.ensureLearningSchool()}catch(error){if(request===routeRequest){applyingRoute=false;document.documentElement.classList.remove("route-boot");}console.error(error);return}
    if(request!==routeRequest)return;
    activeTerm=null;tab="school";$id("termNav").hidden=true;window.__vocabRouteLesson=null;render();applyingRoute=false;return;
   }
   if(raw==="#/verbs"){
    applyingRoute=true;
-   try{await window.ensureAllTermsLoaded()}catch(error){if(request===routeRequest)applyingRoute=false;console.error(error);return}
+   try{await window.ensureAllTermsLoaded()}catch(error){if(request===routeRequest){applyingRoute=false;document.documentElement.classList.remove("route-boot");}console.error(error);return}
    if(request!==routeRequest)return;
    activeTerm=null;tab="verbs";$id("termNav").hidden=true;window.__vocabRouteLesson=null;render();applyingRoute=false;return;
   }
@@ -158,7 +166,7 @@
    if(routeName==="khulasa")await window.ensureFeatureLoaded(term,"khulasa");
    if(routeName==="sukhanrani")await window.ensureFeatureLoaded(term,"speeches");
    if(routeName==="newestan")await window.ensureFeatureLoaded(term,"essays");
-  }catch(error){if(request===routeRequest)applyingRoute=false;console.error(error);return}
+  }catch(error){if(request===routeRequest){applyingRoute=false;document.documentElement.classList.remove("route-boot");}console.error(error);return}
   if(request!==routeRequest)return;
   activeTerm=term;bkSel.value=String(term);fillCh();
   if(routeName==="newestan")window.__vocabRouteLesson=Math.max(1,Math.min(10,Number(value)||1));else window.__vocabRouteLesson=null;
@@ -173,7 +181,7 @@
   bkSel.hidden=true;chSel.hidden=![ "cards","quiz","khulasa"].includes(tab);
   deck=[];idx=0;flip=false;render();applyingRoute=false;
  }
- window.render=function(){if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();else if(tab==="school")window.learningSchool();updateStats();syncRoute()};
+ window.render=function(){document.documentElement.classList.remove("route-boot");if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();else if(tab==="school")window.learningSchool();updateStats();syncRoute()};
  window.gotoTab=async function(t){
   const request=++tabRequest;
   try{
