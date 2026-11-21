@@ -16,8 +16,8 @@
  function eligibleRows(){return items().filter(x=>(term==="all"||Number(x.bk)===Number(term))&&modes[mode].eligible(x))}
  function notebookRows(){
   const latest=new Map(),byLegacy=new Map(items().map(x=>[String(x.id),x]));
-  for(const event of history())if(!event.correct){const key=reviewKey(event.itemId,event.modeId),old=latest.get(key);if(!old||Date.parse(event.occurredAt||0)>=Date.parse(old.occurredAt||0))latest.set(key,event)}
-  return [...latest.values()].map(event=>({event,item:byLegacy.get(String(event.legacyId))})).filter(x=>x.item&&(term==="all"||Number(x.item.bk)===Number(term))).sort((a,b)=>Date.parse(b.event.occurredAt||0)-Date.parse(a.event.occurredAt||0));
+  for(const event of history()){const key=reviewKey(event.itemId,event.modeId),old=latest.get(key);if(!old||Date.parse(event.occurredAt||0)>=Date.parse(old.occurredAt||0))latest.set(key,event)}
+  return [...latest.values()].filter(event=>!event.correct).map(event=>({event,item:byLegacy.get(String(event.legacyId))})).filter(x=>x.item&&(term==="all"||Number(x.item.bk)===Number(term))).sort((a,b)=>Date.parse(b.event.occurredAt||0)-Date.parse(a.event.occurredAt||0));
  }
  function stats(){const h=history();return {attempts:h.length,correct:h.filter(x=>x.correct).length,items:new Set(h.map(x=>x.itemId)).size,mistakes:notebookRows().length}}
  function makeQueue(){
