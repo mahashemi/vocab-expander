@@ -230,6 +230,7 @@ jobs:
           node --check website/newestan-language-lessons.js
           node --check website/newestan-essay-vocabulary.js
           node --check website/newestan-writing-library.js
+          node --check website/newestan-rubric.js
           node --check website/newestan-writing-ui.js
           node --check website/term03-newestan-insha.js
           node --check website/term03-newestan-teaching.js
