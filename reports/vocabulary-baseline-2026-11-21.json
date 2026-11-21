@@ -1,0 +1,135 @@
+{
+  "generatedAt": "2026-11-21",
+  "mainCommit": "d1fd2ccc6f36da720a95d4aca0860a88cb991c13",
+  "auditWorkflowRun": 44942315363,
+  "auditContentCommit": "d1fd2ccc6f36da720a95d4aca0860a88cb991c13",
+  "inventory": {
+    "totalFiles": 189,
+    "terms": {
+      "01": {
+        "ocrFiles": 69,
+        "sourceFamilies": {
+          "F1": 20,
+          "Kh": 20,
+          "N1": 10,
+          "Sh1": 19
+        },
+        "excluded": [
+          "SH1-10"
+        ]
+      },
+      "02": {
+        "ocrFiles": 60,
+        "sourceFamilies": {
+          "FA2": 20,
+          "KH2": 20,
+          "N2": 10,
+          "SH2": 10
+        }
+      },
+      "03": {
+        "ocrFiles": 60,
+        "sourceFamilies": {
+          "FA3": 20,
+          "KH3": 20,
+          "N3": 10,
+          "SH3": 10
+        }
+      }
+    }
+  },
+  "metrics": {
+    "01": {
+      "vocabularyRows": 572,
+      "uniqueNormalizedHeadwords": 557,
+      "phraseEntries": 169,
+      "sourceReferences": 574,
+      "verbs": 114,
+      "coveredSources": 69
+    },
+    "02": {
+      "vocabularyRows": 438,
+      "uniqueNormalizedHeadwords": 434,
+      "phraseEntries": 283,
+      "sourceReferences": 438,
+      "verbs": 185,
+      "coveredSources": 60
+    },
+    "03": {
+      "vocabularyRows": 2316,
+      "uniqueNormalizedHeadwords": 2149,
+      "phraseEntries": 1156,
+      "sourceReferences": 2808,
+      "verifiedVerbs": 671,
+      "coveredSources": 60,
+      "sourceReferenceDistribution": {
+        "FA3": 1434,
+        "KH3": 593,
+        "N3": 359,
+        "SH3": 329,
+        "WR3": 93
+      },
+      "sourceChapters": 60,
+      "chapterSummaries": 20,
+      "khulasaSummaries": 20,
+      "newestanLessons": 10,
+      "speechPrompts": 20
+    }
+  },
+  "term03GapReports": {
+    "workflowRun": 44805267562,
+    "fa3FirstPage": {
+      "sourceFilesExpected": 20,
+      "sourceFilesFound": 20,
+      "listsParsed": 20,
+      "candidates": 577,
+      "coveredInSource": 498,
+      "coveredAsComponent": 2,
+      "coveredViaOcrVariant": 76,
+      "presentElsewhereCheckSourceLink": 0,
+      "possibleOcrVariant": 0,
+      "unmatchedReview": 1,
+      "candidateOnly": true
+    },
+    "fa3ReadingPassages": {
+      "sourceFilesExpected": 20,
+      "sourceFilesFound": 20,
+      "paragraphsScanned": 1615,
+      "unknownRepeatedWordCandidates": 7,
+      "unmatchedPhraseCandidates": 149,
+      "candidateOnly": true,
+      "crossTermCoveredWordCandidates": 203,
+      "crossTermCoveredPhraseCandidates": 16
+    },
+    "kh3N3Sh3FirstPage": {
+      "sourceFilesExpected": 40,
+      "sourceFilesFound": 40,
+      "listsParsed": 40,
+      "candidates": 941,
+      "coveredInSource": 766,
+      "coveredAsComponent": 84,
+      "coveredViaOcrVariant": 45,
+      "presentElsewhereCheckSourceLink": 3,
+      "possibleOcrVariant": 8,
+      "unmatchedReview": 35,
+      "candidateOnly": true
+    }
+  },
+  "caveat": "Curated source-linked lexicon metrics, not total OCR word counts. OCR gap reports are candidate classifications, not automatic approval or proof of completeness.",
+  "portalRuntimeCounts": {
+    "01": 762,
+    "02": 1107,
+    "03": 2161,
+    "customEntriesExcluded": true,
+    "measuredBySmokeTestRun": null,
+    "crossTermDeduplication": {
+      "normalizedHeadwordsRemovedFromEarlierTermRows": 15,
+      "removedByTerm": {
+        "01": 13,
+        "02": 2,
+        "03": 0
+      },
+      "policy": "Keep one exact normalized headword across all terms; retain the first source-ordered occurrence."
+    }
+  }
+}
