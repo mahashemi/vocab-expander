@@ -1,7 +1,7 @@
-/* Vocab release 2026-11-20-batch05.
-   On-demand semantic layers, Term 03 data and lesson-feature loader.
-   Term 01/02 core vocabulary remains immediately available; semantic layers,
-   Term 03 data and optional lesson modules are fetched only when needed. */
+/* Vocab release 2026-11-21-core-lazy.
+   Term 01/02 core data, all semantic layers, Term 03 data and lesson features
+   are loaded on demand. Newestan additions run after both Term 01 and Term 02
+   core arrays exist, preserving cross-term duplicate checks. */
 (function () {
   "use strict";
 
@@ -13,6 +13,18 @@
   });
 
   const sharedSemanticScript = "semantic-meanings.js";
+  const coreTermScripts = [
+    "term01-data.js",
+    "term01-chapters-11-15.js",
+    "term01-chapters-16-20.js",
+    "term01-supplementary.js",
+    "term01-amr-verbs.js",
+    "term02-data.js",
+    "term02-lexicon-additions.js",
+    "term02-proverbs.js",
+    "newestan-lexicon-additions.js",
+    "newestan-essay-vocabulary.js"
+  ];
   const term01SemanticScripts = [
     "term01-semantic-additions.js",
     "term01-core-semantics.js"
@@ -73,6 +85,7 @@
   const featureLoads = new Map();
   const loadedTerms = new Set();
   let sharedSemanticsPromise = null;
+  let coreTermsPromise = null;
 
   function loadScript(file, replay) {
     const src = replay ? file + "?term03-replay=1" : file;
@@ -94,6 +107,22 @@
     return promise;
   }
 
+  async function ensureCoreTerms() {
+    if (!coreTermsPromise) {
+      coreTermsPromise = (async () => {
+        for (const file of coreTermScripts) await loadScript(file, false);
+        if (typeof window.__refreshVocabBooks !== "function") {
+          throw new Error("The vocabulary app bootstrap is not ready to accept Term 01/02 data.");
+        }
+        window.__refreshVocabBooks();
+      })().catch(error => {
+        coreTermsPromise = null;
+        throw error;
+      });
+    }
+    return coreTermsPromise;
+  }
+
   async function ensureSharedSemantics() {
     if (!sharedSemanticsPromise) {
       sharedSemanticsPromise = loadScript(sharedSemanticScript, false).catch(error => {
@@ -110,6 +139,7 @@
     if (termLoads.has(number)) return termLoads.get(number);
 
     const promise = (async () => {
+      await ensureCoreTerms();
       await ensureSharedSemantics();
 
       if (number === 1) {
