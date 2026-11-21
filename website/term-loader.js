@@ -35,6 +35,15 @@
       "term02-additional-semantics-" + String(i + 1).padStart(2, "0") + ".js"
     )
   ];
+  // Term 03's dedup audit includes source identities whose reviewed meanings
+  // are maintained in these shared cross-term semantic batches. A direct Term 03
+  // deep link must load them even when the user has never opened Terms 01/02.
+  const term03SharedSemanticDependencies = [
+    "term01-semantic-additions.js",
+    "term02-additional-semantics-01.js",
+    "term02-additional-semantics-02.js"
+  ];
+
   const term03CoreScripts = [
     "term03-data.js",
     "term03-lexicon-additions.js",
@@ -157,7 +166,7 @@
       } else if (number === 2) {
         await loadScriptsInOrder(term02SemanticScripts, false);
       } else if (number === 3) {
-        await loadScriptsInOrder(term03CoreScripts, false);
+        await loadScriptsInOrder([...term03SharedSemanticDependencies, ...term03CoreScripts], false);
 
         // These two shared additions ran on the initial page for Terms 01/02.
         // Re-run them after Term 03 exists so their Term 03 records are added too.
