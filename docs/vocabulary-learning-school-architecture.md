@@ -184,14 +184,14 @@ Do not generate exercises for every item by force. A phrase may be suitable for 
 - [x] Separate local attempt event store with canonical item IDs, preserved legacy aliases, correctness, error categories, hints and elapsed time. Legacy completion remains untouched.
 
 ### P1 — first modes
-- [x] Imla module and independent tests.
+- [x] Imla module and independent tests, including grapheme-level error diagnostics and explicit ZWNJ handling.
 - [x] English/Arabic Meaning Recall module with reviewed-synonym validation and independent progress histories.
 - [x] Skip-gram module and independent tests.
 - [x] Mobile-responsive practice UI, keyboard submission, term filters and persistent route. Central flashcard deep-link integration remains a follow-up.
 
 ### P2 — retention and additional modes
 - [ ] Confusable letters, reconstruction, meaning retrieval and contextual completion.
-- [x] Mistake notebook, evidence-based difficulty and 1/3/7/14/30-day spaced revision.
+- [x] Mistake notebook, evidence-based difficulty, grapheme-error analytics and 1/3/7/14/30-day spaced revision.
 - [ ] Cross-term practice summaries.
 
 ### P3 — audio
