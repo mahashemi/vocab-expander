@@ -48,7 +48,6 @@ jobs:
         run: |
           node --check website/learning/identity.js
           node --check website/learning/manifest.js
-          node --check website/learning/manifest.js
           node --check website/learning/imla.js
           node --check website/learning/skip-gram.js
           node --check website/learning/learning-school.js
