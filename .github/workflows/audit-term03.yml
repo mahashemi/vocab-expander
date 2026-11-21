@@ -63,6 +63,7 @@ jobs:
             node --check "$file"
           done
           node --check website/term-loader.js
+          node --check website/newestan-rubric.js
           node --check tools/report-term03-fa3-page1-gaps.cjs
           node --check tools/report-term03-fa3-reading-gaps.cjs
           node --check tools/test-term03-fa3-cross-term-gaps.cjs
