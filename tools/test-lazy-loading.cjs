@@ -55,7 +55,7 @@ async function waitFor(page, expression, label) {
     await page.goto(target + '#/term/2/fa', { waitUntil: 'load', timeout: 120000 });
     await waitFor(page, 'window.getLoadedTermNumbers().includes(2)', 'Term 02 semantic layer loads only when Term 02 is opened');
 
-    await page.goto(target + '#/term/3/fa/chapter/1', { waitUntil: 'domcontentloaded', timeout: 120000 });
+    await page.goto(target + '?route-test=deep-link#/term/3/fa/chapter/1', { waitUntil: 'domcontentloaded', timeout: 120000 });
     const routeBootVisible = await page.evaluate(() => document.documentElement.classList.contains('route-boot'));
     if (!routeBootVisible) throw new Error('A direct deep link did not suppress the static portal while its route data was loading.');
     await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && Array.isArray(window.TERM3_DATA) && window.TERM3_DATA.length > 1800 && window.getLoadedTermNumbers().includes(3)', 'direct Term 03 deep link loads the full deduplicated vocabulary');
