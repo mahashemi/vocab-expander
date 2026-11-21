@@ -51,6 +51,7 @@ jobs:
           node --check website/learning/imla.js
           node --check website/learning/skip-gram.js
           node --check website/learning/review-scheduler.js
+          node --check website/learning/meaning-recall.js
           node --check website/learning/learning-school.js
           node --check tools/test-learning-review.cjs
           node --check website/term-loader.js
@@ -60,6 +61,7 @@ jobs:
           node tools/test-learning-manifest.cjs
           node tools/test-learning-modes.cjs
           node tools/test-learning-review.cjs
+          node tools/test-learning-meaning.cjs
 
       - name: Validate Term 01 source-based vocabulary
         run: |
