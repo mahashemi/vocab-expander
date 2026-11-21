@@ -107,6 +107,7 @@
   let learningSchoolPromise = null;
   let term03SemanticsPromise = null;
   let sharedTermAdditionsPromise = null;
+  let allTermCorePromise = null;
   const sharedTermAdditionsAppliedTerms = new Set();
 
   // Dynamic scripts with async=false execute in insertion order. Insert an entire
@@ -264,10 +265,25 @@
     return term03SemanticsPromise;
   }
 
+  async function ensureAllTermCoreDataLoaded() {
+    if (window.ALL_TERM_CORE_DATA_READY) return;
+    if (!allTermCorePromise) {
+      allTermCorePromise = Promise.all([1, 2, 3].map(term => ensureTermLoaded(term))).then(() => {
+        window.ALL_TERM_CORE_DATA_READY = true;
+        if (window.performance && window.performance.mark) window.performance.mark("vocab-all-term-core-ready");
+        if (typeof window.refreshActiveTermViewIfSafe === "function") window.refreshActiveTermViewIfSafe();
+      }).catch(error => {
+        allTermCorePromise = null;
+        throw error;
+      });
+    }
+    return allTermCorePromise;
+  }
+
   async function ensureAllTermsLoaded() {
-    // Search and cross-term study require complete semantics; ordinary lesson
-    // navigation only waits for the smaller core data needed to render the page.
-    await Promise.all([1, 2, 3].map(term => ensureTermLoaded(term)));
+    // Search and cross-term study require complete data and semantics. Normal
+    // route rendering can begin with the active term and enrich in the background.
+    await ensureAllTermCoreDataLoaded();
     await ensureTerm03Semantics();
   }
 
@@ -305,6 +321,7 @@
   }
 
   window.ensureLearningSchool = ensureLearningSchool;
+  window.ensureAllTermCoreDataLoaded = ensureAllTermCoreDataLoaded;
   window.ensureTerm03Semantics = ensureTerm03Semantics;
   window.ensureTermLoaded = ensureTermLoaded;
   window.ensureAllTermsLoaded = ensureAllTermsLoaded;
