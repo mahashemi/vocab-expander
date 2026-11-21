@@ -9,7 +9,7 @@
    const legacyId=String(row.id),headword=String(row.fa).trim(),key=legacyId+"\u0000"+headword;
    let group=groups.get(key);
    if(!group){
-    group={itemId:stableKey(legacyId,headword),headword,kind:/\\s/.test(headword)?"phrase":"word",acceptedForms:unique(row.acceptedForms),legacyIds:[legacyId],occurrences:[],meanings:{fa:row.sem?.faMeaning||null,en:row.en||row.sem?.enMeaning||null,ar:row.sem?.arMeaning||null},examples:[],pos:row.pos||null,sourceConfidence:row.sources?.length||row.source?"source-present":"user-added"};
+    group={itemId:stableKey(legacyId,headword),headword,kind:/\s/.test(headword)?"phrase":"word",acceptedForms:unique(row.acceptedForms),legacyIds:[legacyId],occurrences:[],meanings:{fa:row.sem?.faMeaning||null,en:row.en||row.sem?.enMeaning||null,ar:row.sem?.arMeaning||null},examples:[],pos:row.pos||null,sourceConfidence:row.sources?.length||row.source?"source-present":"user-added"};
     groups.set(key,group);
    }else{
     for(const [lang,value] of Object.entries({fa:row.sem?.faMeaning,en:row.en||row.sem?.enMeaning,ar:row.sem?.arMeaning})){
