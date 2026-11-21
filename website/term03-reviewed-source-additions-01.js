@@ -1,6 +1,6 @@
 /* Reviewed Term 03 source additions ported from the stale lexical-links PR.
    Only unique source headwords from FA3/KH3/N3/SH3 are included here.
-   42 overlapping/repeated headword rows remain in a manual reconciliation queue. */
+   46 overlapping/repeated headword rows remain in a manual reconciliation queue. */
 (()=>{
  const rows=[];
  const N=(unit,source,fa,tr,en,...args)=>{
@@ -65,7 +65,6 @@
  N(20,"N3-10","اینجا","injā","here","اینجا محل مناسبی برای مطالعه است.","Injā mahall-e monāsebi barāye motāle'e ast.","This is a suitable place to study.");
  N(20,"N3-10","درس","dars","lesson; course","این درس روش سازمان‌دهی تحقیق را آموزش می‌دهد.","In dars ravesh-e sāzmān-dehi-ye tahqiq rā āmuzesh midahad.","This lesson teaches how to organise research.");
  N(20,"N3-10","کاربردی","kārbordi","practical; applicable","پیشنهاد کاربردی باید قابل اجرا باشد.","Pishnehād-e kārbordi bāyad ghābel-e ejrā bāshad.","A practical suggestion should be feasible.");
- N(20,"N3-10","موفق","movaffaq","successful","دانشجوی موفق برای یادگیری برنامه دارد.","Dāneshju-ye movaffaq barāye yādgiri barnāme dārad.","A successful student has a learning plan.");
  N(20,"N3-10","گفت‌وگو","goft-o-gu","conversation; dialogue","گفت‌وگوی محترمانه به حل اختلاف کمک می‌کند.","Goft-o-gu-ye mohtaramāne be hal-e ekhtelāf komak mikonad.","Respectful dialogue helps resolve disagreements.");
  N(20,"N3-10","گوش","gush","ear; listening","دانشجو باید هنگام درس با دقت گوش دهد.","Dāneshju bāyad hengām-e dars bā deqqat gush dahad.","A student should listen carefully during the lesson.");
  N(20,"SH3-02","هتل","hotel","hotel","مسافران در هتل اتاق رزرو کردند.","Mosāferān dar hotel otāq rezerv kardand.","The travellers booked a room at the hotel.");
@@ -104,7 +103,6 @@
  N(1,"N3-01","دستور","dastur","instruction; grammar","در این درس دستور زبان نیز تمرین می‌شود.","Dar in dars dastur-e zabān niz tamrin mishavad.","Grammar is also practised in this lesson.");
  N(1,"N3-01","مناسب","monāseb","suitable; appropriate","برای هر مخاطب واژگان مناسب انتخاب کنید.","Barāye har mokhāteb vāzhegān-e monāseb entekhāb konid.","Choose suitable vocabulary for each audience.");
  N(1,"N3-01","کامل","kāmel","complete; whole","پاسخ کامل باید همهٔ بخش‌های پرسش را پوشش دهد.","Pāsokh-e kāmel bāyad hame-ye bakhshhā-ye porsesh rā pushesh dahad.","A complete answer should cover every part of the question.");
- N(1,"N3-01","پیدا کردن","peydā kardan","to find; to discover","پیدا کردن موضوع مناسب نخستین گام نوشتن است.","Peydā kardan-e mozoo-ye monāseb nokhostin gām-e neveshtan ast.","Finding a suitable topic is the first step in writing.");
  N(1,"N3-01","جواب","javāb","answer; reply","جواب پرسش را با جمله‌ای روشن بنویسید.","Javāb-e porsesh rā bā jomle-i roshan benevisid.","Write the answer to the question in a clear sentence.");
  N(1,"N3-01","آینده","āyande","future","برنامه‌ریزی امروز بر آینده اثر می‌گذارد.","Barnāme-rizi-ye emruz bar āyande asar migozārad.","Today's planning affects the future.");
  N(2,"N3-02","مرحله","marhale","stage; step","هر مرحلهٔ تحقیق هدف مشخصی دارد.","Har marhale-ye tahqiq hadaf-e moshakhkhasi dārad.","Each stage of research has a specific purpose.");
@@ -160,7 +158,6 @@
  N(2,"SH3-02","مکان","makān","place; location","مکان مناسب برای توقف را انتخاب کنید.","Makān-e monāseb barāye tavaqqof rā entekhāb konid.","Choose a suitable place to stop.");
  N(3,"SH3-03","غیرمجاز","gheyr-e mojāz","unauthorised; prohibited","پارک کردن در این محل غیرمجاز است.","Pārk kardan dar in mahal gheyr-e mojāz ast.","Parking in this place is prohibited.");
  N(3,"SH3-03","مدرک","madrek","document; certificate","برای ثبت‌نام باید مدرک شناسایی ارائه دهید.","Barāye sabt-nām bāyad madrek-e shenāsāyi erā'e dahid.","You must provide identification to register.");
- N(3,"SH3-03","نقص","naqṣ","defect; fault","پیش از سفر نقص خودرو را بررسی کنید.","Pish az safar naqs-e khodro rā barrasi konid.","Check the vehicle for defects before travelling.");
  N(3,"SH3-03","رنگ","rang","colour","رنگ تابلو باید از فاصله دیده شود.","Rang-e tāblo bāyad az fāsele dide shavad.","The sign's colour should be visible from a distance.");
  N(3,"SH3-03","نوع","no'","type; kind","نوع بلیت را هنگام خرید بررسی کنید.","No'-e belit rā hengām-e kharid barrasi konid.","Check the type of ticket when buying it.");
  N(4,"SH3-04","مواد","mavādd","materials; ingredients; substances","مواد لازم برای پخت غذا را آماده کنید.","Mavādd-e lāzem barāye pokht-e ghazā rā āmāde konid.","Prepare the ingredients needed to cook the meal.");
@@ -218,7 +215,6 @@
  N(20,"N3-10","آشکار","āshkār","clear; evident","احترام در رفتار روزانه آشکار می‌شود.","Ehterām dar raftār-e ruzāne āshkār mishavad.","Respect becomes evident in daily behaviour.");
  N(20,"N3-10","تفکر","tafakkor","thinking; reflection","تفکر مستقل با احترام به استاد منافاتی ندارد.","Tafakkor-e mostaqel bā ehterām be ostād monāfāti nadārad.","Independent thinking does not conflict with respect for a teacher.");
  N(20,"N3-10","مستقل","mostaqel","independent","دانشجو باید پرسش‌گری مستقل را تمرین کند.","Dāneshju bāyad porseshgari-ye mostaqel rā tamrin konad.","A student should practise independent inquiry.");
- N(20,"N3-10","رشد","roshd","growth; development","رابطهٔ سالم به رشد علمی و اخلاقی کمک می‌کند.","Rābete-ye sālem be roshd-e elmi va akhlāqi komak mikonad.","A healthy relationship supports academic and moral growth.");
  N(20,"N3-10","عین","eyn","same; exact; very","در عین احترام، پرسش خود را روشن مطرح کنید.","Dar eyn-e ehterām, porsesh-e khod rā roshan matrah konid.","While remaining respectful, state your question clearly.");
  N(20,"N3-10","حال","hāl","state; condition; present","در هر حال باید از انصاف پیروی کرد.","Dar har hāl bāyad az ensāf peyrovi kard.","In every circumstance, one should act fairly.");
  N(20,"N3-10","بهره","bahre","benefit; share; use","دانشجو باید از دانش استاد بهره ببرد.","Dāneshju bāyad az dānesh-e ostād bahre bebarad.","A student should benefit from the teacher's knowledge.");
