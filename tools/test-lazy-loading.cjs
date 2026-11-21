@@ -158,7 +158,7 @@ async function waitFor(page, expression, label) {
     }
     await page.reload({ waitUntil: 'load' });
     await page.waitForSelector('.learning-school', { timeout: 120000 });
-    await waitFor(page, 'JSON.parse(localStorage.getItem("vocab_learning_attempts_v1") || "[]").length >= 4', 'Learning School attempt history persists after refresh');
+    await waitFor(page, 'JSON.parse(localStorage.getItem("vocab_learning_attempts_v1") || "[]").length >= 2', 'Imla and Skip-gram attempt history persists after refresh');
     console.log('PASS: Skip-gram reconstruction and cross-mode attempt persistence');
 
     await page.locator('[data-mode="imla"]').click();
@@ -182,6 +182,13 @@ async function waitFor(page, expression, label) {
     await page.waitForSelector('.learning-notebook', { timeout: 10000 });
     if (await page.locator('.learning-mistake-entry').count() !== 0) throw new Error('A successfully recalled item should leave the unresolved mistake notebook.');
     console.log('PASS: a later correct recall clears the unresolved notebook entry');
+    await page.locator('#closeLearningNotebook').click();
+    await page.reload({ waitUntil: 'load' });
+    await page.waitForSelector('.learning-school', { timeout: 120000 });
+    await waitFor(page, 'JSON.parse(localStorage.getItem("vocab_learning_attempts_v1") || "[]").length >= 4', 'Mistake and re-practice attempts persist after refresh');
+    await page.locator('#learningNotebook').click();
+    await page.waitForSelector('.learning-notebook', { timeout: 10000 });
+    if (await page.locator('.learning-mistake-entry').count() !== 0) throw new Error('Resolved mistakes reappeared after refresh.');
     await page.locator('#closeLearningNotebook').click();
 
     // Verify that a learner's saved legacy completion ID is carried to its canonical merged ID.
