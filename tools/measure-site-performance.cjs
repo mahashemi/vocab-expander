@@ -36,7 +36,15 @@ async function measureViewport(name, config) {
     }
     if (supported.includes('longtask')) {
       new PerformanceObserver(list => {
-        for (const entry of list.getEntries()) samples.longTasks.push(entry.duration);
+        for (const entry of list.getEntries()) samples.longTasks.push({
+          startTime: entry.startTime,
+          duration: entry.duration,
+          attribution: (entry.attribution || []).map(item => ({
+            name: item.name,
+            containerType: item.containerType,
+            containerName: item.containerName,
+          })),
+        });
       }).observe({ type: 'longtask', buffered: true });
     }
     window.__sitePerfSamples = samples;
@@ -73,17 +81,28 @@ async function measureViewport(name, config) {
       const navigation = performance.getEntriesByType('navigation')[0];
       const resources = performance.getEntriesByType('resource');
       const paints = performance.getEntriesByType('paint');
+      const describeResource = entry => ({
+        name: entry.name.startsWith(location.origin) ? entry.name.slice(location.origin.length) : entry.name,
+        initiatorType: entry.initiatorType,
+        startTime: Math.round(entry.startTime),
+        duration: Math.round(entry.duration),
+        transferBytes: entry.transferSize || 0,
+        encodedBytes: entry.encodedBodySize || 0,
+        decodedBytes: entry.decodedBodySize || 0,
+      });
       const sum = entries => entries.reduce((total, entry) => total + (entry.transferSize || 0), 0);
       return {
         fcpMs: paints.find(entry => entry.name === 'first-contentful-paint')?.startTime ?? null,
         lcpMs: samples.lcp.length ? Math.max(...samples.lcp) : null,
         cls: samples.cls.reduce((total, value) => total + value, 0),
-        longTaskMs: samples.longTasks.reduce((total, value) => total + value, 0),
+        longTaskMs: samples.longTasks.reduce((total, value) => total + value.duration, 0),
         longTaskCount: samples.longTasks.length,
         domContentLoadedMs: navigation?.domContentLoadedEventEnd ?? null,
         loadEventMs: navigation?.loadEventEnd ?? null,
         responseStartMs: navigation?.responseStart ?? null,
         resourceCount: resources.length,
+        largestResources: resources.slice().sort((a, b) => (b.transferSize || 0) - (a.transferSize || 0)).slice(0, 25).map(describeResource),
+        slowestResources: resources.slice().sort((a, b) => b.duration - a.duration).slice(0, 25).map(describeResource),
         transferBytes: sum(resources),
         scriptTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'script' || /\\.js(?:[?#]|$)/i.test(entry.name))),
         cssTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'css' || /\\.css(?:[?#]|$)/i.test(entry.name))),
@@ -159,6 +178,7 @@ async function measureViewport(name, config) {
       'Transfer sizes come from Resource Timing and may omit cross-origin resources without Timing-Allow-Origin.',
       'INP is not measured by this synthetic navigation test; long-task duration is reported as a diagnostic, not as INP.',
       'LCP and CLS are lab observations during the post-load observation window, not field/Core Web Vitals data.',
+      'Resource timing identifies the largest and slowest individual files; long-task entries include browser attribution where supported.',
     ],
     results,
   };
@@ -188,6 +208,17 @@ async function measureViewport(name, config) {
         ' | ' + sample.requestCount + ' | ' + fmt(sample.transferBytes) + ' | ' +
         fmt(sample.scriptTransferBytes) + ' | ' + fmt(sample.cssTransferBytes) + ' | ' +
         fmt(sample.loadEventMs) + ' |');
+    }
+  }
+  for (const viewport of results) {
+    for (const sample of [viewport.deepCold, viewport.deepWarm]) {
+      const label = viewport.viewport + ' · ' + (sample.label.toLowerCase().includes('cold') ? 'cold' : 'warm');
+      lines.push('', '## Largest resources · ' + label, '', '| Resource | Type | Transfer bytes | Encoded bytes | Duration ms | Start ms |', '|---|---|---:|---:|---:|---:|');
+      for (const resource of sample.largestResources) lines.push('| `' + resource.name + '` | ' + resource.initiatorType + ' | ' + fmt(resource.transferBytes) + ' | ' + fmt(resource.encodedBytes) + ' | ' + fmt(resource.duration) + ' | ' + fmt(resource.startTime) + ' |');
+      lines.push('', '## Slowest resources · ' + label, '', '| Resource | Type | Duration ms | Transfer bytes |', '|---|---|---:|---:|');
+      for (const resource of sample.slowestResources) lines.push('| `' + resource.name + '` | ' + resource.initiatorType + ' | ' + fmt(resource.duration) + ' | ' + fmt(resource.transferBytes) + ' |');
+      lines.push('', '## Long tasks · ' + label, '', '| Start ms | Duration ms | Attribution |', '|---:|---:|---|');
+      for (const task of sample.longTasks) lines.push('| ' + fmt(task.startTime) + ' | ' + fmt(task.duration) + ' | ' + (task.attribution.map(item => item.containerName || item.name || item.containerType).filter(Boolean).join(', ') || 'Not exposed by browser') + ' |');
     }
   }
   lines.push('', '## Notes', '', ...report.notes.map(note => '- ' + note), '');
