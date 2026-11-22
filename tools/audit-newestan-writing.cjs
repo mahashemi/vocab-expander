@@ -145,4 +145,7 @@ assert(termLoaderSource.includes('"1:essays": sharedEssayScripts'),"Term 01 Newe
 assert(portalSource.includes('data-t="essays"')&&portalSource.includes("x.hidden=false"),"Newestan tab must remain accessible in Term 01");
 
 const appBootstrapSource=require("node:fs").readFileSync(path.join(__dirname,"../website/app-bootstrap.js"),"utf8");
-assert(appBootstrapSource.includes("const lesson=window.__vocabRouteLesson||(picker?Number(picker.value):undefined);"),"Newestan deep-link lesson must take precedence over a stale selector from the previous term");
+assert(appBootstrapSource.includes("const pickerLesson=picker?Number(picker.value):NaN;")&&appBootstrapSource.includes("const lesson=Number.isInteger(pickerLesson)&&pickerLesson>0?pickerLesson:window.__vocabRouteLesson;"),"A live Newestan lesson selection must take precedence over the stale route lesson");
+assert(portalSource.includes("window.syncVocabRoute=syncRoute;"),"Newestan selector must be able to synchronize the lesson deep link");
+assert(term01Ui.includes("window.__vocabRouteLesson=selectedLesson;essays();if(window.syncVocabRoute)window.syncVocabRoute()"),"Term 01/02 Newestan selector must persist the selected lesson to the URL");
+assert(term03Ui.includes("window.__vocabRouteLesson=selected;essays();if(window.syncVocabRoute)window.syncVocabRoute()"),"Term 03 Newestan selector must persist the selected lesson to the URL");
