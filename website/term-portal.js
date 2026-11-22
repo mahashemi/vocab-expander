@@ -113,7 +113,7 @@
  };
  const routeTabs={fa:"home",study:"home",flashcards:"cards",quiz:"quiz",khulasa:"khulasa",newestan:"essays",sukhanrani:"speeches"};
  const routeNames={home:"fa",cards:"flashcards",quiz:"quiz",khulasa:"khulasa",essays:"newestan",speeches:"sukhanrani"};
- let applyingRoute=false,routeRequest=0,tabRequest=0,term03SemanticsScheduled=false,termCoreDataScheduled=false;
+ let applyingRoute=false,routeRequest=0,tabRequest=0,term03SemanticsScheduled=false;
  function currentRoute(){
   if(tab==="portal")return "#/";
   if(tab==="verbs")return "#/verbs";
@@ -186,14 +186,9 @@
   if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();else if(tab==="school")window.learningSchool();
   updateStats();syncRoute();
   if(activeTerm===3&&window.performance&&window.performance.mark)window.performance.mark("vocab-term03-route-ready");
-  // Let the browser paint the requested Term 03 lesson before downloading and
-  // evaluating the 46 supplementary trilingual meaning batches.
-  if(activeTerm&&tab!=="portal"&&!window.ALL_TERM_CORE_DATA_READY&&window.ensureAllTermCoreDataLoaded&&!termCoreDataScheduled){
-   termCoreDataScheduled=true;
-   const enrichCore=()=>{termCoreDataScheduled=false;window.ensureAllTermCoreDataLoaded().catch(error=>console.error("Cross-term vocabulary enrichment failed",error));};
-   if(typeof window.requestIdleCallback==="function")window.requestIdleCallback(enrichCore,{timeout:1800});
-   else window.setTimeout(enrichCore,0);
-  }
+  // Keep ordinary chapter navigation term-local. Cross-term datasets are
+  // loaded only by explicit all-library workflows (search, Verb Treasury,
+  // learning school and Newestan) through ensureAllTermsLoaded().
   if(activeTerm===3&&tab!=="portal"&&!window.TERM03_SEMANTICS_READY&&window.ensureTerm03Semantics&&!term03SemanticsScheduled){
    term03SemanticsScheduled=true;
    const enrich=()=>{term03SemanticsScheduled=false;window.ensureTerm03Semantics().catch(error=>console.error("Term 03 semantic enrichment failed",error));};
