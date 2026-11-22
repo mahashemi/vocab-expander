@@ -11,6 +11,7 @@
     3: 2161
   });
 
+  const assetVersion = "20261122-newestan-route-fix";
   const sharedSemanticScript = "semantic-meanings.js";
   const term01CoreScripts = [
     "term01-data.js",
@@ -115,7 +116,8 @@
   }
 
   function loadScript(file, replay, replayKey) {
-    const src = replay ? file + "?term-replay=" + String(replayKey || "1") : file;
+    const versionedFile = file + "?v=" + assetVersion;
+    const src = replay ? versionedFile + "&term-replay=" + String(replayKey || "1") : versionedFile;
     if (scriptLoads.has(src)) return scriptLoads.get(src);
 
     const promise = new Promise((resolve, reject) => {
