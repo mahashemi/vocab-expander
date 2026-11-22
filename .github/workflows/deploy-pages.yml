@@ -57,6 +57,7 @@ jobs:
           node --check website/term-loader.js
           node --check website/term-portal.js
           node --check website/app-bootstrap.js
+          node tools/test-sukhanrani-layout.cjs
           node tools/test-learning-identity.cjs
           node tools/test-learning-manifest.cjs
           node tools/test-learning-modes.cjs
