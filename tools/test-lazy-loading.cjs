@@ -60,6 +60,19 @@ async function waitFor(page, expression, label) {
     const freshTermIsolation = await directPage.evaluate(() => ({ term1: typeof window.TERM1_DATA, term2: typeof window.TERM2_DATA }));
     if (freshTermIsolation.term1 !== 'undefined' || freshTermIsolation.term2 !== 'undefined') throw new Error('A direct Term 03 route downloaded unrelated Term 01/02 data: ' + JSON.stringify(freshTermIsolation));
     await waitFor(directPage, '!document.documentElement.classList.contains("route-boot") && document.querySelector(".term-welcome")', 'fresh Term 03 lesson renders before cross-term enrichment');
+    const semanticLoadOrder = await directPage.evaluate(() => {
+      const marks = performance.getEntriesByName('vocab-term03-route-ready');
+      const firstRouteReady = marks.length ? Math.min(...marks.map(mark => mark.startTime)) : null;
+      const names = ['semantic-meanings.js', 'term01-semantic-additions.js', 'term02-additional-semantics-01.js', 'term02-additional-semantics-02.js'];
+      const resources = performance.getEntriesByType('resource')
+        .filter(entry => names.some(name => new URL(entry.name).pathname.endsWith('/' + name)))
+        .map(entry => ({ name: new URL(entry.name).pathname.split('/').pop(), startTime: entry.startTime }));
+      return { firstRouteReady, resources };
+    });
+    if (semanticLoadOrder.firstRouteReady === null || semanticLoadOrder.resources.some(resource => resource.startTime < semanticLoadOrder.firstRouteReady)) {
+      throw new Error('Shared semantic dependencies loaded before the first Term 03 route render: ' + JSON.stringify(semanticLoadOrder));
+    }
+    console.log('PASS: shared semantic dependencies load after the first Term 03 route render');
     await waitFor(directPage, 'window.TERM03_SEMANTICS_READY === true', 'fresh Term 03 route completes its own trilingual enrichment');
     const isolatedAfterEnrichment = await directPage.evaluate(() => ({
       term1: typeof window.TERM1_DATA,
