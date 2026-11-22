@@ -97,6 +97,7 @@ async function measureViewport(name, config) {
         cls: samples.cls.reduce((total, value) => total + value, 0),
         longTaskMs: samples.longTasks.reduce((total, value) => total + value.duration, 0),
         longTaskCount: samples.longTasks.length,
+        longTasks: samples.longTasks,
         domContentLoadedMs: navigation?.domContentLoadedEventEnd ?? null,
         loadEventMs: navigation?.loadEventEnd ?? null,
         responseStartMs: navigation?.responseStart ?? null,
