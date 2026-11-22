@@ -135,8 +135,8 @@ for (const required of ['term01-data.js','term01-chapters-11-15.js','term01-chap
 for (const required of ['term02-data.js','term02-lexicon-additions.js','term02-proverbs.js']) {
   if (!term02CoreFiles.includes(required)) loaderOrderErrors.push(required + ' must be included in the Term 02-only core bundle');
 }
-if (!loaderText.includes('async function loadSharedTermAdditions(term)')) {
-  loaderOrderErrors.push('Newestan shared vocabulary must be replayed after each active term data bundle loads');
+if (!loaderText.includes('async function loadSharedTermAdditions()')) {
+  loaderOrderErrors.push('Newestan shared vocabulary must be applied after all three term data bundles load');
 }
 const term3CoreStart = loaderText.indexOf('const term03CoreScripts');
 const term3CoreEnd = loaderText.indexOf('const sharedEssayScripts');
