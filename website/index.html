@@ -214,6 +214,13 @@ main{max-width:1120px;padding:28px 24px 16px}.site-head{margin-bottom:26px}.bran
 .writing-wrap .speech-verse-panel>h2{color:var(--ink)}
 .writing-wrap .speech-verse-panel>h3{color:var(--ac)}
 .writing-wrap .speech-timing-panel{background:linear-gradient(135deg,var(--soft),var(--card))}
+.writing-wrap .speech-structure-tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:14px 0 18px}
+.writing-wrap .speech-structure-tile{min-width:0;padding:12px;border:1px solid var(--bd);border-radius:12px;background:var(--card);display:flex;flex-direction:column;gap:5px}
+.writing-wrap .speech-structure-tile b{font-size:13px;color:var(--ac)}
+.writing-wrap .speech-structure-tile strong{font-size:18px;color:var(--ink)}
+.writing-wrap .speech-structure-tile span{font-size:12px;line-height:1.55;color:var(--mut)}
+@media(max-width:850px){.writing-wrap .speech-structure-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){.writing-wrap .speech-structure-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.writing-wrap .speech-structure-tile:last-child{grid-column:1/-1}}
 .writing-wrap .speech-points-panel{border-right:3px solid var(--ac)}
 .writing-wrap .speech-model-panel .model-sample{background:linear-gradient(135deg,rgba(39,102,91,.07),rgba(189,149,80,.06));border-right:4px solid var(--gold);padding:clamp(15px,2.5vw,24px)}
 .writing-wrap .speech-editor-panel textarea{min-height:125px}
@@ -372,7 +379,7 @@ main{max-width:1120px;padding:28px 24px 16px}.site-head{margin-bottom:26px}.bran
 
 
 
-<script src="app-bootstrap.js" defer></script>
+<script src="app-bootstrap.js?v=20261122-sukhanrani-structure" defer></script>
 <script src="term-loader.js" defer></script>
 <script src="verb-treasury.js" defer></script>\n<script src="term-portal.js" defer></script>
 </body></html>
