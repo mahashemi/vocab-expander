@@ -85,7 +85,7 @@ const loaderOrder = [
   ['term03-data.js', 'term03-lexicon-additions.js'],
   ['term03-lexicon-additions.js', 'term03-matn-verbs.js'],
   ['term03-chapter-mapping.js', 'term03-dedup.js'],
-  ['term03-dedup.js', 'await loadSharedTermAdditions(3)'],
+  ['term03-dedup.js', 'await ensureSharedTermAdditions()'],
 ];
 const loaderOrderErrors = [];
 for (const [before, after] of loaderOrder) {
