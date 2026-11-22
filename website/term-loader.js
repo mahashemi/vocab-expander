@@ -38,9 +38,8 @@
       "term02-additional-semantics-" + String(i + 1).padStart(2, "0") + ".js"
     )
   ];
-  // Term 03's dedup audit includes source identities whose reviewed meanings
-  // are maintained in these shared cross-term semantic batches. A direct Term 03
-  // deep link must load them even when the user has never opened Terms 01/02.
+  // These cross-term meaning batches are required by the Term 03 semantic audit,
+  // but not by its first vocabulary render. Load them in the post-render enrichment.
   const term03SharedSemanticDependencies = [
     "term01-semantic-additions.js",
     "term02-additional-semantics-01.js",
@@ -187,7 +186,7 @@
 
     const promise = (async () => {
       await ensureCoreTerms();
-      await ensureSharedSemantics();
+      if (number !== 3) await ensureSharedSemantics();
 
       if (number === 1) {
         await loadScriptsInOrder(term01CoreScripts, false);
@@ -202,7 +201,7 @@
         // not require all 46 supplementary meaning batches. Mark the audit pending
         // until the background enrichment layer has completed.
         window.TERM03_SEMANTICS_PENDING = true;
-        await loadScriptsInOrder([...term03SharedSemanticDependencies, ...term03CoreScripts], false);
+        await loadScriptsInOrder(term03CoreScripts, false);
         window.TERM03_CORE_READY = true;
 
         if (typeof window.__refreshVocabBooks !== "function") {
@@ -229,6 +228,8 @@
     if (!term03SemanticsPromise) {
       term03SemanticsPromise = (async () => {
         await ensureTermLoaded(3);
+        await ensureSharedSemantics();
+        await loadScriptsInOrder(term03SharedSemanticDependencies, false);
         await loadScriptsInOrder(term03AdditionalSemanticScripts, false);
         window.TERM03_SEMANTICS_PENDING = false;
         const missing = typeof window.__refreshTerm03DedupSemanticAudit === "function"
