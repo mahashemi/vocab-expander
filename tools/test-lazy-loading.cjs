@@ -135,6 +135,10 @@ async function waitFor(page, expression, label) {
     console.log('PASS: Term 03 dedup audit reconciles against the live pre-merge dataset (' + dedupAudit.actualBefore + ' → ' + dedupAudit.after + ')');
     if (dedupAudit.progressMigrated) throw new Error('A clean browser profile unexpectedly reported saved-progress migration.');
     await page.waitForSelector('.term-welcome', { timeout: 60000 });
+    // A fresh Term 03 route intentionally keeps Terms 01/02 unloaded.
+    // Load the complete library explicitly before comparing the full manifest.
+    await page.evaluate(() => window.ensureAllTermsLoaded());
+    await waitFor(page, 'window.ALL_TERM_CORE_DATA_READY === true && window.TERM03_SEMANTICS_READY === true', 'explicit all-term workflow restores the complete library after a fresh Term 03 route');
     const runtimeCounts = await page.evaluate(() => window.__getRuntimeVocabCounts());
     console.log('Runtime portal vocabulary counts (custom entries excluded): ' + JSON.stringify(runtimeCounts));
     for (const term of [1, 2, 3]) {
