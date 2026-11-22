@@ -139,6 +139,7 @@
   const next=currentRoute();
   if(location.hash!==next)location.hash=next;
  }
+ window.syncVocabRoute=syncRoute;
  async function applyRoute(){
   const request=++routeRequest;
   const raw=location.hash||"#/";
