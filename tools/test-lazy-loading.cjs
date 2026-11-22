@@ -60,15 +60,18 @@ async function waitFor(page, expression, label) {
     const freshTermIsolation = await directPage.evaluate(() => ({ term1: typeof window.TERM1_DATA, term2: typeof window.TERM2_DATA }));
     if (freshTermIsolation.term1 !== 'undefined' || freshTermIsolation.term2 !== 'undefined') throw new Error('A direct Term 03 route downloaded unrelated Term 01/02 data: ' + JSON.stringify(freshTermIsolation));
     await waitFor(directPage, '!document.documentElement.classList.contains("route-boot") && document.querySelector(".term-welcome")', 'fresh Term 03 lesson renders before cross-term enrichment');
-    await waitFor(directPage, 'window.ALL_TERM_CORE_DATA_READY === true', 'fresh Term 03 route completes background cross-term data enrichment');
-    await waitFor(directPage, 'window.TERM03_SEMANTICS_READY === true', 'fresh Term 03 route completes background trilingual enrichment');
+    await waitFor(directPage, 'window.TERM03_SEMANTICS_READY === true', 'fresh Term 03 route completes its own trilingual enrichment');
+    const isolatedAfterEnrichment = await directPage.evaluate(() => ({
+      term1: typeof window.TERM1_DATA,
+      term2: typeof window.TERM2_DATA,
+      allTermsReady: window.ALL_TERM_CORE_DATA_READY === true
+    }));
+    if (isolatedAfterEnrichment.term1 !== 'undefined' || isolatedAfterEnrichment.term2 !== 'undefined' || isolatedAfterEnrichment.allTermsReady) {
+      throw new Error('A Term 03 chapter route eagerly loaded unrelated term payloads: ' + JSON.stringify(isolatedAfterEnrichment));
+    }
     let freshDedupAudit = await directPage.evaluate(() => window.TERM03_DEDUP_AUDIT);
     if (!freshDedupAudit || freshDedupAudit.missingSemantics.length || freshDedupAudit.missing.length || freshDedupAudit.duplicateIds.length || freshDedupAudit.duplicateHeadwordPos.length || freshDedupAudit.sourceLoss.length) {
-      throw new Error('Fresh Term 03 route is missing reviewed cross-term semantic dependencies: ' + JSON.stringify(freshDedupAudit));
-    }
-    const freshCounts = await directPage.evaluate(() => window.__getRuntimeVocabCounts());
-    if (freshCounts[1] !== initial.portalSummary[1] || freshCounts[2] !== initial.portalSummary[2] || freshCounts[3] !== initial.portalSummary[3]) {
-      throw new Error('Background cross-term enrichment did not reconcile all vocabulary counts: ' + JSON.stringify(freshCounts));
+      throw new Error('Fresh Term 03 route is missing reviewed trilingual semantic dependencies: ' + JSON.stringify(freshDedupAudit));
     }
     await directPage.reload({ waitUntil: 'domcontentloaded', timeout: 120000 });
     await waitFor(directPage, 'window.TERM03_DEDUP_APPLIED === true && !document.documentElement.classList.contains("route-boot") && document.querySelector(".term-welcome")', 'fresh Term 03 route survives a hard refresh');
@@ -80,12 +83,15 @@ async function waitFor(page, expression, label) {
 
     await page.goto(target + '#/term/1/fa', { waitUntil: 'load', timeout: 120000 });
     await waitFor(page, 'window.getLoadedTermNumbers().includes(1) && Array.isArray(window.TERM1_DATA) && window.TERM1_DATA.length > 0', 'Term 01 active core data loads');
-    await waitFor(page, 'window.ALL_TERM_CORE_DATA_READY === true && window.getLoadedTermNumbers().includes(1) && window.getLoadedTermNumbers().includes(2) && window.getLoadedTermNumbers().includes(3)', 'other term data and shared additions load after the first route render');
-    const firstTermCounts = await page.evaluate(() => window.__getRuntimeVocabCounts());
-    if (firstTermCounts[1] !== initial.portalSummary[1] || firstTermCounts[2] !== initial.portalSummary[2] || firstTermCounts[3] !== initial.portalSummary[3]) {
-      throw new Error('Background cross-term core data does not reconcile to the portal manifest: ' + JSON.stringify(firstTermCounts));
+    const firstTermIsolation = await page.evaluate(() => ({
+      term2: typeof window.TERM2_DATA,
+      term3: typeof window.TERM3_DATA,
+      allTermsReady: window.ALL_TERM_CORE_DATA_READY === true
+    }));
+    if (firstTermIsolation.term2 !== 'undefined' || firstTermIsolation.term3 !== 'undefined' || firstTermIsolation.allTermsReady) {
+      throw new Error('Opening Term 01 should not preload Term 02/03: ' + JSON.stringify(firstTermIsolation));
     }
-    console.log('PASS: background term data and shared vocabulary reconcile to the portal manifest');
+    console.log('PASS: Term 01 route loads only its active term');
 
     await page.goto(target + '#/term/2/fa', { waitUntil: 'load', timeout: 120000 });
     await waitFor(page, 'window.getLoadedTermNumbers().includes(2) && Array.isArray(window.TERM2_DATA) && window.TERM2_DATA.length > 0', 'Term 02 loads its own core data and semantic layer');
