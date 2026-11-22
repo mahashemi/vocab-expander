@@ -1368,8 +1368,7 @@ function essays(){
  // A live selector is newer than the route value used to render the page.
  // Prefer it on re-render so choosing another lesson cannot snap back to the
  // deep-linked lesson that was active when Newestan first opened.
- const pickerLesson=picker?Number(picker.value):NaN;
- const lesson=Number.isInteger(pickerLesson)&&pickerLesson>0?pickerLesson:window.__vocabRouteLesson;
+ const lesson=window.__vocabRouteLesson||(picker?Number(picker.value):undefined);
  if(lesson)window.__vocabRouteLesson=lesson;
  if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1(lesson);window.bindNewestanWorkshop();return}
  if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3(lesson);window.bindNewestanTerm3();return}
