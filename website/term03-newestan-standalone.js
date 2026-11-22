@@ -63,7 +63,7 @@
  };
  window.bindNewestanTerm3=()=>{
   const sel=document.getElementById("newestanLesson"),editor=document.getElementById("newestanDraft");
-  if(sel)sel.onchange=e=>{selected=Number(e.target.value);essays()};
+  if(sel)sel.onchange=e=>{selected=Number(e.target.value);window.__vocabRouteLesson=selected;essays();if(window.syncVocabRoute)window.syncVocabRoute()};
   if(editor)editor.oninput=()=>{
    let drafts={};try{drafts=JSON.parse(localStorage.getItem(store)||"{}")}catch(e){}
    drafts["t3-"+selected]={text:editor.value};

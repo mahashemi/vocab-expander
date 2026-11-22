@@ -202,6 +202,35 @@ async function waitFor(page, expression, label) {
     }
     console.log('PASS: Term 01/03 rubric self-assessment persists; Term 02 correctly has no invented rubric');
 
+    // Selecting a different Newestan lesson must survive its own re-render and
+    // update the deep link. Exercise every term because Terms 01/02 share a renderer.
+    for (const term of [1, 2, 3]) {
+      await page.goto(target + '#/term/' + term + '/newestan/lesson/1', { waitUntil: 'load', timeout: 120000 });
+      await waitFor(page, 'document.querySelector("#newestanLesson")?.options.length > 1', 'Term ' + term + ' Newestan lesson choices are available');
+      const lessonValue = await page.locator('#newestanLesson').evaluate(select => select.options[select.options.length - 1].value);
+      if (lessonValue === '1') throw new Error('Term ' + term + ' Newestan test did not find a lesson beyond the first.');
+      await page.locator('#newestanLesson').selectOption(lessonValue);
+      await waitFor(page,
+        'document.querySelector("#newestanLesson")?.value === ' + JSON.stringify(lessonValue) +
+        ' && window.__vocabRouteLesson === Number(' + JSON.stringify(lessonValue) + ')' +
+        ' && location.hash.endsWith("/lesson/" + ' + JSON.stringify(lessonValue) + ')',
+        'Term ' + term + ' Newestan selector retains the chosen lesson and updates its URL');
+    }
+    console.log('PASS: Newestan lesson selection is stable across all three terms and deep links');
+
+    // The requested Sukhanrani reading order is structure first, Qur’anic section second.
+    for (const term of [2, 3]) {
+      await page.goto(target + '#/term/' + term + '/sukhanrani/lesson/1', { waitUntil: 'load', timeout: 120000 });
+      await waitFor(page, 'document.querySelector(".speech-timing-panel") && document.querySelector(".speech-verse-panel")', 'Term ' + term + ' Sukhanrani sections render');
+      const order = await page.evaluate(() => {
+        const structure = document.querySelector('.speech-timing-panel');
+        const quran = document.querySelector('.speech-verse-panel');
+        return !!(structure.compareDocumentPosition(quran) & Node.DOCUMENT_POSITION_FOLLOWING);
+      });
+      if (!order) throw new Error('Term ' + term + ' Sukhanrani Qur’anic section does not follow the speech structure section.');
+    }
+    console.log('PASS: Terms 02 and 03 show speech structure before the Qur’anic section');
+
     await page.goto(target, { waitUntil: 'load', timeout: 120000 });
     await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
     await page.locator('#globalSearchInput').fill('کتاب');

@@ -35,7 +35,7 @@
  window.renderNewestanWorkshop=(lessonNo)=>render(lessonNo);
  window.bindNewestanWorkshop=()=>{
   const select=document.getElementById("newestanLesson"),editor=document.getElementById("newestanDraft");
-  if(select)select.onchange=e=>{selectedLesson=Number(e.target.value);essays()};
+  if(select)select.onchange=e=>{selectedLesson=Number(e.target.value);window.__vocabRouteLesson=selectedLesson;essays();if(window.syncVocabRoute)window.syncVocabRoute()};
   if(editor)editor.addEventListener("input",()=>{
    let drafts={};try{drafts=JSON.parse(localStorage.getItem(draftsKey)||"{}")}catch(e){}
    drafts[draftKey()]={text:editor.value};
