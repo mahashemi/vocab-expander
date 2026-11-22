@@ -36,7 +36,7 @@ async function measureViewport(name, config) {
     }
     if (supported.includes('longtask')) {
       new PerformanceObserver(list => {
-        for (const entry of list.getEntries()) samples.longTasks.push(entry.duration);
+        for (const entry of list.getEntries()) samples.longTasks.push({\n          startTime: entry.startTime,\n          duration: entry.duration,\n          attribution: (entry.attribution || []).map(item => ({\n            name: item.name,\n            containerType: item.containerType,\n            containerName: item.containerName,\n          })),\n        });
       }).observe({ type: 'longtask', buffered: true });
     }
     window.__sitePerfSamples = samples;
@@ -158,7 +158,7 @@ async function measureViewport(name, config) {
       'Cold run follows Network.clearBrowserCache; warm run reloads in the same browser context.',
       'Transfer sizes come from Resource Timing and may omit cross-origin resources without Timing-Allow-Origin.',
       'INP is not measured by this synthetic navigation test; long-task duration is reported as a diagnostic, not as INP.',
-      'LCP and CLS are lab observations during the post-load observation window, not field/Core Web Vitals data.',
+      'LCP and CLS are lab observations during the post-load observation window, not field/Core Web Vitals data.',\n      'Resource timing identifies the largest and slowest individual files; long-task entries include browser attribution where supported.',
     ],
     results,
   };
@@ -190,7 +190,7 @@ async function measureViewport(name, config) {
         fmt(sample.loadEventMs) + ' |');
     }
   }
-  lines.push('', '## Notes', '', ...report.notes.map(note => '- ' + note), '');
+  for (const viewport of results) {\n    for (const sample of [viewport.deepCold, viewport.deepWarm]) {\n      const label = viewport.viewport + ' · ' + (sample.label.toLowerCase().includes('cold') ? 'cold' : 'warm');\n      lines.push('', '## Largest resources · ' + label, '', '| Resource | Type | Transfer bytes | Encoded bytes | Duration ms | Start ms |', '|---|---|---:|---:|---:|---:|');\n      for (const resource of sample.largestResources) lines.push('| `' + resource.name.replace(/\\|/g, '%7C') + '` | ' + resource.initiatorType + ' | ' + fmt(resource.transferBytes) + ' | ' + fmt(resource.encodedBytes) + ' | ' + fmt(resource.duration) + ' | ' + fmt(resource.startTime) + ' |');\n      lines.push('', '## Slowest resources · ' + label, '', '| Resource | Type | Duration ms | Transfer bytes |', '|---|---|---:|---:|');\n      for (const resource of sample.slowestResources) lines.push('| `' + resource.name.replace(/\\|/g, '%7C') + '` | ' + resource.initiatorType + ' | ' + fmt(resource.duration) + ' | ' + fmt(resource.transferBytes) + ' |');\n      lines.push('', '## Long tasks · ' + label, '', '| Start ms | Duration ms | Attribution |', '|---:|---:|---|');\n      for (const task of sample.longTasks) lines.push('| ' + fmt(task.startTime) + ' | ' + fmt(task.duration) + ' | ' + (task.attribution.map(item => item.containerName || item.name || item.containerType).filter(Boolean).join(', ') || 'Not exposed by browser') + ' |');\n    }\n  }\n  lines.push('', '## Notes', '', ...report.notes.map(note => '- ' + note), '');
   fs.writeFileSync(path.join(outDir, 'site-performance-baseline.md'), lines.join('\n'));
 
   console.log(lines.join('\n'));
