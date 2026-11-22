@@ -6,6 +6,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require('playwright');
+const { normalizeLongTasks, summarizeLongTasks } = require('./performance-long-tasks.cjs');
 
 const target = process.env.SITE_URL || 'https://mahashemi.github.io/vocab-expander/';
 const outDir = path.resolve(__dirname, '..', 'reports');
@@ -95,8 +96,6 @@ async function measureViewport(name, config) {
         fcpMs: paints.find(entry => entry.name === 'first-contentful-paint')?.startTime ?? null,
         lcpMs: samples.lcp.length ? Math.max(...samples.lcp) : null,
         cls: samples.cls.reduce((total, value) => total + value, 0),
-        longTaskMs: samples.longTasks.reduce((total, value) => total + value.duration, 0),
-        longTaskCount: samples.longTasks.length,
         longTasks: samples.longTasks,
         domContentLoadedMs: navigation?.domContentLoadedEventEnd ?? null,
         loadEventMs: navigation?.loadEventEnd ?? null,
@@ -111,7 +110,13 @@ async function measureViewport(name, config) {
         term03LastRenderMs: performance.getEntriesByName('vocab-term03-route-ready').at(-1)?.startTime ?? null,
         term03SemanticsReadyMs: performance.getEntriesByName('vocab-term03-semantics-ready').at(-1)?.startTime ?? null,
       };
-    });;
+    });
+    // PerformanceObserver may be unsupported or may not emit entries in a sample.
+    // Normalize in Node so every report path (including Markdown) receives an array.
+    browserMetrics.longTasks = normalizeLongTasks(browserMetrics.longTasks);
+    const longTaskSummary = summarizeLongTasks(browserMetrics.longTasks);
+    browserMetrics.longTaskMs = longTaskSummary.totalDurationMs;
+    browserMetrics.longTaskCount = longTaskSummary.count;
 
     return {
       label,
