@@ -1381,7 +1381,14 @@ function speeches(){
  <div class="fa-block" style="font-size:24px;margin:14px 0">${esc(item.arabic)}</div><b>Qur'anic anchor: ${quranVerseLink(item.verse)}</b><p class="fa-block">${esc(item.meaning)}</p>
  <p class="mut">Check the verse in your own Mushaf/tafsir before quoting it publicly; this page gives the reference and a concise working translation.</p>
  </div>
- <div class="panel speech-timing-panel"><h3>ساختار پنج دقیقه‌ای سخنرانی</h3><div class="timerline"><span>Opening · 30 sec</span><span>Verse and explanation · 60 sec</span><span>Main points · 2 min 30 sec</span><span>Application · 45 sec</span><span>Conclusion · 15 sec</span></div>
+ <div class="panel speech-timing-panel" aria-label="Speech structure, five minutes"><h3>ساختار پنج دقیقه‌ای سخنرانی</h3>
+ <div class="speech-structure-tiles" aria-label="Five-minute speech stages">
+ <div class="speech-structure-tile"><b>Opening</b><strong>30 sec</strong><span>Khutba, salawat and greeting</span></div>
+ <div class="speech-structure-tile"><b>Qur'anic connection</b><strong>60 sec</strong><span>Recitation, reference and meaning</span></div>
+ <div class="speech-structure-tile"><b>Main message</b><strong>2 min 30 sec</strong><span>Three points with examples</span></div>
+ <div class="speech-structure-tile"><b>Application</b><strong>45 sec</strong><span>One practical action</span></div>
+ <div class="speech-structure-tile"><b>Conclusion</b><strong>15 sec</strong><span>Summary, dua and salawat</span></div>
+ </div>
  <ol class="hint-list"><li><b>Khudba / opening (30 sec):</b> Begin with بسم الله الرحمن الرحیم, حمد خدا, صلوات بر محمد و آل محمد, then greet the audience and announce the topic.</li><li><b>Connect to the ayah (60 sec):</b> Recite the verse accurately, name the surah and ayah, give its meaning, and explain why it relates to the topic.</li><li><b>Develop the message (2 min 30 sec):</b> Explain the three pointers below. Give one concrete example rather than repeating general statements.</li><li><b>Practical application (45 sec):</b> Give the audience one action they can take today.</li><li><b>Close (15 sec):</b> Summarise the message in one sentence, offer a brief dua, and end with salawat.</li></ol></div>
  <div class="panel speech-points-panel"><h3>سه محور اصلی سخنرانی</h3><ol class="hint-list">${item.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ol><p><b>Suggested audience action:</b> ${esc(item.action)}</p></div>
  <div class="panel speech-model-panel"><h3>متن نمونهٔ توسعه‌یافته</h3><div class="fa-block model-sample">${item.sample?esc(item.sample):"A complete model speech for this chapter is being prepared. Develop each point above with an explanation and a concrete example."}</div></div>
