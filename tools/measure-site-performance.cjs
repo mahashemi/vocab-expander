@@ -204,7 +204,7 @@ async function measureViewport(name, config) {
       lines.push('| ' + viewport.viewport + ' | ' + sample.scenario + ' | ' +
         (sample.label.toLowerCase().includes('cold') ? 'cold' : 'warm') +
         ' | ' + fmt(sample.fcpMs) + ' | ' + fmt(sample.lcpMs) + ' | ' +
-        fmt(sample.term03RouteReadyMs) + ' | ' + fmt(sample.term03SemanticsReadyMs) + ' | ' +
+        fmt(sample.term03RouteReadyMs) + ' | ' + fmt(sample.term03LastRenderMs) + ' | ' + fmt(sample.term03SemanticsReadyMs) + ' | ' +
         (sample.cls == null ? 'n/a' : sample.cls.toFixed(4)) + ' | ' + fmt(sample.longTaskMs) +
         ' | ' + sample.requestCount + ' | ' + fmt(sample.transferBytes) + ' | ' +
         fmt(sample.scriptTransferBytes) + ' | ' + fmt(sample.cssTransferBytes) + ' | ' +
