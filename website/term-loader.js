@@ -1,12 +1,11 @@
-/* Vocab release 2026-11-21-core-lazy.
-   Term 01/02 core data, all semantic layers, Term 03 data and lesson features
-   are loaded on demand. Newestan additions run after both Term 01 and Term 02
-   core arrays exist, preserving cross-term duplicate checks. */
+/* Vocab release 2026-11-22-order-independent-shared-additions.
+   Term data and features are loaded on demand. Shared Newestan additions run
+   only after all three term arrays exist, preserving cross-term dedup order. */
 (function () {
   "use strict";
 
   window.VOCAB_PORTAL_SUMMARY = Object.freeze({
-    version: "2026-11-21-cross-term-dedup01",
+    version: "2026-11-22-cross-term-dedup02",
     1: 762,
     2: 1107,
     3: 2161
@@ -108,7 +107,6 @@
   let term03SemanticsPromise = null;
   let sharedTermAdditionsPromise = null;
   let allTermCorePromise = null;
-  const sharedTermAdditionsAppliedTerms = new Set();
 
   // Dynamic scripts with async=false execute in insertion order. Insert an entire
   // dependency-ordered batch immediately so the browser can fetch files in parallel
@@ -153,35 +151,23 @@
     return coreTermsPromise;
   }
 
-  async function loadSharedTermAdditions(term) {
-    // These source-backed additions can target any term. Replay after each term's
-    // data arrives so later terms receive their own rows without preloading them.
-    await loadScriptsInOrder(sharedTermAdditions, true, "term-" + term);
+  async function loadSharedTermAdditions() {
+    // These source-backed additions may target any term. Wait until all three
+    // canonical term arrays exist so duplicate resolution is independent of
+    // which term the learner happened to open first.
+    await loadScriptsInOrder(sharedTermAdditions, true, "terms-1-2-3");
     if (typeof window.__refreshVocabBooks === "function") window.__refreshVocabBooks();
   }
 
   async function ensureSharedTermAdditions() {
-    if (!loadedTerms.has(1) || !loadedTerms.has(2)) return;
+    if (![1, 2, 3].every(term => loadedTerms.has(term))) return;
     if (!sharedTermAdditionsPromise) {
-      sharedTermAdditionsPromise = (async () => {
-        // Wait until both source datasets exist so the shared Newestan additions
-        // can preserve exact cross-term duplicate checks.
-        await loadSharedTermAdditions("terms-1-2");
-        sharedTermAdditionsAppliedTerms.add(1);
-        sharedTermAdditionsAppliedTerms.add(2);
-        if (loadedTerms.has(3)) sharedTermAdditionsAppliedTerms.add(3);
-      })().catch(error => {
+      sharedTermAdditionsPromise = loadSharedTermAdditions().catch(error => {
         sharedTermAdditionsPromise = null;
         throw error;
       });
     }
     return sharedTermAdditionsPromise;
-  }
-
-  async function ensureLateTermAdditions(term) {
-    if (Number(term) !== 3 || !loadedTerms.has(1) || !loadedTerms.has(2) || sharedTermAdditionsAppliedTerms.has(3)) return;
-    await loadSharedTermAdditions(3);
-    sharedTermAdditionsAppliedTerms.add(3);
   }
 
   async function ensureSharedSemantics() {
@@ -226,10 +212,7 @@
       }
 
       loadedTerms.add(number);
-      if (loadedTerms.has(1) && loadedTerms.has(2)) {
-        await ensureSharedTermAdditions();
-        await ensureLateTermAdditions(number);
-      }
+      if (loadedTerms.size === 3) await ensureSharedTermAdditions();
       if (window.updateGlobalStats) window.updateGlobalStats();
     })().catch(error => {
       loadedTerms.delete(number);
