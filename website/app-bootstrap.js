@@ -1365,7 +1365,11 @@ let speechDrafts=readLocal(speechStoreKey),speechCh=20;
 function printCurrent(){document.body.classList.add("printing");window.onafterprint=()=>document.body.classList.remove("printing")}
 function essays(){
  const picker=document.getElementById("newestanLesson");
- const lesson=window.__vocabRouteLesson||(picker?Number(picker.value):undefined);
+ // A live selector is newer than the route value used to render the page.
+ // Prefer it on re-render so choosing another lesson cannot snap back to the
+ // deep-linked lesson that was active when Newestan first opened.
+ const pickerLesson=picker?Number(picker.value):NaN;
+ const lesson=Number.isInteger(pickerLesson)&&pickerLesson>0?pickerLesson:window.__vocabRouteLesson;
  if(lesson)window.__vocabRouteLesson=lesson;
  if(activeTerm===1||activeTerm===2){v.innerHTML=window.renderNewestanTerm1(lesson);window.bindNewestanWorkshop();return}
  if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3(lesson);window.bindNewestanTerm3();return}
@@ -1377,10 +1381,6 @@ function speeches(){
  v.innerHTML=`<section class="writing-wrap">
  <div class="speech-hero no-print"><div class="mut">TERM 0${activeTerm||3} · FARSI UMOOMI · SUKHANRANI</div><h2>سخنرانی پنج‌دقیقه‌ای</h2><p>موضوع هر فصل را به یک پیام روشن، یک آیهٔ مرتبط و یک اقدام عملی برای زندگی روزمره پیوند دهید.</p><p>Prepare one short talk connected to each FA chapter. Use the verse as the central anchor, then explain its meaning and connect it to the chapter and daily life. Do not merely recite the verse.</p>
  <div class="row speech-selector"><label for="speechChapter">انتخاب فصل فارسی عمومی</label><select id="speechChapter">${speechRows.map(x=>`<option value="${x.ch}" ${x.ch===speechCh?"selected":""}>FA ${String(x.ch).padStart(2,"0")} · ${esc(x.title)}</option>`).join("")}</select></div></div>
- <div class="panel speech-verse-panel"><div class="mut">FA CHAPTER ${item.ch}</div><h2 class="fa-block">${esc(item.title)}</h2><h3 class="fa-block">${esc(item.topic)}</h3>
- <div class="fa-block" style="font-size:24px;margin:14px 0">${esc(item.arabic)}</div><b>Qur'anic anchor: ${quranVerseLink(item.verse)}</b><p class="fa-block">${esc(item.meaning)}</p>
- <p class="mut">Check the verse in your own Mushaf/tafsir before quoting it publicly; this page gives the reference and a concise working translation.</p>
- </div>
  <div class="panel speech-timing-panel" aria-label="Speech structure, five minutes"><h3>ساختار پنج دقیقه‌ای سخنرانی</h3>
  <div class="speech-structure-tiles" aria-label="Five-minute speech stages">
  <div class="speech-structure-tile"><b>Opening</b><strong>30 sec</strong><span>Khutba, salawat and greeting</span></div>
@@ -1390,6 +1390,10 @@ function speeches(){
  <div class="speech-structure-tile"><b>Conclusion</b><strong>15 sec</strong><span>Summary, dua and salawat</span></div>
  </div>
  <ol class="hint-list"><li><b>Khudba / opening (30 sec):</b> Begin with بسم الله الرحمن الرحیم, حمد خدا, صلوات بر محمد و آل محمد, then greet the audience and announce the topic.</li><li><b>Connect to the ayah (60 sec):</b> Recite the verse accurately, name the surah and ayah, give its meaning, and explain why it relates to the topic.</li><li><b>Develop the message (2 min 30 sec):</b> Explain the three pointers below. Give one concrete example rather than repeating general statements.</li><li><b>Practical application (45 sec):</b> Give the audience one action they can take today.</li><li><b>Close (15 sec):</b> Summarise the message in one sentence, offer a brief dua, and end with salawat.</li></ol></div>
+ <div class="panel speech-verse-panel"><div class="mut">FA CHAPTER ${item.ch}</div><h2 class="fa-block">${esc(item.title)}</h2><h3 class="fa-block">${esc(item.topic)}</h3>
+ <div class="fa-block" style="font-size:24px;margin:14px 0">${esc(item.arabic)}</div><b>Qur'anic anchor: ${quranVerseLink(item.verse)}</b><p class="fa-block">${esc(item.meaning)}</p>
+ <p class="mut">Check the verse in your own Mushaf/tafsir before quoting it publicly; this page gives the reference and a concise working translation.</p>
+ </div>
  <div class="panel speech-points-panel"><h3>سه محور اصلی سخنرانی</h3><ol class="hint-list">${item.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ol><p><b>Suggested audience action:</b> ${esc(item.action)}</p></div>
  <div class="panel speech-model-panel"><h3>متن نمونهٔ توسعه‌یافته</h3><div class="fa-block model-sample">${item.sample?esc(item.sample):"A complete model speech for this chapter is being prepared. Develop each point above with an explanation and a concrete example."}</div></div>
  <div class="panel speech-editor-panel"><h3>طرح سخنرانی خودتان را آماده کنید</h3>
