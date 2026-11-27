@@ -359,16 +359,19 @@ async function waitFor(page, expression, label) {
 
     const assertFixtureSearch = async (query, expectedLabel, label) => {
       await page.locator('#globalSearchInput').fill(query);
-      await waitFor(page, 'document.querySelectorAll(".global-search-result").length > 0', label);
+      await page.waitForFunction(({query, expectedLabel}) => {
+        const input = document.querySelector('#globalSearchInput');
+        const meta = document.querySelector('#globalSearchMeta');
+        const results = [...document.querySelectorAll('.global-search-result')];
+        return input?.value === query && meta && !meta.textContent.includes('Loading') &&
+          results.some(node => node.textContent.includes(expectedLabel));
+      }, {query, expectedLabel}, {timeout:120000});
       const match = await page.locator('.global-search-result').filter({hasText: expectedLabel}).count();
       if (!match) throw new Error('Global search did not find ' + label + ' for query "' + query + '".');
+      console.log('PASS: ' + label);
     };
     for (const label of ['عبارت آزمایشی ویژه', 'واژهٔ آزمایش دوم', 'واژهٔ آزمایش سوم']) {
-      await page.locator('#globalSearchInput').fill('cross-term-search-fixture');
-      await waitFor(page, 'document.querySelectorAll(".global-search-result").length >= 3', 'global search finds the shared phrase fixture across all three terms');
-      if (!(await page.locator('.global-search-result').filter({hasText: label}).count())) {
-        throw new Error('Cross-term global search omitted fixture: ' + label);
-      }
+      await assertFixtureSearch('cross-term-search-fixture', label, 'cross-term search finds ' + label);
     }
     const fieldChecks = [
       ['accepted-form-fixture','عبارت آزمایشی ویژه','accepted spelling'],
