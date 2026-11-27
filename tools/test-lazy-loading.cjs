@@ -140,6 +140,11 @@ async function waitFor(page, expression, label) {
     }
     await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && !document.documentElement.classList.contains("route-boot") && location.hash === "#/term/3/fa/chapter/1" && document.querySelector(".term-welcome")', 'hard refresh restores the exact Term 03 chapter route');
     await waitFor(page, 'window.TERM03_SEMANTICS_READY === true', 'Term 03 supplementary semantics load after the first route render');
+    const semanticBatchRequests = await page.evaluate(() => performance.getEntriesByType('resource').filter(entry => /term03-additional-semantics-(?:bundle|\\d+)\\.js(?:\\?|$)/.test(entry.name)).map(entry => entry.name));
+    if (semanticBatchRequests.length !== 1 || !semanticBatchRequests[0].includes('term03-additional-semantics-bundle.js')) {
+      throw new Error('Term 03 semantic enrichment must use exactly one bundled request; got ' + semanticBatchRequests.length);
+    }
+    console.log('PASS: 46 supplementary semantic batches are delivered in one lazy request');
     const dedupAudit = await page.evaluate(() => window.TERM03_DEDUP_AUDIT);
     if (!dedupAudit || dedupAudit.expectedAfter !== dedupAudit.after || dedupAudit.after !== dedupAudit.actualBefore - dedupAudit.approvedMerges - dedupAudit.decisionMerges || dedupAudit.missing.length || dedupAudit.duplicateIds.length || dedupAudit.duplicateHeadwordPos.length || dedupAudit.missingSemantics.length || dedupAudit.sourceLoss.length) {
       throw new Error('Term 03 deduplication audit is inconsistent: ' + JSON.stringify(dedupAudit));
