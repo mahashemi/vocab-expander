@@ -305,6 +305,33 @@ async function waitFor(page, expression, label) {
     console.log('PASS: Terms 02 and 03 show speech structure before the Qur’anic section');
 
     await page.goto(target, { waitUntil: 'load', timeout: 120000 });
+    await page.evaluate(async () => {
+      await window.ensureAllTermsLoaded();
+      const shared = {
+        unit: 98,
+        source: 'TEST-SEARCH-ONLY',
+        fa: 'عبارت آزمایشی ویژه',
+        tr: 'azmāyesh-vizhe',
+        en: 'cross-term-search-fixture',
+        pos: 'test fixture',
+        ex: ['نمونهٔ فارسی', 'persian-example-fixture', 'english-example-fixture'],
+        acceptedForms: ['accepted-form-fixture'],
+        aliases: ['alias-fixture'],
+        variants: ['variant-fixture'],
+        synonyms: ['synonym-fixture'],
+        extraExamples: [{fa:'نمونهٔ اضافی', transliteration:'extra-transliteration-fixture', en:'extra-example-fixture'}],
+        extraNotes: ['extra-note-fixture'],
+        note: 'note-field-fixture',
+        ms: 'masdar-form-fixture',
+        amr: 'imperative-form-fixture',
+        m: ['masdar-persian-fixture', 'masdar-transliteration-fixture', 'masdar-example-fixture'],
+        a: ['imperative-persian-fixture', 'imperative-transliteration-fixture', 'imperative-example-fixture'],
+        sem: {faMeaning:'persian-semantic-fixture', enMeaning:'english-semantic-fixture', arMeaning:'arabic-semantic-fixture'}
+      };
+      window.TERM1_DATA.push({...shared});
+      window.TERM2_DATA.push({...shared, unit: 98, fa: 'واژهٔ آزمایش دوم', tr: 'azmāyesh dovom'});
+      window.TERM3_DATA.push({...shared, unit: 98, fa: 'واژهٔ آزمایش سوم', tr: 'azmāyesh sevom'});
+    });
     await page.evaluate(() => localStorage.removeItem('vocab_expander_global_search_index_v1'));
     await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
     await page.locator('#globalSearchInput').fill('کتاب');
@@ -329,6 +356,48 @@ async function waitFor(page, expression, label) {
     const searchIndexInvalidated = await page.evaluate(() => window.__getGlobalSearchDiagnostics());
     if (searchIndexInvalidated.built !== 1 || searchIndexInvalidated.restored !== 0 || !searchIndexInvalidated.persisted) throw new Error('Global search failed to invalidate a stale version: ' + JSON.stringify(searchIndexInvalidated));
     console.log('PASS: global search builds once, persists across refresh, and invalidates stale versions');
+
+    const assertFixtureSearch = async (query, expectedLabel, label) => {
+      await page.locator('#globalSearchInput').fill(query);
+      await page.waitForFunction(({query, expectedLabel}) => {
+        const input = document.querySelector('#globalSearchInput');
+        const meta = document.querySelector('#globalSearchMeta');
+        const results = [...document.querySelectorAll('.global-search-result')];
+        return input?.value === query && meta && !meta.textContent.includes('Loading') &&
+          results.some(node => node.textContent.includes(expectedLabel));
+      }, {query, expectedLabel}, {timeout:120000});
+      const match = await page.locator('.global-search-result').filter({hasText: expectedLabel}).count();
+      if (!match) throw new Error('Global search did not find ' + label + ' for query "' + query + '".');
+      console.log('PASS: ' + label);
+    };
+    for (const label of ['عبارت آزمایشی ویژه', 'واژهٔ آزمایش دوم', 'واژهٔ آزمایش سوم']) {
+      await assertFixtureSearch('cross-term-search-fixture', label, 'cross-term search finds ' + label);
+    }
+    const fieldChecks = [
+      ['accepted-form-fixture','عبارت آزمایشی ویژه','accepted spelling'],
+      ['alias-fixture','عبارت آزمایشی ویژه','alias'],
+      ['variant-fixture','عبارت آزمایشی ویژه','spelling variant'],
+      ['synonym-fixture','عبارت آزمایشی ویژه','synonym'],
+      ['persian-example-fixture','عبارت آزمایشی ویژه','Persian example'],
+      ['extra-transliteration-fixture','عبارت آزمایشی ویژه','additional example transliteration'],
+      ['english-example-fixture','عبارت آزمایشی ویژه','English example'],
+      ['extra-example-fixture','عبارت آزمایشی ویژه','additional example'],
+      ['extra-note-fixture','عبارت آزمایشی ویژه','additional note'],
+      ['note-field-fixture','عبارت آزمایشی ویژه','note'],
+      ['masdar-form-fixture','عبارت آزمایشی ویژه','masdar form'],
+      ['imperative-form-fixture','عبارت آزمایشی ویژه','imperative form'],
+      ['masdar-example-fixture','عبارت آزمایشی ویژه','masdar example'],
+      ['imperative-example-fixture','عبارت آزمایشی ویژه','imperative example'],
+      ['arabic-semantic-fixture','عبارت آزمایشی ویژه','Arabic semantic meaning'],
+      ['persian-semantic-fixture','عبارت آزمایشی ویژه','Persian semantic meaning'],
+      ['english-semantic-fixture','عبارت آزمایشی ویژه','English semantic meaning'],
+      ['azmāyesh-vizhe','عبارت آزمایشی ویژه','transliteration']
+    ];
+    for (const [query, label, description] of fieldChecks) {
+      await assertFixtureSearch(query, label, 'global search indexes ' + description);
+    }
+    await assertFixtureSearch('عبارت آزمایشی ویژه','عبارت آزمایشی ویژه','global search indexes a multiword Persian phrase');
+    console.log('PASS: global search covers phrases, cross-term records, aliases, variants, examples, notes, verb forms and trilingual semantic fields');
 
     await page.goto(target, { waitUntil: 'load', timeout: 120000 });
     await page.waitForSelector('[data-open-verbs]', { state: 'visible', timeout: 60000 });

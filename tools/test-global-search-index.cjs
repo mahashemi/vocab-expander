@@ -13,17 +13,19 @@ for(const marker of [
  "x.variants,x.synonyms,x.xf,x.xt,x.xe",
  "x.extraExamples,x.extraNotes",
  "x.m,x.a,x.note,x.ms,x.amr,x.units",
- "_hay:normalize(searchableFields(x.record||{}).concat([x.label,x.tr,x.meaning,x.forms,x.source]).join(\" \"))",
+ "function makeSearchRow(kind,record)",
+ "searchableFields(record).concat([label,tr,meaning,forms,source])",
  "payload.version===version",
  "payload.fingerprint===fingerprint",
  "localStorage.getItem(SEARCH_INDEX_STORAGE_KEY)",
  "localStorage.setItem(SEARCH_INDEX_STORAGE_KEY,serialized)",
  "recordMap.get(x.kind+\"|\"+x.bk+\"|\"+x.id)",
+ "rows:cachedSearchIndex.map(({kind,bk,id})=>({kind,bk,id}))",
  "SEARCH_INDEX_MAX_STORAGE_CHARS",
  "searchIndexRestores",
  "window.__getGlobalSearchDiagnostics"
 ])assert(portal.includes(marker),"Persistent search index is missing "+marker);
 assert(loader.includes("window.VOCAB_DATA_VERSION = assetVersion"),"Term loader must publish the data version");
-assert(html.includes("term-portal.js?v=20261127-complete-search-field-coverage"),"Search code cache key must be versioned");
+assert(html.includes("term-portal.js?v=20261127-compact-persistent-search-index"),"Search code cache key must be versioned");
 assert(html.includes("term-loader.js?v=20261127-persistent-global-search-index"),"Data version cache key must be versioned");
-console.log("PASS: versioned search-index cache, content fingerprint, record reattachment and asset-version contract are present.");
+console.log("PASS: compact versioned search-index cache, complete content fingerprint, record reattachment and asset-version contract are present.");
