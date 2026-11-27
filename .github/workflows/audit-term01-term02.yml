@@ -23,11 +23,15 @@ on:
       - "tools/performance-budgets.cjs"
       - "tools/check-performance-budgets.cjs"
       - "tools/test-performance-budgets.cjs"
+      - "tools/audit-newestan-all-terms.cjs"
+      - "reports/newestan-all-terms-source-crosswalk-2026-11-27.md"
       - "website/learning/**"
       - "tools/test-learning-*.cjs"
       - "tools/performance-budgets.cjs"
       - "tools/check-performance-budgets.cjs"
       - "tools/test-performance-budgets.cjs"
+      - "tools/audit-newestan-all-terms.cjs"
+      - "reports/newestan-all-terms-source-crosswalk-2026-11-27.md"
       - ".github/workflows/audit-term01-term02.yml"
   pull_request:
     branches: [main]
@@ -51,6 +55,8 @@ on:
       - "tools/performance-budgets.cjs"
       - "tools/check-performance-budgets.cjs"
       - "tools/test-performance-budgets.cjs"
+      - "tools/audit-newestan-all-terms.cjs"
+      - "reports/newestan-all-terms-source-crosswalk-2026-11-27.md"
       - ".github/workflows/audit-term01-term02.yml"
   workflow_dispatch:
 
@@ -79,6 +85,7 @@ jobs:
           node --check tools/performance-budgets.cjs
           node --check tools/check-performance-budgets.cjs
           node --check tools/test-performance-budgets.cjs
+          node --check tools/audit-newestan-all-terms.cjs
           for file in website/learning/*.js tools/test-learning-*.cjs; do node --check "$file"; done
           for file in website/learning/*.js tools/test-learning-*.cjs; do node --check "$file"; done
 
@@ -105,6 +112,7 @@ jobs:
           node tools/test-learning-meaning.cjs
           node tools/test-learning-review.cjs
           node tools/test-performance-budgets.cjs
+          node tools/audit-newestan-all-terms.cjs
           node tools/test-learning-imla-diagnostics.cjs
 
       - name: Run Term 01 audit
