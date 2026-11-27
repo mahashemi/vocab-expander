@@ -65,7 +65,11 @@
   if(row.xf||row.xt||row.xe)add([row.xf,row.xt,row.xe]);
   add(row.ex);add(row.m);add(row.a);
   (Array.isArray(row.extraExamples)?row.extraExamples:[]).forEach(add);
-  return out;
+  const seen=new Set();
+  return out.filter(item=>{
+   const key=[item.fa,item.transliteration,item.en].join("|");
+   if(seen.has(key))return false;seen.add(key);return true;
+  });
  }
  function mergeGroup(target,source){
   target.legacyIds=unique([...target.legacyIds,...source.legacyIds]);
