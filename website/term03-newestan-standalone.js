@@ -23,7 +23,7 @@
    ? '<div class="newestan-model-section"><b>Research topics · موضوع‌های تحقیق</b><ol class="newestan-support">'+(rec.exampleResearchTopics||[]).map(x=>'<li><div class="fa-block">'+escText(x.fa)+'</div><div class="mut">'+escText(x.en)+'</div></li>').join("")+'</ol><p class="mut">This lesson teaches research-project writing, not an ordinary essay prompt.</p></div>'
    : '<div class="newestan-model-section"><b>Textbook exercise · تمرین واقعی درس</b><ol class="newestan-support">'+(rec.topics||[]).map(x=>'<li><div class="fa-block">'+escText(x.fa)+'</div><div class="mut">'+escText(x.en)+'</div></li>').join("")+'</ol></div>';
   const skill=teach.skill?'<div class="newestan-model-section"><b>Writing skill from Biyāmozīm · مهارت نوشتاری</b><p>'+escText(teach.skill)+'</p></div>':'';
-  const languageLesson=window.renderNewestanLanguageLesson?window.renderNewestanLanguageLesson(3,selected):"";
+  const languageLesson=window.renderNewestanLanguageLesson?window.renderNewestanLanguageLesson(3,selected):"";\n  const chapterGuide=window.renderNewestanChapterGuide?window.renderNewestanChapterGuide(selected):"";
   const bilingual=teach.bilingual?'<div class="newestan-model-section"><b>Understand the lesson · شرح الدرس بالعربية</b><p>'+escText(teach.bilingual.en)+'</p><p class="fa-block" dir="rtl" style="text-align:right">'+escText(teach.bilingual.ar)+'</p></div>':'';
   const subs=teach.subtopics?'<div class="newestan-model-section"><b>Suggested supporting subtopics · ریزموضوع‌ها</b><ol class="newestan-support">'+teach.subtopics.map(x=>'<li class="fa-block">'+escText(x)+'</li>').join("")+'</ol><p class="mut">These are developed study suggestions, not a verbatim textbook list.</p></div>':'';
   const steps=teach.steps?'<div class="newestan-model-section"><b>Writing steps · روش نگارش</b><ol class="newestan-support">'+teach.steps.map(x=>'<li>'+escText(x)+'</li>').join("")+'</ol></div>':'';
@@ -57,7 +57,7 @@
    '<p class="mut">'+escText(fm.sourceNote||"")+'</p></div></details>':'';
   return '<section class="writing-wrap"><div class="mut">TERM 03 · NEWESTAN · INDEPENDENT WRITING CURRICULUM</div><h2>کارگاه نوشتن · Term 03</h2><p>Choose a Newestan lesson. This selector and its exercises are independent of Farsi Umumi (FA) chapters.</p>'+
    '<section class="panel newestan-workshop"><div class="mut">NEWESTAN · '+lesson+' · '+escText(rec.source)+'</div><div class="newestan-lesson-picker"><div class="newestan-picker-copy"><span class="newestan-picker-kicker">YOUR LEARNING PATH</span><label for="newestanLesson">Choose a Newestan lesson <span>انتخاب درس نیوستان</span></label><small>Select a lesson to open its teaching notes, language tools and writing practice.</small></div><select id="newestanLesson" aria-label="Choose a Newestan lesson">'+options+'</select></div><h2>'+escText(titles[lesson])+'</h2><p class="mut">'+escText(rec.note||"")+'</p>'+
-   prompts+skill+languageLesson+bilingual+subs+steps+timeline+connectors+model+internetModel+rubric+examNote+research+sourceNote+
+   prompts+skill+languageLesson+chapterGuide+bilingual+subs+steps+timeline+connectors+model+internetModel+rubric+examNote+research+sourceNote+
    '<div class="newestan-model-section"><b>Your own writing · تمرین شما</b><textarea id="newestanDraft" class="essay-draft" placeholder="مقدمه، بند اول، بند دوم و نتیجه را بنویسید...">'+escText(draft)+'</textarea><div class="mut" id="newestanDraftSaved">Your draft is saved locally in this browser.</div></div></section>'+
    '<div class="row no-print"><button class="pri" id="printNewestanLesson">Print this lesson</button></div></section>';
  };
@@ -71,7 +71,7 @@
    const status=document.getElementById("newestanDraftSaved");
    if(status)status.textContent="Saved locally · "+new Date().toLocaleTimeString();
   };
-  if(window.bindNewestanRubric)window.bindNewestanRubric(3,selected);
+  if(window.bindNewestanRubric)window.bindNewestanRubric(3,selected);\n  if(window.bindNewestanChapterGuide)window.bindNewestanChapterGuide();
   if(typeof attachVocabularyLinks==="function"){const scope=document.querySelector(".writing-wrap");if(scope)attachVocabularyLinks(scope)}
   const print=document.getElementById("printNewestanLesson");if(print)print.onclick=printCurrent;
  };
