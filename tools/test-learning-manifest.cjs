@@ -39,6 +39,14 @@ assert.equal(allPractice.filter(x=>x.fa==="کتاب").length,2,"all-term practic
 assert.equal(allPractice.filter(x=>x.fa==="تماس گرفتن").length,1,"same compound verb is not duplicated across terms");
 assert.equal(VocabLearningManifest.selectPracticeRows(rows,built.aliasIndex,1).filter(x=>x.fa==="کتاب").length,1);
 assert.equal(VocabLearningManifest.selectPracticeRows(rows,built.aliasIndex,2).filter(x=>x.fa==="کتاب").length,1);
+const sameLegacyDifferentSenses=[
+ {id:"shared-legacy",bk:1,ch:1,fa:"کتاب",en:"book",pos:"اسم"},
+ {id:"shared-legacy",bk:2,ch:2,fa:"کتاب",en:"volume",pos:"اسم"}
+];
+const ambiguousSenseManifest=VocabLearningManifest.build(sameLegacyDifferentSenses);
+assert.equal(VocabLearningIdentity.resolveLegacyId(ambiguousSenseManifest.aliasIndex,"shared-legacy").status,"ambiguous");
+assert.equal(VocabLearningManifest.selectPracticeRows(sameLegacyDifferentSenses,ambiguousSenseManifest.aliasIndex,"all").length,2,"ambiguous source IDs must never merge different senses in the practice queue");
+assert.ok(ambiguousSenseManifest.manifest.items.every(item=>sameLegacyDifferentSenses.some(row=>VocabLearningManifest.identityForRow(row)===item.itemId)));
 const reordered=VocabLearningManifest.build(rows.slice().reverse());
 assert.deepEqual(reordered.manifest.items.map(x=>x.itemId),built.manifest.items.map(x=>x.itemId),"canonical IDs must not depend on row order");
 assert.equal(JSON.stringify(rows),before,"manifest builder must not mutate source rows");
@@ -61,5 +69,6 @@ assert.equal(duplicateRow.manifest.items[0].occurrences.length,2);
 const schoolSource=fs.readFileSync("website/learning/learning-school.js","utf8");
 assert.ok(schoolSource.includes('priorId.startsWith("vocab:source:")'),"saved source-specific item IDs must be resolved before raw legacy IDs");
 assert.ok(schoolSource.includes('legacyStableKey(String(legacyId||""),String(headword))'),"ambiguous raw legacy IDs must resolve through their source/headword identity");
-assert.ok(schoolSource.includes('canonicalItemId(legacyId,event.itemId,event.fa)'),"history must migrate existing attempts to the current canonical identity");
+assert.ok(schoolSource.includes('canonicalItemId(legacyId,event.itemId)'),"history must migrate existing attempts to the current canonical identity");
+assert.ok(schoolSource.includes('identityForRow(row)'),"ambiguous current rows must resolve using their complete sense identity");
 console.log("PASS: cross-term canonical vocabulary/sense identities, source aggregation, practice de-duplication, legacy progress migration and ambiguous legacy blocking");
