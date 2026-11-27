@@ -72,10 +72,10 @@ for(let term=1;term<=3;term++){
  }
 }
 const ui=fs.readFileSync(path.join(root,"website","newestan-writing-ui.js"),"utf8");
-const order=["Writing skill taught in this lesson","renderNewestanLanguageLesson","Textbook exercise","Supporting subtopics","Writing steps","renderNewestanRubric","Model response"];
+const order=["Writing skill taught in this lesson","renderNewestanLanguageLesson","Textbook exercise","Supporting subtopics","Writing steps","+rubric+","Model response"];
 let previous=-1;
 for(const marker of order){const index=ui.indexOf(marker);assert(index>previous,"Writing workshop order is incomplete or misplaced at "+marker);previous=index;}
 const standalone=fs.readFileSync(path.join(root,"website","term03-newestan-standalone.js"),"utf8");
-for(const marker of ["renderNewestanLanguageLesson","Textbook exercise","Writing skill from Biyāmozīm","researchForm","Writing your own draft"])assert(standalone.includes(marker),"Term 03 standalone is missing "+marker);
+for(const marker of ["renderNewestanLanguageLesson","Textbook exercise","Writing skill from Biyāmozīm","researchForm","Your own writing"])assert(standalone.includes(marker),"Term 03 standalone is missing "+marker);
 assert.equal(rows.length,30);
 console.log(JSON.stringify({status:"PASS",chapters:rows.length,byTerm:[1,2,3].map(term=>({term,count:rows.filter(x=>x.term===term).length})),sourceOCRFiles:rows.length,sourceLinkedLanguageLessons:rows.length,sourceLinkedWritingTasks:rows.length,completeModelResponses:rows.filter(x=>x.modelReady).length,ocrCautions:rows.filter(x=>x.notes).map(x=>({id:x.id,note:x.notes})),crosswalk:rows.map(x=>({id:x.id,source:x.sourceFile,teaching:x.title,genre:x.genre,prompt:x.prompt,notes:x.notes}))},null,2));
