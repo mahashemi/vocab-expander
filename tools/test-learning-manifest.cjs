@@ -36,6 +36,9 @@ assert.equal(built.manifest.items.find(x=>x.headword==="در نتیجه").kind,"
 assert.equal(built.manifest.items.find(x=>x.headword==="تماس گرفتن").kind,"compound-verb");
 const allPractice=VocabLearningManifest.selectPracticeRows(rows,built.aliasIndex,"all");
 assert.equal(allPractice.filter(x=>x.fa==="کتاب").length,2,"all-term practice shows one card per canonical sense");
+const sharedPracticeBook=allPractice.find(x=>x.fa==="کتاب"&&x.en==="book");
+assert.ok(sharedPracticeBook.sources.includes("FA1-01")&&sharedPracticeBook.sources.includes("FA2-02"),"one practice card retains all source contexts");
+assert.ok(sharedPracticeBook.acceptedForms.includes("کتاب‌ها"),"one practice card retains accepted forms from every occurrence");
 assert.equal(allPractice.filter(x=>x.fa==="تماس گرفتن").length,1,"same compound verb is not duplicated across terms");
 assert.equal(VocabLearningManifest.selectPracticeRows(rows,built.aliasIndex,1).filter(x=>x.fa==="کتاب").length,1);
 assert.equal(VocabLearningManifest.selectPracticeRows(rows,built.aliasIndex,2).filter(x=>x.fa==="کتاب").length,1);
