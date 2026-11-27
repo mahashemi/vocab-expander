@@ -142,7 +142,8 @@ async function measureViewport(name, config) {
     const termRoutes = {};
     for (const term of [1, 2, 3]) {
       await cdp.send('Network.clearBrowserCache');
-      const routeUrl = target + '?route-test=deep-link&term=' + term + '#/term/' + term + '/fa/chapter/1';
+      const routeName = term === 3 ? 'fa' : 'study';
+      const routeUrl = target + '?route-test=deep-link&term=' + term + '#/term/' + term + '/' + routeName + '/chapter/1';
       const coldRoute = await capture(name + ' Term 0' + term + ' deep-route cold cache', true, routeUrl, '.term-welcome', term);
       const warmRoute = await capture(name + ' Term 0' + term + ' deep-route warm refresh', false, routeUrl, '.term-welcome', term);
       termRoutes[term] = { cold: coldRoute, warm: warmRoute };
