@@ -1306,11 +1306,13 @@ function ensureVocabularyModal(scope){
   modal.hidden=true;modal.setAttribute('aria-hidden','true');document.body.style.overflow=previousOverflow;
   if(returnFocus&&returnFocus.isConnected)returnFocus.focus();
  };
- scope.querySelectorAll('[data-vocab-id]').forEach(btn=>btn.addEventListener('click',()=>{
-  current=all().find(i=>i.id===btn.dataset.vocabId)||null;if(!current)return;
-  returnFocus=btn;previousOverflow=document.body.style.overflow;revealed=false;render();
+ window.openSharedVocabularyCard=(id,trigger)=>{
+  current=all().find(i=>String(i.id)===String(id))||null;if(!current)return false;
+  returnFocus=trigger||document.activeElement;previousOverflow=document.body.style.overflow;revealed=false;render();
   modal.hidden=false;modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';closeButton.focus();
- }));
+  return true;
+ };
+ scope.querySelectorAll('[data-vocab-id]').forEach(btn=>btn.addEventListener('click',()=>window.openSharedVocabularyCard(btn.dataset.vocabId,btn)));
  modal.onclick=e=>{if(e.target===modal||(e.target.closest&&e.target.closest('[data-vocab-close]')))close()};
  flip.onclick=()=>{revealed=!revealed;render()};
  if(window.__sharedVocabEsc)document.removeEventListener('keydown',window.__sharedVocabEsc);
@@ -1326,6 +1328,7 @@ function ensureVocabularyModal(scope){
  };
  document.addEventListener('keydown',window.__sharedVocabEsc);
 }
+window.ensureSharedVocabularyModal=()=>ensureVocabularyModal(document.createElement("div"));
 function khulasa(){
  if(activeTerm===1){v.innerHTML='<section class="writing-wrap"><h2>خلاصه‌نویسی · Term 01</h2><p>خلاصه‌های Term 01 پس از تکمیل بازبینی متن‌های منبع و پیوند واژگان آماده خواهند شد.</p></section>';return}
  const term=activeTerm===2?2:3;
