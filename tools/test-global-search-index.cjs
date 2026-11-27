@@ -18,7 +18,7 @@ for(const marker of [
  "payload.fingerprint===fingerprint",
  "localStorage.getItem(SEARCH_INDEX_STORAGE_KEY)",
  "localStorage.setItem(SEARCH_INDEX_STORAGE_KEY,serialized)",
- "recordMap.get(x.kind+\"|\"+x.bk+\"|\"+x.id)",
+ "recordMap.get(x.kind+\"|\"+x.bk+\"|\"+x.id)",\n "function makeSearchRow(kind,record)",\n "rows:cachedSearchIndex.map(({kind,bk,id})=>({kind,bk,id}))",
  "SEARCH_INDEX_MAX_STORAGE_CHARS",
  "searchIndexRestores",
  "window.__getGlobalSearchDiagnostics"
