@@ -41,9 +41,13 @@
   return canonicalRows.filter(x=>selected&&selected.eligible(x,mode==="meaning-recall"?{language:meaningLanguage}:{}));
  }
  function notebookRows(){
-  const latest=new Map(),byLegacy=new Map(items().map(x=>[String(x.id),x]));
+  const latest=new Map(),byLegacy=new Map();
+  for(const row of items()){
+   const key=String(row.id)+"|"+canonicalItemId(row.id,null,row);
+   byLegacy.set(key,row);
+  }
   for(const event of history()){const key=reviewKey(event.itemId,event.modeId),old=latest.get(key);if(!old||Date.parse(event.occurredAt||0)>=Date.parse(old.occurredAt||0))latest.set(key,event)}
-  return [...latest.values()].filter(event=>!event.correct).map(event=>({event,item:byLegacy.get(String(event.legacyId))})).filter(x=>x.item&&(term==="all"||Number(x.item.bk)===Number(term))).sort((a,b)=>Date.parse(b.event.occurredAt||0)-Date.parse(a.event.occurredAt||0));
+  return [...latest.values()].filter(event=>!event.correct).map(event=>({event,item:byLegacy.get(String(event.legacyId)+"|"+event.itemId)})).filter(x=>x.item&&(term==="all"||Number(x.item.bk)===Number(term))).sort((a,b)=>Date.parse(b.event.occurredAt||0)-Date.parse(a.event.occurredAt||0));
  }
  function stats(){const h=history(),errors=new Map();for(const event of h)if(event.modeId==="imla")for(const type of event.errorTypes||[])errors.set(type,(errors.get(type)||0)+1);const spellingPatterns=[...errors].sort((a,b)=>b[1]-a[1]).slice(0,3);return {attempts:h.length,correct:h.filter(x=>x.correct).length,items:new Set(h.map(x=>x.itemId)).size,mistakes:notebookRows().length,spellingPatterns}}
  function makeQueue(){
