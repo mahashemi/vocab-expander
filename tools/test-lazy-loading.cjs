@@ -306,8 +306,23 @@ async function waitFor(page, expression, label) {
     await page.waitForSelector('#verbSearch', { state: 'visible', timeout: 120000 });
     console.log('PASS: Verb Treasury loads all-term data on demand');
 
+    const learningDiagnostics = [];
+    page.on('pageerror', error => learningDiagnostics.push('pageerror: ' + String(error)));
+    page.on('console', message => { if (message.type() === 'error') learningDiagnostics.push('console: ' + message.text()); });
     await page.goto(target + '#/learning', { waitUntil: 'load', timeout: 120000 });
-    await page.waitForSelector('.learning-school', { timeout: 120000 });
+    try {
+      await page.waitForSelector('.learning-school', { timeout: 30000 });
+    } catch (error) {
+      const state = await page.evaluate(() => ({
+        hash: location.hash,
+        learningSchool: typeof window.learningSchool,
+        ensureLearningSchool: typeof window.ensureLearningSchool,
+        modeRegistry: typeof window.VocabLearningModeRegistry,
+        progressSummary: typeof window.VocabLearningProgressSummary,
+        body: document.body.innerText.slice(-1200)
+      }));
+      throw new Error('Learning School did not mount: ' + JSON.stringify(state) + '; diagnostics: ' + learningDiagnostics.join(' | ') + '; ' + String(error));
+    }
     await waitFor(page, 'typeof window.VocabImla?.validate === "function" && typeof window.VocabSkipGram?.validate === "function" && typeof window.VocabReviewScheduler?.evaluate === "function" && typeof window.VocabMeaningRecall?.validate === "function" && typeof window.VocabLearningModeRegistry?.create === "function" && typeof window.VocabLearningProgressSummary?.build === "function" && typeof window.__getAllVocabRows === "function"', 'Learning School and independent Imla/Skip-gram modules load on demand');
     const manifestStatus = await page.evaluate(() => {
       const built = window.VocabLearningManifest.build(window.__getAllVocabRows());
