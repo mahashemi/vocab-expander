@@ -352,7 +352,8 @@ async function waitFor(page, expression, label) {
     await page.locator('#sharedVocabFlip').click();
     await waitFor(page, 'document.querySelector("#sharedVocabCard .meaning-en")?.textContent.trim().length > 0', 'Learning School opens the shared trilingual vocabulary card');
     await page.keyboard.press('Escape');
-    await page.waitForSelector('#sharedVocabModal[aria-hidden="true"]', { timeout: 10000 });
+    await page.locator("#sharedVocabModal").waitFor({ state: "hidden", timeout: 10000 });
+    if (await page.locator("#sharedVocabModal").getAttribute("aria-hidden") !== "true") throw new Error("Escape must close the shared vocabulary card and set aria-hidden=true.");
 
     await page.locator('[data-mode="skip-gram"]').click();
     const skipTarget = await page.evaluate(() => window.__getAllVocabRows().find(item => item.bk === 1 && window.VocabSkipGram.eligible(item))?.fa);
