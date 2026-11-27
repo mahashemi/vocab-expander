@@ -103,6 +103,7 @@ assert(index.includes("if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3
 const term03Ui=require("node:fs").readFileSync(path.join(__dirname,"../website/term03-newestan-standalone.js"),"utf8");
 const term12Ui=require("node:fs").readFileSync(path.join(__dirname,"../website/newestan-writing-ui.js"),"utf8");
 assert(term03Ui.includes("newestan-lesson-picker")&&term12Ui.includes("newestan-lesson-picker"),"All Newestan terms must use the prominent lesson navigator");
+assert(term03Ui.includes("renderNewestanChapterGuide(selected)")&&term03Ui.includes("bindNewestanChapterGuide()"),"Term 03 chapter outcomes and formative practice must be rendered and bound");
 assert(term03Ui.includes("attachVocabularyLinks(scope)")&&term12Ui.includes("attachVocabularyLinks(scope)"),"All Newestan model answers must link matching vocabulary to shared flashcards");
 assert(index.includes("function attachVocabularyLinks(scope)"),"Shared exact-match vocabulary linker must be available");
 assert(index.includes("function ensureVocabularyModal(scope)"),"Shared trilingual flashcard modal must be available");
