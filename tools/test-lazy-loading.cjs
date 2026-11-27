@@ -308,7 +308,7 @@ async function waitFor(page, expression, label) {
 
     await page.goto(target + '#/learning', { waitUntil: 'load', timeout: 120000 });
     await page.waitForSelector('.learning-school', { timeout: 120000 });
-    await waitFor(page, 'typeof window.VocabImla?.validate === "function" && typeof window.VocabSkipGram?.validate === "function" && typeof window.VocabReviewScheduler?.evaluate === "function" && typeof window.VocabMeaningRecall?.validate === "function" && typeof window.__getAllVocabRows === "function"', 'Learning School and independent Imla/Skip-gram modules load on demand');
+    await waitFor(page, 'typeof window.VocabImla?.validate === "function" && typeof window.VocabSkipGram?.validate === "function" && typeof window.VocabReviewScheduler?.evaluate === "function" && typeof window.VocabMeaningRecall?.validate === "function" && typeof window.VocabLearningModeRegistry?.create === "function" && typeof window.VocabLearningProgressSummary?.build === "function" && typeof window.__getAllVocabRows === "function"', 'Learning School and independent Imla/Skip-gram modules load on demand');
     const manifestStatus = await page.evaluate(() => {
       const built = window.VocabLearningManifest.build(window.__getAllVocabRows());
       return {valid: built.validation.valid, errors: built.validation.errors, count: built.stats.indexedItems, ambiguous: built.stats.ambiguousAliases};
@@ -317,6 +317,7 @@ async function waitFor(page, expression, label) {
       throw new Error('Canonical source identity manifest is invalid or incomplete: ' + JSON.stringify(manifestStatus));
     }
     console.log('PASS: canonical manifest indexes all term records with no ambiguous legacy IDs (' + manifestStatus.count + ')');
+    if (await page.locator('.learning-term-card').count() !== 3) throw new Error('Cross-term practice summary must show all three terms.');
     await page.locator('#learningTerm').selectOption('1');
     const imlaTarget = await page.evaluate(() => window.__getAllVocabRows().find(item => item.bk === 1 && window.VocabImla.eligible(item))?.fa);
     if (!imlaTarget) throw new Error('No eligible Term 01 Imla sample was found.');
@@ -324,6 +325,12 @@ async function waitFor(page, expression, label) {
     await page.locator('#learningCheck').click();
     await page.waitForSelector('.learning-feedback.correct', { timeout: 10000 });
     console.log('PASS: Imla accepts a source-backed Term 01 vocabulary answer');
+    await page.locator('#learningVocabCard').click();
+    await page.waitForSelector('#sharedVocabModal[aria-hidden="false"]', { timeout: 10000 });
+    await page.locator('#sharedVocabFlip').click();
+    await waitFor(page, 'document.querySelector("#sharedVocabCard .meaning-en")?.textContent.trim().length > 0', 'Learning School opens the shared trilingual vocabulary card');
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('#sharedVocabModal[aria-hidden="true"]', { timeout: 10000 });
 
     await page.locator('[data-mode="skip-gram"]').click();
     const skipTarget = await page.evaluate(() => window.__getAllVocabRows().find(item => item.bk === 1 && window.VocabSkipGram.eligible(item))?.fa);
