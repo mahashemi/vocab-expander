@@ -11,7 +11,7 @@
     3: 2161
   });
 
-  const assetVersion = "20261122-newestan-route-fix";
+  const assetVersion = "20261127-newestan-chapter-guide";
   const sharedSemanticScript = "semantic-meanings.js";
   const term01CoreScripts = [
     "term01-data.js",
@@ -92,6 +92,7 @@
       "term03-newestan-insha.js",
       "term03-newestan-teaching.js",
       "term03-newestan-teaching-ui.js",
+      "term03-newestan-chapter-guide.js",
       ...sharedEssayScripts,
       "term03-newestan-standalone.js"
     ]
