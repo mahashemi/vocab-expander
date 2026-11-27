@@ -1,6 +1,7 @@
 (function(root){
  "use strict";
- const unique=values=>[...new Set((values||[]).filter(Boolean).map(x=>String(x)))];
+ const asArray=value=>Array.isArray(value)?value:value==null?[]:[value];
+ const unique=values=>[...new Set(asArray(values).filter(Boolean).map(x=>String(x)))];
  const normalize=value=>String(value||"").normalize("NFKC").toLowerCase()
   .replace(/[يى]/g,"ی").replace(/ك/g,"ک").replace(/[\u064b-\u065f\u0670\u0640]/g,"")
   .replace(/[\u200c\u200d\s]+/g," ").trim();
@@ -89,10 +90,10 @@
   return {
    headword,kind,pos:row.pos||null,meanings,
    acceptedForms:unique(row.acceptedForms),
-   aliases:unique([...(row.aliases||[]),...(row.variants||[]),...(row.synonyms||[])]),
+   aliases:unique([...asArray(row.aliases),...asArray(row.variants),...asArray(row.synonyms)]),
    legacyIds:[String(row.id)],occurrences:[occurrence],
    examples:exampleRecords(row,sources),
-   notes:unique([row.note,row.nt,...(Array.isArray(row.extraNotes)?row.extraNotes:[])]),
+   notes:unique([row.note,row.nt,...asArray(row.extraNotes)]),
    sourceConfidence:sources.length?"source-present":"user-added"
   };
  }
@@ -116,7 +117,7 @@
   for(const row of orderedRows){
    if(!row||!row.fa||!row.id){unmapped.push(row);continue}
    const legacyId=String(row.id),headword=String(row.fa).trim(),kind=kindFor(row,headword);
-   const sources=unique(row.sources||[row.source]);
+   const sources=unique(row.sources?.length?row.sources:[row.source]);
    const normalizedHeadword=normalize(headword);
    const bucketKey=normalizedHeadword+"\u0000"+kind;
    const incoming={pos:row.pos||null,meanings:meaningsFor(row)};
@@ -165,9 +166,9 @@
   const primary=rowQuality(second)>rowQuality(first)?second:first;
   const secondary=primary===first?second:first;
   const merged={...secondary,...primary};
-  merged.sources=unique([...(first.sources||[first.source]),...(second.sources||[second.source])]);
-  for(const field of ["acceptedForms","aliases","variants","synonyms","extraNotes"])merged[field]=unique([...(first[field]||[]),...(second[field]||[])]);
-  merged.extraExamples=[...(first.extraExamples||[]),...(second.extraExamples||[])].filter((item,index,array)=>array.findIndex(other=>JSON.stringify(other)===JSON.stringify(item))===index);
+  merged.sources=unique([...asArray(first.sources?.length?first.sources:first.source),...asArray(second.sources?.length?second.sources:second.source)]);
+  for(const field of ["acceptedForms","aliases","variants","synonyms","extraNotes"])merged[field]=unique([...asArray(first[field]),...asArray(second[field])]);
+  merged.extraExamples=[...asArray(first.extraExamples),...asArray(second.extraExamples)].filter((item,index,array)=>array.findIndex(other=>JSON.stringify(other)===JSON.stringify(item))===index);
   merged.sem={...(secondary.sem||{}),...(primary.sem||{})};
   for(const field of ["en","tr","pos","xf","xt","xe","ms","amr","m","a","note","nt"]){
    if((merged[field]===undefined||merged[field]===null||merged[field]==="")&&secondary[field]!==undefined)merged[field]=secondary[field];
