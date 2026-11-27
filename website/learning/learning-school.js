@@ -6,6 +6,8 @@
  const write=x=>{try{localStorage.setItem(STORE,JSON.stringify(x.slice(-MAX_EVENTS)))}catch(_){}};
  const items=()=>typeof window.__getAllVocabRows==="function"?window.__getAllVocabRows():[];
  const modes={imla:window.VocabImla,"skip-gram":window.VocabSkipGram,"meaning-recall":window.VocabMeaningRecall};
+ const modeRegistry=window.VocabLearningModeRegistry.create(Object.values(modes));
+ if(!modeRegistry.get("imla")||!modeRegistry.get("skip-gram")||!modeRegistry.get("meaning-recall"))throw new Error("The Learning School is missing a required independent learning mode.");
  let mode="imla",term="all",queueFilter="all",queue=[],index=0,current=null,prompt=null,hints=0,started=0,checked=false,identitySnapshot=null,reviewMap=new Map(),reviewCounts={new:0,due:0,weak:0},showMistakes=false,focusedLegacyId=null,meaningLanguage="en";
  function buildIdentity(){identitySnapshot=window.VocabLearningManifest.build(items())}
  function canonicalItemId(legacyId){const result=window.VocabLearningIdentity.resolveLegacyId(identitySnapshot?.aliasIndex,String(legacyId||""));return result.status==="resolved"?result.itemId:"legacy:"+String(legacyId||"unknown")}
@@ -14,7 +16,7 @@
  function progressModeId(){return mode==="meaning-recall"?"meaning-recall-"+meaningLanguage:mode}
  function buildReviewMap(){reviewMap=new Map();for(const event of history()){const key=reviewKey(event.itemId,event.modeId);if(!reviewMap.has(key))reviewMap.set(key,[]);reviewMap.get(key).push(event)}}
  function reviewFor(item){return window.VocabReviewScheduler.evaluate(reviewMap.get(reviewKey(canonicalItemId(item.id),progressModeId()))||[])}
- function eligibleRows(){return items().filter(x=>(term==="all"||Number(x.bk)===Number(term))&&modes[mode].eligible(x,mode==="meaning-recall"?{language:meaningLanguage}:{}))}
+ function eligibleRows(){const selected=modeRegistry.get(mode);return items().filter(x=>(term==="all"||Number(x.bk)===Number(term))&&selected&&selected.eligible(x,mode==="meaning-recall"?{language:meaningLanguage}:{}))}
  function notebookRows(){
   const latest=new Map(),byLegacy=new Map(items().map(x=>[String(x.id),x]));
   for(const event of history()){const key=reviewKey(event.itemId,event.modeId),old=latest.get(key);if(!old||Date.parse(event.occurredAt||0)>=Date.parse(old.occurredAt||0))latest.set(key,event)}
