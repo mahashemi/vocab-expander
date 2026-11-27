@@ -96,9 +96,23 @@
    sourceConfidence:sources.length?"source-present":"user-added"
   };
  }
+ function rowCompleteness(row){
+  const meanings=meaningsFor(row);
+  return (row.pos?1:0)+meaningFields.filter(field=>meanings[field]).length;
+ }
  function build(rows){
+  const inputRows=Array.isArray(rows)?rows:[];
+  const orderedRows=inputRows.slice().sort((a,b)=>{
+   const score=rowCompleteness(b)-rowCompleteness(a);
+   if(score)return score;
+   const head=normalize(a?.fa).localeCompare(normalize(b?.fa));if(head)return head;
+   const kind=kindFor(a||{},String(a?.fa||"")).localeCompare(kindFor(b||{},String(b?.fa||"")));if(kind)return kind;
+   const pos=normalize(a?.pos).localeCompare(normalize(b?.pos));if(pos)return pos;
+   const sense=meaningFields.map(field=>normalize(meaningsFor(a||{})[field])).join("|").localeCompare(meaningFields.map(field=>normalize(meaningsFor(b||{})[field])).join("|"));if(sense)return sense;
+   return String(a?.id||"").localeCompare(String(b?.id||""));
+  });
   const buckets=new Map(),unmapped=[];
-  for(const row of Array.isArray(rows)?rows:[]){
+  for(const row of orderedRows){
    if(!row||!row.fa||!row.id){unmapped.push(row);continue}
    const legacyId=String(row.id),headword=String(row.fa).trim(),kind=kindFor(row,headword);
    const sources=unique(row.sources||[row.source]);
@@ -139,7 +153,7 @@
   const occurrenceCount=items.reduce((sum,item)=>sum+item.occurrences.length,0);
   const crossTermMerged=items.filter(item=>new Set(item.occurrences.map(occurrence=>occurrence.term)).size>1).length;
   return {manifest,validation,aliasIndex,stats:{
-   sourceRows:(rows||[]).length,indexedItems:items.length,occurrences:occurrenceCount,
+   sourceRows:inputRows.length,indexedItems:items.length,occurrences:occurrenceCount,
    ambiguousAliases:aliasIndex.ambiguous.length,unmappedRows:unmapped.length,crossTermMerged
   }};
  }
