@@ -72,7 +72,7 @@ for(let term=1;term<=3;term++){
  }
 }
 const ui=fs.readFileSync(path.join(root,"website","newestan-writing-ui.js"),"utf8");
-const order=["Writing skill taught in this lesson","renderNewestanLanguageLesson","Textbook exercise","Supporting subtopics","Writing steps","+rubric+","Model response"];
+const order=["Writing skill taught in this lesson","renderNewestanLanguageLesson","Textbook exercise","Supporting subtopics","Writing steps","+rubric+","'<summary><b>Model response"];
 let previous=-1;
 for(const marker of order){const index=ui.indexOf(marker);assert(index>previous,"Writing workshop order is incomplete or misplaced at "+marker);previous=index;}
 const standalone=fs.readFileSync(path.join(root,"website","term03-newestan-standalone.js"),"utf8");
