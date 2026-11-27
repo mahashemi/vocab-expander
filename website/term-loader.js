@@ -11,7 +11,7 @@
     3: 2161
   });
 
-  const assetVersion = "20261127-term03-semantic-bundle";
+  const assetVersion = "20261127-term01-02-writing-worksheets";
   const sharedSemanticScript = "semantic-meanings.js";
   const term01CoreScripts = [
     "term01-data.js",
