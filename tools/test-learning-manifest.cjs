@@ -72,7 +72,7 @@ assert.equal(duplicateRow.stats.indexedItems,1,"same source ID and headword shou
 assert.equal(duplicateRow.manifest.items[0].occurrences.length,2);
 const schoolSource=fs.readFileSync("website/learning/learning-school.js","utf8");
 assert.ok(schoolSource.includes('priorId.startsWith("vocab:source:")'),"saved source-specific item IDs must be resolved before raw legacy IDs");
-assert.ok(schoolSource.includes('legacyStableKey(String(legacyId||""),String(headword))'),"ambiguous raw legacy IDs must resolve through their source/headword identity");
+assert.ok(schoolSource.includes('legacyStableKey(String(legacyId||""),String(row.fa))'),"ambiguous raw legacy IDs must resolve through their source/headword identity");
 assert.ok(schoolSource.includes('canonicalItemId(legacyId,event.itemId)'),"history must migrate existing attempts to the current canonical identity");
 assert.ok(schoolSource.includes('identityForRow(row)'),"ambiguous current rows must resolve using their complete sense identity");
 console.log("PASS: cross-term canonical vocabulary/sense identities, source aggregation, practice de-duplication, legacy progress migration and ambiguous legacy blocking");
