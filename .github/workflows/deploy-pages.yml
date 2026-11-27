@@ -290,6 +290,11 @@ jobs:
         with:
           path: website
 
+      # The Pages artifact can take a few seconds to appear in the Actions
+      # artifact metadata API after upload-pages-artifact has finalized it.
+      - name: Wait for Pages artifact metadata
+        run: sleep 10
+
       - name: Deploy website
         id: deployment
         uses: actions/deploy-pages@v4
