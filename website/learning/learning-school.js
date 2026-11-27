@@ -11,26 +11,28 @@
  if(!modeRegistry.get("imla")||!modeRegistry.get("skip-gram")||!modeRegistry.get("meaning-recall"))throw new Error("The Learning School is missing a required independent learning mode.");
  let mode="imla",term="all",queueFilter="all",queue=[],index=0,current=null,prompt=null,hints=0,started=0,checked=false,identitySnapshot=null,reviewMap=new Map(),reviewCounts={new:0,due:0,weak:0},showMistakes=false,focusedLegacyId=null,meaningLanguage="en";
  function buildIdentity(){identitySnapshot=window.VocabLearningManifest.build(items())}
- function canonicalItemId(legacyId,storedItemId,headword){
+ function canonicalItemId(legacyId,storedItemId,row){
   const priorId=String(storedItemId||"");
   if(priorId.startsWith("vocab:canonical:")&&identitySnapshot?.manifest?.items.some(item=>item.itemId===priorId))return priorId;
   if(priorId.startsWith("vocab:source:")){
    const prior=window.VocabLearningIdentity.resolveLegacyId(identitySnapshot?.aliasIndex,priorId);
    if(prior.status==="resolved")return prior.itemId;
   }
-  if(headword){
-   const sourceId=window.VocabLearningManifest.legacyStableKey(String(legacyId||""),String(headword));
+  if(row?.fa){
+   const sourceId=window.VocabLearningManifest.legacyStableKey(String(legacyId||""),String(row.fa));
    const prior=window.VocabLearningIdentity.resolveLegacyId(identitySnapshot?.aliasIndex,sourceId);
    if(prior.status==="resolved")return prior.itemId;
+   const rowId=window.VocabLearningManifest.identityForRow(row);
+   if(identitySnapshot?.manifest?.items.some(item=>item.itemId===rowId))return rowId;
   }
   const result=window.VocabLearningIdentity.resolveLegacyId(identitySnapshot?.aliasIndex,String(legacyId||""));
   return result.status==="resolved"?result.itemId:"legacy:"+String(legacyId||"unknown");
  }
- function history(){return read().map(event=>{const legacyId=event.legacyId||event.itemId;const itemId=canonicalItemId(legacyId,event.itemId,event.fa);return {...event,legacyId,itemId}})}
+ function history(){return read().map(event=>{const legacyId=event.legacyId||event.itemId;const itemId=canonicalItemId(legacyId,event.itemId);return {...event,legacyId,itemId}})}
  function reviewKey(itemId,modeId){return itemId+"|"+modeId}
  function progressModeId(){return mode==="meaning-recall"?"meaning-recall-"+meaningLanguage:mode}
  function buildReviewMap(){reviewMap=new Map();for(const event of history()){const key=reviewKey(event.itemId,event.modeId);if(!reviewMap.has(key))reviewMap.set(key,[]);reviewMap.get(key).push(event)}}
- function reviewFor(item){return window.VocabReviewScheduler.evaluate(reviewMap.get(reviewKey(canonicalItemId(item.id,null,item.fa),progressModeId()))||[])}
+ function reviewFor(item){return window.VocabReviewScheduler.evaluate(reviewMap.get(reviewKey(canonicalItemId(item.id,null,item),progressModeId()))||[])}
  function eligibleRows(){
   const selected=modeRegistry.get(mode);
   let candidates=items().filter(x=>term==="all"||Number(x.bk)===Number(term));
@@ -67,7 +69,7 @@
  }
  function record(result){
   const rows=read();
-  rows.push({itemId:canonicalItemId(current.id,null,current.fa),legacyId:current.id,modeId:progressModeId(),occurredAt:new Date().toISOString(),correct:result.correct,response:result.response,errorTypes:result.errorTypes||[],errorPositions:result.errorPositions||[],errorDetails:result.errorDetails||[],hintsUsed:hints,elapsedMs:Math.max(0,Date.now()-started),promptVersion:prompt.version||1});
+  rows.push({itemId:canonicalItemId(current.id,null,current),legacyId:current.id,modeId:progressModeId(),occurredAt:new Date().toISOString(),correct:result.correct,response:result.response,errorTypes:result.errorTypes||[],errorPositions:result.errorPositions||[],errorDetails:result.errorDetails||[],hintsUsed:hints,elapsedMs:Math.max(0,Date.now()-started),promptVersion:prompt.version||1});
   write(rows);buildReviewMap();updateQueueStats();
  }
  function updateQueueStats(){
