@@ -77,8 +77,11 @@ async function measureViewport(name, config) {
     await page.waitForSelector(readySelector, { state: 'visible', timeout: 120000 });
     if (routeTerm) {
       await page.waitForFunction((term) => performance.getEntriesByName('vocab-term' + String(term).padStart(2, '0') + '-route-ready').length > 0, routeTerm, { timeout: 120000 });
+      if (routeTerm !== 3) {
+        await page.waitForFunction((term) => performance.getEntriesByName('vocab-term' + String(term).padStart(2, '0') + '-semantics-ready').length > 0, routeTerm, { timeout: 120000 });
+      }
     }
-    await delay(1800);
+    await delay(routeTerm && routeTerm !== 3 ? 900 : 1800);
 
     const browserMetrics = await page.evaluate((routeTerm) => {
       const samples = window.__sitePerfSamples || { lcp: [], cls: [], longTasks: [] };
@@ -109,7 +112,8 @@ async function measureViewport(name, config) {
         transferBytes: sum(resources),
         scriptTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'script' || /\\.js(?:[?#]|$)/i.test(entry.name))),
         cssTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'css' || /\\.css(?:[?#]|$)/i.test(entry.name))),
-        termRouteReadyMs: routeTerm ? performance.getEntriesByName('vocab-term' + String(routeTerm).padStart(2, '0') + '-route-ready').at(-1)?.startTime ?? null : null,
+        termRouteReadyMs: routeTerm ? performance.getEntriesByName('vocab-term' + String(routeTerm).padStart(2, '0') + '-route-ready')[0]?.startTime ?? null : null,
+        termSemanticsReadyMs: routeTerm && routeTerm !== 3 ? performance.getEntriesByName('vocab-term' + String(routeTerm).padStart(2, '0') + '-semantics-ready').at(-1)?.startTime ?? null : null,
         term03RouteReadyMs: performance.getEntriesByName('vocab-term03-route-ready')[0]?.startTime ?? null,
         term03LastRenderMs: performance.getEntriesByName('vocab-term03-route-ready').at(-1)?.startTime ?? null,
         term03SemanticsReadyMs: performance.getEntriesByName('vocab-term03-semantics-ready').at(-1)?.startTime ?? null,
@@ -226,7 +230,7 @@ async function measureViewport(name, config) {
       lines.push('| ' + viewport.viewport + ' | ' + sample.scenario + ' | ' +
         (sample.label.toLowerCase().includes('cold') ? 'cold' : 'warm') +
         ' | ' + fmt(sample.fcpMs) + ' | ' + fmt(sample.lcpMs) + ' | ' +
-        fmt(sample.termRouteReadyMs ?? sample.term03RouteReadyMs) + ' | ' + fmt(sample.term03LastRenderMs) + ' | ' + fmt(sample.term03SemanticsReadyMs) + ' | ' +
+        fmt(sample.termRouteReadyMs ?? sample.term03RouteReadyMs) + ' | ' + fmt(sample.term03LastRenderMs) + ' | ' + fmt(sample.termSemanticsReadyMs ?? sample.term03SemanticsReadyMs) + ' | ' +
         (sample.cls == null ? 'n/a' : sample.cls.toFixed(4)) + ' | ' + fmt(sample.longTaskMs) +
         ' | ' + sample.requestCount + ' | ' + fmt(sample.transferBytes) + ' | ' +
         fmt(sample.scriptTransferBytes) + ' | ' + fmt(sample.cssTransferBytes) + ' | ' +
