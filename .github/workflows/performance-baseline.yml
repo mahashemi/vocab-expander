@@ -37,13 +37,18 @@ jobs:
       - name: Install Chromium and system dependencies
         run: npx playwright install chromium --with-deps
 
-      - name: Test performance metric normalization
-        run: node tools/test-performance-long-tasks.cjs
+      - name: Test performance metric normalization and budgets
+        run: |
+          node tools/test-performance-long-tasks.cjs
+          node tools/test-performance-budgets.cjs
 
       - name: Measure cold and warm desktop/mobile loads
         env:
           SITE_URL: https://mahashemi.github.io/vocab-expander/
         run: node tools/measure-site-performance.cjs
+
+      - name: Enforce desktop and mobile performance budgets
+        run: node tools/check-performance-budgets.cjs
 
       - name: Smoke-test lazy term and feature routes
         if: always()
