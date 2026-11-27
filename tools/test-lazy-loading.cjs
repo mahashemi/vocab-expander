@@ -304,8 +304,7 @@ async function waitFor(page, expression, label) {
 
     console.log('PASS: Terms 02 and 03 show speech structure before the Qur’anic section');
 
-    await page.goto(target, { waitUntil: 'load', timeout: 120000 });
-    await page.evaluate(async () => {
+    const installSearchFixtures = async () => page.evaluate(async () => {
       await window.ensureAllTermsLoaded();
       const shared = {
         unit: 98,
@@ -335,6 +334,8 @@ async function waitFor(page, expression, label) {
       // refresh the canonical books after injecting isolated browser fixtures.
       window.__refreshVocabBooks();
     });
+    await page.goto(target, { waitUntil: 'load', timeout: 120000 });
+    await installSearchFixtures();
     await page.evaluate(() => localStorage.removeItem('vocab_expander_global_search_index_v1'));
     await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
     await page.locator('#globalSearchInput').fill('کتاب');
@@ -347,6 +348,7 @@ async function waitFor(page, expression, label) {
     if (searchIndexSecond.built !== 1 || searchIndexSecond.restored !== 0 || searchIndexSecond.size !== searchIndexFirst.size) throw new Error('Global search rebuilt its index on a subsequent query: ' + JSON.stringify({first:searchIndexFirst,second:searchIndexSecond}));
     await page.reload({ waitUntil: 'load' });
     await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
+    await installSearchFixtures();
     await page.locator('#globalSearchInput').fill('کتاب');
     await waitFor(page, 'document.querySelectorAll(".global-search-result").length > 0', 'global search restores its persisted index after refresh');
     const searchIndexRestored = await page.evaluate(() => window.__getGlobalSearchDiagnostics());
@@ -354,6 +356,7 @@ async function waitFor(page, expression, label) {
     await page.evaluate(() => { const key='vocab_expander_global_search_index_v1'; const payload=JSON.parse(localStorage.getItem(key)||'{}'); payload.version='deliberately-stale'; localStorage.setItem(key,JSON.stringify(payload)); });
     await page.reload({ waitUntil: 'load' });
     await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
+    await installSearchFixtures();
     await page.locator('#globalSearchInput').fill('کتاب');
     await waitFor(page, 'document.querySelectorAll(".global-search-result").length > 0', 'global search rebuilds after a version mismatch');
     const searchIndexInvalidated = await page.evaluate(() => window.__getGlobalSearchDiagnostics());
