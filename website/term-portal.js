@@ -29,10 +29,20 @@
  const SEARCH_INDEX_STORAGE_KEY="vocab_expander_global_search_index_v1";
  const SEARCH_INDEX_MAX_STORAGE_CHARS=2500000;
  let cachedSearchIndex=null,searchIndexBuilds=0,searchIndexRestores=0,searchIndexPersisted=false,searchIndexStorageBytes=0,searchIndexFingerprint="";
+ // Keep the index corpus and its fingerprint in lockstep. Include every
+ // learner-facing language, accepted spelling, inflection/form, and example so
+ // a change to any searchable field invalidates a previously persisted index.
+ function searchableFields(x){
+  return flatten([
+   x.fa,x.tr,x.en,x.source,x.sources,x.sem,x.pos,x.acceptedForms,x.aliases,
+   x.variants,x.synonyms,x.xf,x.xt,x.xe,x.extraExamples,x.extraNotes,
+   x.m,x.a,x.note,x.ms,x.amr,x.units
+  ]);
+ }
  function fingerprintSearchRows(words,verbs){
   let hash=2166136261;
   const feed=value=>{const text=String(value??"");for(let i=0;i<text.length;i++){hash^=text.charCodeAt(i);hash=Math.imul(hash,16777619)}hash^=31;hash=Math.imul(hash,16777619)};
-  const row=(kind,x)=>feed([kind,x.bk,x.ch,x.id,x.fa,x.tr,x.en,x.source,(x.sources||[]).join("·"),x.sem,x.pos,x.ms,x.amr].join("\u001f"));
+  const row=(kind,x)=>feed([kind,x.bk,x.ch,x.id,...searchableFields(x)].join("\u001f"));
   words.forEach(x=>row("Vocabulary",x));verbs.forEach(x=>row("Verb Treasury",x));
   return (hash>>>0).toString(36);
  }
@@ -58,7 +68,7 @@
   const verbs=verbRecords.map(x=>({kind:"Verb Treasury",label:x.fa||"",tr:x.tr||"",meaning:x.en||"",forms:[x.ms,x.amr].filter(Boolean).join(" · "),source:(x.sources||[x.source]).filter(Boolean).join(" · "),bk:x.bk,ch:x.ch,id:x.id,record:x}));
   const seen=new Set();
   cachedSearchIndex=words.concat(verbs).filter(x=>{const k=x.kind+"|"+x.bk+"|"+x.id;if(seen.has(k))return false;seen.add(k);return true})
-   .map(x=>({...x,_label:normalize(x.label),_hay:normalize(flatten([x.label,x.tr,x.meaning,x.forms,x.source,x.record&&x.record.sem,x.record&&x.record.pos]).join(" "))}));
+   .map(x=>({...x,_label:normalize(x.label),_hay:normalize(searchableFields(x.record||{}).concat([x.label,x.tr,x.meaning,x.forms,x.source]).join(" "))}));
   searchIndexBuilds++;searchIndexFingerprint=fingerprint;
   try{
    const payload={version,fingerprint,rows:cachedSearchIndex.map(({record,...row})=>row)};
