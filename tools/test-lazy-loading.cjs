@@ -260,6 +260,31 @@ async function waitFor(page, expression, label) {
         }
       }
     }
+    // Every chapter must have a real worksheet, and learner notes must survive refresh.
+    const worksheetCounts = await page.evaluate(() => Object.fromEntries(
+      Object.entries(window.TERM03_NEWESTAN_WORKSHEETS || {}).map(([lesson, worksheet]) => [lesson, worksheet.fields.length])
+    ));
+    for (let lesson = 1; lesson <= 10; lesson++) {
+      if ((worksheetCounts[lesson] || 0) < 3 || !(await page.locator('.newestan-guide-worksheet').count())) {
+        throw new Error('Term 03 chapter ' + lesson + ' is missing its guided worksheet fields.');
+      }
+      if (lesson < 10) await page.locator('#newestanLesson').selectOption(String(lesson + 1));
+      if (lesson < 10) await waitFor(page,
+        'document.querySelector(".newestan-chapter-guide")?.dataset.guideLesson === "' + (lesson + 1) + '"',
+        'Term 03 worksheet ' + (lesson + 1) + ' opens');
+    }
+    await page.locator('textarea[data-guide-field="topic"]').fill('A focused research topic for Persian learning');
+    await waitFor(page,
+      'document.querySelector(".newestan-guide-worksheet-status")?.textContent.includes("ذخیره")',
+      'Research worksheet notes are saved locally');
+    await page.reload({ waitUntil: 'load' });
+    await waitFor(page, 'document.querySelector(".newestan-chapter-guide")?.dataset.guideLesson === "10"', 'Research worksheet restores after refresh');
+    const savedResearchTopic = await page.locator('textarea[data-guide-field="topic"]').inputValue();
+    if (savedResearchTopic !== 'A focused research topic for Persian learning') {
+      throw new Error('Term 03 research worksheet notes did not persist after refresh.');
+    }
+    console.log('PASS: All ten chapter worksheets render and research notes persist after refresh');
+
     console.log('PASS: Term 03 Newestan learning outcomes, examples, activities and answer feedback work for all ten chapters');
 
     console.log('PASS: Terms 02 and 03 show speech structure before the Qur’anic section');
