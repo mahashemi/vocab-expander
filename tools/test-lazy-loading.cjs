@@ -331,6 +331,9 @@ async function waitFor(page, expression, label) {
       window.TERM1_DATA.push({...shared});
       window.TERM2_DATA.push({...shared, unit: 98, fa: 'واژهٔ آزمایش دوم', tr: 'azmāyesh dovom'});
       window.TERM3_DATA.push({...shared, unit: 98, fa: 'واژهٔ آزمایش سوم', tr: 'azmāyesh sevom'});
+      // Term 02's runtime book is a BOOK2 + TERM2_DATA concatenation, so
+      // refresh the canonical books after injecting isolated browser fixtures.
+      window.__refreshVocabBooks();
     });
     await page.evaluate(() => localStorage.removeItem('vocab_expander_global_search_index_v1'));
     await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
