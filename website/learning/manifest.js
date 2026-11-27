@@ -97,6 +97,7 @@
   };
  }
  function rowCompleteness(row){
+  if(!row)return 0;
   const meanings=meaningsFor(row);
   return (row.pos?1:0)+meaningFields.filter(field=>meanings[field]).length;
  }
