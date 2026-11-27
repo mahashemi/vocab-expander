@@ -100,6 +100,7 @@
 
   const scriptLoads = new Map();
   const termLoads = new Map();
+  const termSemanticLoads = new Map();
   const featureLoads = new Map();
   const loadedTerms = new Set();
   let sharedSemanticsPromise = null;
@@ -189,16 +190,12 @@
 
     const promise = (async () => {
       await ensureCoreTerms();
-      if (number !== 3) await ensureSharedSemantics();
-
       if (number === 1) {
         await loadScriptsInOrder(term01CoreScripts, false);
         window.__refreshVocabBooks();
-        await loadScriptsInOrder(term01SemanticScripts, false);
       } else if (number === 2) {
         await loadScriptsInOrder(term02CoreScripts, false);
         window.__refreshVocabBooks();
-        await loadScriptsInOrder(term02SemanticScripts, false);
       } else if (number === 3) {
         // The dedup plan audits semantic coverage, but its data transformation does
         // not require all 46 supplementary meaning batches. Mark the audit pending
@@ -223,6 +220,32 @@
     });
 
     termLoads.set(number, promise);
+    return promise;
+  }
+
+  async function ensureTermSemantics(term) {
+    const number = Number(term);
+    if (![1, 2].includes(number)) return;
+    const readyFlag = number === 1 ? "TERM01_SEMANTICS_READY" : "TERM02_SEMANTICS_READY";
+    if (window[readyFlag]) return;
+    if (termSemanticLoads.has(number)) return termSemanticLoads.get(number);
+
+    const promise = (async () => {
+      await ensureTermLoaded(number);
+      await ensureSharedSemantics();
+      await loadScriptsInOrder(number === 1 ? term01SemanticScripts : term02SemanticScripts, false);
+      window[readyFlag] = true;
+      if (typeof window.__refreshVocabBooks === "function") window.__refreshVocabBooks();
+      if (window.performance && window.performance.mark) {
+        window.performance.mark("vocab-term" + String(number).padStart(2, "0") + "-semantics-ready");
+      }
+      if (typeof window.refreshActiveTermViewIfSafe === "function") window.refreshActiveTermViewIfSafe();
+    })().catch(error => {
+      window[readyFlag] = false;
+      termSemanticLoads.delete(number);
+      throw error;
+    });
+    termSemanticLoads.set(number, promise);
     return promise;
   }
 
@@ -271,7 +294,7 @@
     // Search and cross-term study require complete data and semantics. Normal
     // route rendering can begin with the active term and enrich in the background.
     await ensureAllTermCoreDataLoaded();
-    await ensureTerm03Semantics();
+    await Promise.all([ensureTermSemantics(1), ensureTermSemantics(2), ensureTerm03Semantics()]);
   }
 
   async function ensureFeatureLoaded(term, feature) {
@@ -280,8 +303,11 @@
     const files = featureScripts[key];
     if (!files) return;
     if (feature === "essays") await ensureAllTermsLoaded();
-    else await ensureTermLoaded(number);
-    if (number === 3) await ensureTerm03Semantics();
+    else {
+      await ensureTermLoaded(number);
+      if (number === 3) await ensureTerm03Semantics();
+      else await ensureTermSemantics(number);
+    }
     if (featureLoads.has(key)) return featureLoads.get(key);
 
     const promise = (async () => {
@@ -310,6 +336,7 @@
   window.ensureLearningSchool = ensureLearningSchool;
   window.ensureAllTermCoreDataLoaded = ensureAllTermCoreDataLoaded;
   window.ensureTerm03Semantics = ensureTerm03Semantics;
+  window.ensureTermSemantics = ensureTermSemantics;
   window.ensureTermLoaded = ensureTermLoaded;
   window.ensureAllTermsLoaded = ensureAllTermsLoaded;
   window.ensureFeatureLoaded = ensureFeatureLoaded;
