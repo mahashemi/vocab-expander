@@ -140,6 +140,11 @@ async function waitFor(page, expression, label) {
     }
     await waitFor(page, 'window.TERM03_DEDUP_APPLIED === true && !document.documentElement.classList.contains("route-boot") && location.hash === "#/term/3/fa/chapter/1" && document.querySelector(".term-welcome")', 'hard refresh restores the exact Term 03 chapter route');
     await waitFor(page, 'window.TERM03_SEMANTICS_READY === true', 'Term 03 supplementary semantics load after the first route render');
+    const semanticBatchRequests = await page.evaluate(() => performance.getEntriesByType('resource').filter(entry => /term03-additional-semantics-(?:bundle|\\d+)\\.js(?:\\?|$)/.test(entry.name)).map(entry => entry.name));
+    if (semanticBatchRequests.length !== 1 || !semanticBatchRequests[0].includes('term03-additional-semantics-bundle.js')) {
+      throw new Error('Term 03 semantic enrichment must use exactly one bundled request; got ' + semanticBatchRequests.length);
+    }
+    console.log('PASS: 46 supplementary semantic batches are delivered in one lazy request');
     const dedupAudit = await page.evaluate(() => window.TERM03_DEDUP_AUDIT);
     if (!dedupAudit || dedupAudit.expectedAfter !== dedupAudit.after || dedupAudit.after !== dedupAudit.actualBefore - dedupAudit.approvedMerges - dedupAudit.decisionMerges || dedupAudit.missing.length || dedupAudit.duplicateIds.length || dedupAudit.duplicateHeadwordPos.length || dedupAudit.missingSemantics.length || dedupAudit.sourceLoss.length) {
       throw new Error('Term 03 deduplication audit is inconsistent: ' + JSON.stringify(dedupAudit));
@@ -347,7 +352,8 @@ async function waitFor(page, expression, label) {
     await page.locator('#sharedVocabFlip').click();
     await waitFor(page, 'document.querySelector("#sharedVocabCard .meaning-en")?.textContent.trim().length > 0', 'Learning School opens the shared trilingual vocabulary card');
     await page.keyboard.press('Escape');
-    await page.waitForSelector('#sharedVocabModal[aria-hidden="true"]', { timeout: 10000 });
+    await page.locator("#sharedVocabModal").waitFor({ state: "hidden", timeout: 10000 });
+    if (await page.locator("#sharedVocabModal").getAttribute("aria-hidden") !== "true") throw new Error("Escape must close the shared vocabulary card and set aria-hidden=true.");
 
     await page.locator('[data-mode="skip-gram"]').click();
     const skipTarget = await page.evaluate(() => window.__getAllVocabRows().find(item => item.bk === 1 && window.VocabSkipGram.eligible(item))?.fa);

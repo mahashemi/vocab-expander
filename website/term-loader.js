@@ -11,7 +11,7 @@
     3: 2161
   });
 
-  const assetVersion = "20261127-cross-term-learning-summary";
+  const assetVersion = "20261127-term03-semantic-bundle";
   const sharedSemanticScript = "semantic-meanings.js";
   const term01CoreScripts = [
     "term01-data.js",
@@ -49,9 +49,7 @@
 
   // Supplementary Term 03 meanings are not needed to draw the first lesson view.
   // Keep them as a separate, lazy enrichment layer so the route can render first.
-  const term03AdditionalSemanticScripts = Array.from({ length: 46 }, (_, i) =>
-    "term03-additional-semantics-" + String(i + 1).padStart(2, "0") + ".js"
-  );
+  const term03AdditionalSemanticScripts = ["term03-additional-semantics-bundle.js"];
 
   const term03CoreScripts = [
     "term03-data.js",
