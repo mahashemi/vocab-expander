@@ -353,7 +353,7 @@ async function waitFor(page, expression, label) {
     await waitFor(page, 'document.querySelector("#sharedVocabCard .meaning-en")?.textContent.trim().length > 0', 'Learning School opens the shared trilingual vocabulary card');
     const linkAudit = await page.evaluate(() => {
       const host = document.createElement('div');
-      host.innerHTML = 'منابع واژه‌ساختگی';
+      host.innerHTML = 'دانشجویان واژه‌ساختگی';
       document.body.append(host);
       const count = window.attachVocabularyLinks(host);
       const links = [...host.querySelectorAll('.kh-word')].map(button => ({
@@ -362,11 +362,11 @@ async function waitFor(page, expression, label) {
       }));
       return { count, links: links.map(item => ({ text: item.text, headword: item.row?.fa })), fakeLinked: links.some(item => item.text === 'واژه‌ساختگی') };
     });
-    if (linkAudit.count !== 1 || linkAudit.links[0]?.text !== 'منابع' || linkAudit.links[0]?.headword !== 'منبع' || linkAudit.fakeLinked) {
+    if (linkAudit.count !== 1 || linkAudit.links[0]?.text !== 'دانشجویان' || linkAudit.links[0]?.headword !== 'دانشجو' || linkAudit.fakeLinked) {
       throw new Error('Curated alias/exact-only vocabulary linking failed: ' + JSON.stringify(linkAudit));
     }
-    console.log('PASS: reviewed plural alias opens its base card; unrelated example token remains unlinked');
-    await page.locator('.kh-word').filter({ hasText: 'منابع' }).click();
+    console.log('PASS: reviewed inflection alias resolves to its base card; unrelated token remains unlinked');
+    await page.locator('.kh-word').filter({ hasText: 'دانشجویان' }).click();
     await page.locator('#sharedVocabFlip').click();
     await waitFor(page, 'document.querySelector("#sharedVocabCard .meaning-en")?.textContent.trim().length > 0', 'Curated alias reveals the base card English meaning');
     await page.keyboard.press('Escape');
