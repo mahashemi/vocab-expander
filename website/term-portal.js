@@ -26,18 +26,48 @@
   $id("overallPercent").textContent=p+"% memorised";
   $id("termProgressMini").textContent=[1,2,3].map(b=>"T"+b+" "+stats.counts[b].toLocaleString()).join(" · ")+" words";
  }
- let cachedSearchIndex=null,searchIndexBuilds=0;
+ const SEARCH_INDEX_STORAGE_KEY="vocab_expander_global_search_index_v1";
+ const SEARCH_INDEX_MAX_STORAGE_CHARS=2500000;
+ let cachedSearchIndex=null,searchIndexBuilds=0,searchIndexRestores=0,searchIndexPersisted=false,searchIndexStorageBytes=0,searchIndexFingerprint="";
+ function fingerprintSearchRows(words,verbs){
+  let hash=2166136261;
+  const feed=value=>{const text=String(value??"");for(let i=0;i<text.length;i++){hash^=text.charCodeAt(i);hash=Math.imul(hash,16777619)}hash^=31;hash=Math.imul(hash,16777619)};
+  const row=(kind,x)=>feed([kind,x.bk,x.ch,x.id,x.fa,x.tr,x.en,x.source,(x.sources||[]).join("·"),x.sem,x.pos,x.ms,x.amr].join("\u001f"));
+  words.forEach(x=>row("Vocabulary",x));verbs.forEach(x=>row("Verb Treasury",x));
+  return (hash>>>0).toString(36);
+ }
  function searchIndex(){
   if(cachedSearchIndex)return cachedSearchIndex;
-  const words=all().map(x=>({kind:"Vocabulary",label:x.fa||"",tr:x.tr||"",meaning:x.en||"",source:(x.sources||[x.source]).filter(Boolean).join(" · "),bk:x.bk,ch:x.ch,id:x.id,record:x}));
-  const verbs=(window.getVerbSearchRows?window.getVerbSearchRows():[]).map(x=>({kind:"Verb Treasury",label:x.fa||"",tr:x.tr||"",meaning:x.en||"",forms:[x.ms,x.amr].filter(Boolean).join(" · "),source:(x.sources||[x.source]).filter(Boolean).join(" · "),bk:x.bk,ch:x.ch,id:x.id,record:x}));
+  const wordRecords=all(),verbRecords=window.getVerbSearchRows?window.getVerbSearchRows():[];
+  const version=window.VOCAB_DATA_VERSION||"unversioned";
+  const fingerprint=fingerprintSearchRows(wordRecords,verbRecords);
+  const recordMap=new Map();
+  wordRecords.forEach(x=>recordMap.set("Vocabulary|"+x.bk+"|"+x.id,x));
+  verbRecords.forEach(x=>recordMap.set("Verb Treasury|"+x.bk+"|"+x.id,x));
+  try{
+   const payload=JSON.parse(localStorage.getItem(SEARCH_INDEX_STORAGE_KEY)||"null");
+   if(payload&&payload.version===version&&payload.fingerprint===fingerprint&&Array.isArray(payload.rows)&&payload.rows.length===recordMap.size){
+    const restored=payload.rows.map(x=>({...x,record:recordMap.get(x.kind+"|"+x.bk+"|"+x.id)}));
+    if(restored.every(x=>x.record)){
+     cachedSearchIndex=restored;searchIndexRestores++;searchIndexPersisted=true;searchIndexStorageBytes=JSON.stringify(payload).length;searchIndexFingerprint=fingerprint;
+     return cachedSearchIndex;
+    }
+   }
+  }catch(error){}
+  const words=wordRecords.map(x=>({kind:"Vocabulary",label:x.fa||"",tr:x.tr||"",meaning:x.en||"",source:(x.sources||[x.source]).filter(Boolean).join(" · "),bk:x.bk,ch:x.ch,id:x.id,record:x}));
+  const verbs=verbRecords.map(x=>({kind:"Verb Treasury",label:x.fa||"",tr:x.tr||"",meaning:x.en||"",forms:[x.ms,x.amr].filter(Boolean).join(" · "),source:(x.sources||[x.source]).filter(Boolean).join(" · "),bk:x.bk,ch:x.ch,id:x.id,record:x}));
   const seen=new Set();
   cachedSearchIndex=words.concat(verbs).filter(x=>{const k=x.kind+"|"+x.bk+"|"+x.id;if(seen.has(k))return false;seen.add(k);return true})
    .map(x=>({...x,_label:normalize(x.label),_hay:normalize(flatten([x.label,x.tr,x.meaning,x.forms,x.source,x.record&&x.record.sem,x.record&&x.record.pos]).join(" "))}));
-  searchIndexBuilds++;
+  searchIndexBuilds++;searchIndexFingerprint=fingerprint;
+  try{
+   const payload={version,fingerprint,rows:cachedSearchIndex.map(({record,...row})=>row)};
+   const serialized=JSON.stringify(payload);
+   if(serialized.length<=SEARCH_INDEX_MAX_STORAGE_CHARS){localStorage.setItem(SEARCH_INDEX_STORAGE_KEY,serialized);searchIndexPersisted=true;searchIndexStorageBytes=serialized.length}
+  }catch(error){}
   return cachedSearchIndex;
  }
- window.__getGlobalSearchDiagnostics=()=>({built:searchIndexBuilds,size:cachedSearchIndex?cachedSearchIndex.length:0});
+ window.__getGlobalSearchDiagnostics=()=>({built:searchIndexBuilds,restored:searchIndexRestores,size:cachedSearchIndex?cachedSearchIndex.length:0,persisted:searchIndexPersisted,storageBytes:searchIndexStorageBytes,version:window.VOCAB_DATA_VERSION||"unversioned",fingerprint:searchIndexFingerprint});
  function portal(){
   const stats=portalCounts(),counts=stats.counts,doneByTerm=stats.doneByTerm;
   const data=[

@@ -26,10 +26,12 @@ on:
       - "tools/audit-newestan-all-terms.cjs"
       - "reports/newestan-all-terms-source-crosswalk-2026-11-27.md"
       - "tools/test-newestan-writing-worksheets.cjs"
+      - "tools/test-global-search-index.cjs"
       - ".github/workflows/audit-term01-term02.yml"
   pull_request:
     branches: [main]
     paths:
+      - "tools/test-global-search-index.cjs"
       - "website/term01-*.js"
       - "website/term02-*.js"
       - "website/term03-*.js"
@@ -78,6 +80,7 @@ jobs:
           node --check website/newestan-rubric.js
           node --check website/newestan-writing-worksheets.js
           node --check tools/test-newestan-writing-worksheets.cjs
+          node --check tools/test-global-search-index.cjs
           node --check tools/audit-website-loading.cjs
           node --check tools/performance-budgets.cjs
           node --check tools/check-performance-budgets.cjs
@@ -110,6 +113,7 @@ jobs:
           node tools/test-performance-budgets.cjs
           node tools/audit-newestan-all-terms.cjs
           node tools/test-newestan-writing-worksheets.cjs
+          node tools/test-global-search-index.cjs
           node tools/test-learning-imla-diagnostics.cjs
 
       - name: Run Term 01 audit
