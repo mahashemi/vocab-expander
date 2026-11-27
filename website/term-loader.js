@@ -11,7 +11,7 @@
     3: 2161
   });
 
-  const assetVersion = "20261127-learning-mode-registry";
+  const assetVersion = "20261127-cross-term-learning-summary";
   const sharedSemanticScript = "semantic-meanings.js";
   const term01CoreScripts = [
     "term01-data.js",
@@ -298,7 +298,7 @@
     if (!learningSchoolPromise) {
       learningSchoolPromise = (async () => {
         await ensureAllTermsLoaded();
-        await loadScriptsInOrder(["learning/identity.js", "learning/manifest.js", "learning/mode-registry.js", "learning/imla.js", "learning/skip-gram.js", "learning/review-scheduler.js", "learning/meaning-recall.js", "learning/learning-school.js"], false);
+        await loadScriptsInOrder(["learning/identity.js", "learning/manifest.js", "learning/mode-registry.js", "learning/imla.js", "learning/skip-gram.js", "learning/review-scheduler.js", "learning/meaning-recall.js", "learning/progress-summary.js", "learning/learning-school.js"], false);
       })().catch(error => {
         learningSchoolPromise = null;
         throw error;
