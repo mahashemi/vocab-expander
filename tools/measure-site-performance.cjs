@@ -8,7 +8,9 @@ const path = require('node:path');
 const { chromium } = require('playwright');
 const { normalizeLongTasks, summarizeLongTasks } = require('./performance-long-tasks.cjs');
 
-const target = process.env.SITE_URL || 'https://mahashemi.github.io/vocab-expander/';
+const targetUrl = new URL(process.env.SITE_URL || 'https://mahashemi.github.io/vocab-expander/');
+targetUrl.searchParams.set('ci-run', process.env.GITHUB_RUN_ID || String(Date.now()));
+const target = targetUrl.toString();
 const outDir = path.resolve(__dirname, '..', 'reports');
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -76,9 +78,23 @@ async function measureViewport(name, config) {
       : await page.reload({ waitUntil: 'load', timeout: 120000 });
     await page.waitForSelector(readySelector, { state: 'visible', timeout: 120000 });
     if (routeTerm) {
-      await page.waitForFunction((term) => performance.getEntriesByName('vocab-term' + String(term).padStart(2, '0') + '-route-ready').length > 0, routeTerm, { timeout: 120000 });
+      await page.waitForFunction((term) => performance.getEntriesByName('vocab-term' + String(term).padStart(2, '0') + '-route-ready').length > 0, routeTerm, { timeout: 30000 });
       if (routeTerm !== 3) {
-        await page.waitForFunction((term) => performance.getEntriesByName('vocab-term' + String(term).padStart(2, '0') + '-semantics-ready').length > 0, routeTerm, { timeout: 120000 });
+        try {
+          await page.waitForFunction((term) => performance.getEntriesByName('vocab-term' + String(term).padStart(2, '0') + '-semantics-ready').length > 0, routeTerm, { timeout: 30000 });
+        } catch (error) {
+          const diagnostic = await page.evaluate((term) => ({
+            ensureTermSemantics: typeof window.ensureTermSemantics,
+            readyFlag: window['TERM0' + term + '_SEMANTICS_READY'],
+            routeMarks: performance.getEntriesByName('vocab-term' + String(term).padStart(2, '0') + '-route-ready').map(mark => mark.startTime),
+            semanticsMarks: performance.getEntriesByName('vocab-term' + String(term).padStart(2, '0') + '-semantics-ready').map(mark => mark.startTime),
+            activeTitle: document.getElementById('activeTermTitle')?.textContent || null,
+            activeTab: document.querySelector('#termTabs .on')?.dataset.t || null,
+            termLoader: [...document.scripts].find(script => script.src.includes('term-loader.js'))?.src || null,
+            termPortal: [...document.scripts].find(script => script.src.includes('term-portal.js'))?.src || null
+          }), routeTerm);
+          throw new Error('Term ' + routeTerm + ' semantic enrichment did not finish: ' + JSON.stringify(diagnostic) + '; ' + error.message);
+        }
       }
     }
     await delay(routeTerm && routeTerm !== 3 ? 900 : 1800);
@@ -150,7 +166,7 @@ async function measureViewport(name, config) {
     for (const term of [1, 2, 3]) {
       await cdp.send('Network.clearBrowserCache');
       const routeName = term === 3 ? 'fa' : 'flashcards';
-      const routeUrl = target + '?route-test=deep-link&term=' + term + '#/term/' + term + '/' + routeName + '/chapter/1';
+      const routeUrl = target + '#/term/' + term + '/' + routeName + '/chapter/1';
       const readySelector = term === 3 ? '.term-welcome' : '#v';
       const coldRoute = await capture(name + ' Term 0' + term + ' deep-route cold cache', true, routeUrl, readySelector, term);
       const warmRoute = await capture(name + ' Term 0' + term + ' deep-route warm refresh', false, routeUrl, readySelector, term);
