@@ -5,8 +5,9 @@
  const read=()=>{try{const x=JSON.parse(localStorage.getItem(STORE)||"[]");return Array.isArray(x)?x:[]}catch(_){return[]}};
  const write=x=>{try{localStorage.setItem(STORE,JSON.stringify(x.slice(-MAX_EVENTS)))}catch(_){}};
  const items=()=>typeof window.__getAllVocabRows==="function"?window.__getAllVocabRows():[];
- const modes={imla:window.VocabImla,"skip-gram":window.VocabSkipGram,"meaning-recall":window.VocabMeaningRecall};
+ const modes={imla:{...window.VocabImla,id:"imla"},"skip-gram":{...window.VocabSkipGram,id:"skip-gram"},"meaning-recall":{...window.VocabMeaningRecall,id:"meaning-recall"}};
  const modeRegistry=window.VocabLearningModeRegistry.create(Object.values(modes));
+ window.VocabLearningSchoolModeIds=modeRegistry.list().map(item=>item.id);
  if(!modeRegistry.get("imla")||!modeRegistry.get("skip-gram")||!modeRegistry.get("meaning-recall"))throw new Error("The Learning School is missing a required independent learning mode.");
  let mode="imla",term="all",queueFilter="all",queue=[],index=0,current=null,prompt=null,hints=0,started=0,checked=false,identitySnapshot=null,reviewMap=new Map(),reviewCounts={new:0,due:0,weak:0},showMistakes=false,focusedLegacyId=null,meaningLanguage="en";
  function buildIdentity(){identitySnapshot=window.VocabLearningManifest.build(items())}
