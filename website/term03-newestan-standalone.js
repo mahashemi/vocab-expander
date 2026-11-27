@@ -23,7 +23,8 @@
    ? '<div class="newestan-model-section"><b>Research topics · موضوع‌های تحقیق</b><ol class="newestan-support">'+(rec.exampleResearchTopics||[]).map(x=>'<li><div class="fa-block">'+escText(x.fa)+'</div><div class="mut">'+escText(x.en)+'</div></li>').join("")+'</ol><p class="mut">This lesson teaches research-project writing, not an ordinary essay prompt.</p></div>'
    : '<div class="newestan-model-section"><b>Textbook exercise · تمرین واقعی درس</b><ol class="newestan-support">'+(rec.topics||[]).map(x=>'<li><div class="fa-block">'+escText(x.fa)+'</div><div class="mut">'+escText(x.en)+'</div></li>').join("")+'</ol></div>';
   const skill=teach.skill?'<div class="newestan-model-section"><b>Writing skill from Biyāmozīm · مهارت نوشتاری</b><p>'+escText(teach.skill)+'</p></div>':'';
-  const languageLesson=window.renderNewestanLanguageLesson?window.renderNewestanLanguageLesson(3,selected):"";\n  const chapterGuide=window.renderNewestanChapterGuide?window.renderNewestanChapterGuide(selected):"";
+  const languageLesson=window.renderNewestanLanguageLesson?window.renderNewestanLanguageLesson(3,selected):"";
+  const chapterGuide=window.renderNewestanChapterGuide?window.renderNewestanChapterGuide(selected):"";
   const bilingual=teach.bilingual?'<div class="newestan-model-section"><b>Understand the lesson · شرح الدرس بالعربية</b><p>'+escText(teach.bilingual.en)+'</p><p class="fa-block" dir="rtl" style="text-align:right">'+escText(teach.bilingual.ar)+'</p></div>':'';
   const subs=teach.subtopics?'<div class="newestan-model-section"><b>Suggested supporting subtopics · ریزموضوع‌ها</b><ol class="newestan-support">'+teach.subtopics.map(x=>'<li class="fa-block">'+escText(x)+'</li>').join("")+'</ol><p class="mut">These are developed study suggestions, not a verbatim textbook list.</p></div>':'';
   const steps=teach.steps?'<div class="newestan-model-section"><b>Writing steps · روش نگارش</b><ol class="newestan-support">'+teach.steps.map(x=>'<li>'+escText(x)+'</li>').join("")+'</ol></div>':'';
@@ -71,7 +72,8 @@
    const status=document.getElementById("newestanDraftSaved");
    if(status)status.textContent="Saved locally · "+new Date().toLocaleTimeString();
   };
-  if(window.bindNewestanRubric)window.bindNewestanRubric(3,selected);\n  if(window.bindNewestanChapterGuide)window.bindNewestanChapterGuide();
+  if(window.bindNewestanRubric)window.bindNewestanRubric(3,selected);
+  if(window.bindNewestanChapterGuide)window.bindNewestanChapterGuide();
   if(typeof attachVocabularyLinks==="function"){const scope=document.querySelector(".writing-wrap");if(scope)attachVocabularyLinks(scope)}
   const print=document.getElementById("printNewestanLesson");if(print)print.onclick=printCurrent;
  };
