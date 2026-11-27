@@ -46,6 +46,14 @@
   words.forEach(x=>row("Vocabulary",x));verbs.forEach(x=>row("Verb Treasury",x));
   return (hash>>>0).toString(36);
  }
+ function makeSearchRow(kind,record){
+  const label=record.fa||"",tr=record.tr||"",meaning=record.en||"";
+  const source=(record.sources||[record.source]).filter(Boolean).join(" · ");
+  const forms=kind==="Verb Treasury"?[record.ms,record.amr].filter(Boolean).join(" · "):"";
+  return {kind,label,tr,meaning,forms,source,bk:record.bk,ch:record.ch,id:record.id,record,
+   _label:normalize(label),
+   _hay:normalize(searchableFields(record).concat([label,tr,meaning,forms,source]).join(" "))};
+ }
  function searchIndex(){
   if(cachedSearchIndex)return cachedSearchIndex;
   const wordRecords=all(),verbRecords=window.getVerbSearchRows?window.getVerbSearchRows():[];
@@ -57,21 +65,23 @@
   try{
    const payload=JSON.parse(localStorage.getItem(SEARCH_INDEX_STORAGE_KEY)||"null");
    if(payload&&payload.version===version&&payload.fingerprint===fingerprint&&Array.isArray(payload.rows)&&payload.rows.length===recordMap.size){
-    const restored=payload.rows.map(x=>({...x,record:recordMap.get(x.kind+"|"+x.bk+"|"+x.id)}));
+    const restored=payload.rows.map(x=>{const record=recordMap.get(x.kind+"|"+x.bk+"|"+x.id);return record?makeSearchRow(x.kind,record):null});
     if(restored.every(x=>x.record)){
      cachedSearchIndex=restored;searchIndexRestores++;searchIndexPersisted=true;searchIndexStorageBytes=JSON.stringify(payload).length;searchIndexFingerprint=fingerprint;
      return cachedSearchIndex;
     }
    }
   }catch(error){}
-  const words=wordRecords.map(x=>({kind:"Vocabulary",label:x.fa||"",tr:x.tr||"",meaning:x.en||"",source:(x.sources||[x.source]).filter(Boolean).join(" · "),bk:x.bk,ch:x.ch,id:x.id,record:x}));
-  const verbs=verbRecords.map(x=>({kind:"Verb Treasury",label:x.fa||"",tr:x.tr||"",meaning:x.en||"",forms:[x.ms,x.amr].filter(Boolean).join(" · "),source:(x.sources||[x.source]).filter(Boolean).join(" · "),bk:x.bk,ch:x.ch,id:x.id,record:x}));
+  const words=wordRecords.map(x=>makeSearchRow("Vocabulary",x));
+  const verbs=verbRecords.map(x=>makeSearchRow("Verb Treasury",x));
   const seen=new Set();
-  cachedSearchIndex=words.concat(verbs).filter(x=>{const k=x.kind+"|"+x.bk+"|"+x.id;if(seen.has(k))return false;seen.add(k);return true})
-   .map(x=>({...x,_label:normalize(x.label),_hay:normalize(searchableFields(x.record||{}).concat([x.label,x.tr,x.meaning,x.forms,x.source]).join(" "))}));
+  cachedSearchIndex=words.concat(verbs).filter(x=>{const k=x.kind+"|"+x.bk+"|"+x.id;if(seen.has(k))return false;seen.add(k);return true});
   searchIndexBuilds++;searchIndexFingerprint=fingerprint;
   try{
-   const payload={version,fingerprint,rows:cachedSearchIndex.map(({record,...row})=>row)};
+   // Persist only stable record keys; rebuild the searchable text from the
+   // canonical records on restore. This avoids localStorage quota failures as
+   // examples, aliases and trilingual meanings expand the searchable corpus.
+   const payload={version,fingerprint,rows:cachedSearchIndex.map(({kind,bk,id})=>({kind,bk,id}))};
    const serialized=JSON.stringify(payload);
    if(serialized.length<=SEARCH_INDEX_MAX_STORAGE_CHARS){localStorage.setItem(SEARCH_INDEX_STORAGE_KEY,serialized);searchIndexPersisted=true;searchIndexStorageBytes=serialized.length}
   }catch(error){}
