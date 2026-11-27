@@ -493,7 +493,8 @@ async function waitFor(page, expression, label) {
     await page.locator('#learningCheck').click();
     await page.waitForSelector('.learning-feedback.correct', { timeout: 10000 });
     const learningEvents = await page.evaluate(() => JSON.parse(localStorage.getItem('vocab_learning_attempts_v1') || '[]'));
-    if (!learningEvents.every(event => String(event.itemId).startsWith('vocab:source:') && event.legacyId)) throw new Error('Practice events must use canonical IDs and preserve legacy aliases: ' + JSON.stringify(learningEvents));
+    if (!learningEvents.every(event => String(event.itemId).startsWith('vocab:canonical:') && event.legacyId)) throw new Error('Practice events must use canonical IDs and preserve legacy aliases: ' + JSON.stringify(learningEvents));
+    if (new Set(learningEvents.map(event => event.itemId)).size !== 1) throw new Error('Imla and Skip-gram must share one canonical identity for the same vocabulary item: ' + JSON.stringify(learningEvents));
     if (!learningEvents.some(event => event.modeId === 'imla' && event.correct) || !learningEvents.some(event => event.modeId === 'skip-gram' && event.correct)) {
       throw new Error('Imla and Skip-gram attempts were not persisted independently: ' + JSON.stringify(learningEvents));
     }
