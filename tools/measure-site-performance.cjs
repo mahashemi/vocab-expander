@@ -81,7 +81,7 @@ async function measureViewport(name, config) {
         await page.waitForFunction((term) => performance.getEntriesByName('vocab-term' + String(term).padStart(2, '0') + '-semantics-ready').length > 0, routeTerm, { timeout: 120000 });
       }
     }
-    await delay(900);
+    await delay(routeTerm && routeTerm !== 3 ? 900 : 1800);
 
     const browserMetrics = await page.evaluate((routeTerm) => {
       const samples = window.__sitePerfSamples || { lcp: [], cls: [], longTasks: [] };
