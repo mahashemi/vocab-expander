@@ -21,5 +21,7 @@ const portalSource=fs.readFileSync("website/term-portal.js","utf8");
 assert.ok(measureSource.includes("for (const term of [1, 2, 3])"),"the baseline must measure each term route independently");
 assert.ok(measureSource.includes("term01: termRoutes[1]")&&measureSource.includes("term02: termRoutes[2]"),"the report must retain separate Term 01 and Term 02 samples");
 assert.ok(measureSource.includes("termRouteReadyMs"),"each direct term route must report its route-ready marker");
+assert.ok(measureSource.includes("termSemanticsReadyMs"),"the report must separate first render from semantic enrichment");
 assert.ok(portalSource.includes('window.performance.mark("vocab-term"+String(activeTerm).padStart(2,"0")+"-route-ready")'),"all term routes must emit a common performance marker");
+assert.ok(portalSource.includes("termSemanticsScheduled"),"Term 01/02 semantic enrichment must be scheduled after the first render");
 console.log("PASS: mobile/desktop budgets, regression detection, missing metrics and per-term route coverage");
