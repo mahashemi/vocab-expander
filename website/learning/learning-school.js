@@ -85,9 +85,9 @@
   const context=meaningMode?current.xf:current.xe;
   const placeholder=meaningMode?(meaningLanguage==="en"?"Type the English meaning…":"المعنى بالعربية…"):"پاسخ را اینجا بنویسید…";
   const direction=meaningMode&&meaningLanguage==="ar"?"rtl":"auto";
-  root.innerHTML='<div class="panel learning-question"><div class="mut">'+(index+1)+' / '+queue.length+' · TERM 0'+current.bk+' · Chapter '+esc(current.ch)+' · '+state+' · '+instruction+'</div><h3 class="learning-meaning" '+(meaningMode?'dir="rtl" lang="fa"':"")+'>'+esc(meaning)+'</h3>'+(context?'<p class="mut">Context: '+esc(context)+'</p>':"")+(mode==="skip-gram"?'<div class="fa learning-mask" dir="rtl" lang="fa">'+esc(shown)+'</div>':"")+'<label for="learningAnswer">'+(meaningMode?(meaningLanguage==="en"?"English meaning":"المعنى بالعربية"):"Your Persian answer / پاسخ شما")+'</label><input id="learningAnswer" class="learning-answer" dir="'+direction+'" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="'+placeholder+'" '+(checked?"disabled":"")+'><div class="row"><button class="pri" id="learningCheck" '+(checked?"disabled":"")+'>Check answer</button><button id="learningHint" '+(checked?"disabled":"")+'>Hint · '+hints+'</button><button id="learningNext" '+(!checked?"disabled":"")+'>Next →</button></div><div id="learningFeedback" aria-live="polite"></div></div>';
+  root.innerHTML='<div class="panel learning-question"><div class="mut">'+(index+1)+' / '+queue.length+' · TERM 0'+current.bk+' · Chapter '+esc(current.ch)+' · '+state+' · '+instruction+'</div><h3 class="learning-meaning" '+(meaningMode?'dir="rtl" lang="fa"':"")+'>'+esc(meaning)+'</h3>'+(context?'<p class="mut">Context: '+esc(context)+'</p>':"")+(mode==="skip-gram"?'<div class="fa learning-mask" dir="rtl" lang="fa">'+esc(shown)+'</div>':"")+'<label for="learningAnswer">'+(meaningMode?(meaningLanguage==="en"?"English meaning":"المعنى بالعربية"):"Your Persian answer / پاسخ شما")+'</label><input id="learningAnswer" class="learning-answer" dir="'+direction+'" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="'+placeholder+'" '+(checked?"disabled":"")+'><div class="row"><button class="pri" id="learningCheck" '+(checked?"disabled":"")+'>Check answer</button><button id="learningHint" '+(checked?"disabled":"")+'>Hint · '+hints+'</button><button id="learningNext" '+(!checked?"disabled":"")+'>Next →</button><button type="button" id="learningVocabCard">Vocabulary card</button></div><div id="learningFeedback" aria-live="polite"></div></div>';
   const answer=$("#learningAnswer");answer.focus();answer.addEventListener("keydown",e=>{if(e.key==="Enter"&&!checked)check()});
-  $("#learningCheck").onclick=check;$("#learningNext").onclick=next;$("#learningHint").onclick=hint;
+  $("#learningCheck").onclick=check;$("#learningNext").onclick=next;$("#learningHint").onclick=hint;$("#learningVocabCard").onclick=()=>window.openSharedVocabularyCard?.(current.id,$("#learningVocabCard"));
  }
  function check(){
   if(checked||!current)return;
@@ -114,5 +114,5 @@
   $("#learningNotebook").onclick=()=>{showMistakes=true;exercise()};
   exercise();
  }
- window.learningSchool=()=>{makeQueue();render()};
+ window.learningSchool=()=>{window.ensureSharedVocabularyModal?.();makeQueue();render()};
 })();
