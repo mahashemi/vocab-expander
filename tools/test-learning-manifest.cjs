@@ -21,7 +21,8 @@ assert.equal(books.length,2,"different meanings of the same headword remain sepa
 const sharedBook=books.find(item=>item.meanings.en==="book");
 assert.ok(sharedBook);
 assert.deepEqual(sharedBook.occurrences.map(item=>item.term).sort(),[1,2]);
-assert.deepEqual(sharedBook.legacyIds.sort(),["1|1|FA1-01|کتاب","2|2|FA2-02|کتاب"]);
+assert.deepEqual(sharedBook.legacyIds.filter(id=>!id.startsWith("vocab:source:")).sort(),["1|1|FA1-01|کتاب","2|2|FA2-02|کتاب"]);
+assert.ok(sharedBook.legacyIds.some(id=>id.startsWith("vocab:source:")),"old source-specific IDs remain available for progress migration");
 assert.ok(sharedBook.acceptedForms.includes("کتاب‌ها"));
 assert.ok(sharedBook.aliases.includes("کتاب"));
 assert.equal(sharedBook.examples.length,2,"examples from both term occurrences are retained");
