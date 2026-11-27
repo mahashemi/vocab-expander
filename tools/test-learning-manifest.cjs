@@ -39,6 +39,14 @@ assert.equal(VocabLearningManifest.selectPracticeRows(rows,built.aliasIndex,2).f
 const reordered=VocabLearningManifest.build(rows.slice().reverse());
 assert.deepEqual(reordered.manifest.items.map(x=>x.itemId),built.manifest.items.map(x=>x.itemId),"canonical IDs must not depend on row order");
 assert.equal(JSON.stringify(rows),before,"manifest builder must not mutate source rows");
+const partialSense={id:"3|4|FA3-04|کتاب",bk:3,ch:4,fa:"کتاب",pos:"اسم — noun",source:"FA3-04",sources:["FA3-04"]};
+const oneSense=VocabLearningManifest.build([rows[0],partialSense]);
+assert.equal(oneSense.manifest.items.length,1,"an underspecified occurrence joins a unique compatible sense");
+assert.equal(oneSense.manifest.items[0].occurrences.length,2);
+const ambiguousSenses=VocabLearningManifest.build([rows[0],rows[2],partialSense]);
+const ambiguousSensesReordered=VocabLearningManifest.build([partialSense,rows[2],rows[0]]);
+assert.deepEqual(ambiguousSensesReordered.manifest.items.map(x=>x.itemId),ambiguousSenses.manifest.items.map(x=>x.itemId),"ambiguous partial senses remain deterministic regardless of source row order");
+assert.equal(ambiguousSenses.manifest.items.filter(x=>x.headword==="کتاب").length,3,"an underspecified occurrence is not arbitrarily assigned between two distinct meanings");
 const duplicateAlias=VocabLearningManifest.build([
  ...rows,
  {id:"1|1|FA1-01|کتاب",bk:1,ch:1,fa:"کتابخانه",en:"library",source:"FA1-01",sources:["FA1-01"]}
