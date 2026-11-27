@@ -16,8 +16,8 @@
  function kindFor(row,headword){
   const pos=String(row.pos||"");
   if(/فعل مرکب|compound verb/i.test(pos))return "compound-verb";
-  if(row.ms||row.amr)return /\s/.test(headword)?"compound-verb":"word";
-  return /\s/.test(headword)?"phrase":"word";
+  if(row.ms||row.amr)return normalize(headword).includes(" ")?"compound-verb":"word";
+  return normalize(headword).includes(" ")?"phrase":"word";
  }
  function hash(value){
   let first=2166136261,second=2246822519;
