@@ -25,13 +25,7 @@ on:
       - "tools/test-performance-budgets.cjs"
       - "tools/audit-newestan-all-terms.cjs"
       - "reports/newestan-all-terms-source-crosswalk-2026-11-27.md"
-      - "website/learning/**"
-      - "tools/test-learning-*.cjs"
-      - "tools/performance-budgets.cjs"
-      - "tools/check-performance-budgets.cjs"
-      - "tools/test-performance-budgets.cjs"
-      - "tools/audit-newestan-all-terms.cjs"
-      - "reports/newestan-all-terms-source-crosswalk-2026-11-27.md"
+      - "tools/test-newestan-writing-worksheets.cjs"
       - ".github/workflows/audit-term01-term02.yml"
   pull_request:
     branches: [main]
@@ -57,6 +51,7 @@ on:
       - "tools/test-performance-budgets.cjs"
       - "tools/audit-newestan-all-terms.cjs"
       - "reports/newestan-all-terms-source-crosswalk-2026-11-27.md"
+      - "tools/test-newestan-writing-worksheets.cjs"
       - ".github/workflows/audit-term01-term02.yml"
   workflow_dispatch:
 
@@ -81,12 +76,13 @@ jobs:
             node --check "$file"
           done
           node --check website/newestan-rubric.js
+          node --check website/newestan-writing-worksheets.js
+          node --check tools/test-newestan-writing-worksheets.cjs
           node --check tools/audit-website-loading.cjs
           node --check tools/performance-budgets.cjs
           node --check tools/check-performance-budgets.cjs
           node --check tools/test-performance-budgets.cjs
           node --check tools/audit-newestan-all-terms.cjs
-          for file in website/learning/*.js tools/test-learning-*.cjs; do node --check "$file"; done
           for file in website/learning/*.js tools/test-learning-*.cjs; do node --check "$file"; done
 
       - name: Audit website initial loading and script dependencies
@@ -113,6 +109,7 @@ jobs:
           node tools/test-learning-review.cjs
           node tools/test-performance-budgets.cjs
           node tools/audit-newestan-all-terms.cjs
+          node tools/test-newestan-writing-worksheets.cjs
           node tools/test-learning-imla-diagnostics.cjs
 
       - name: Run Term 01 audit

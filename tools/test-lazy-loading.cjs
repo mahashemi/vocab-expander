@@ -188,9 +188,19 @@ async function waitFor(page, expression, label) {
     if (rubricState['t1-1']?.content !== 4) throw new Error('Term 01 rubric self-score was not saved: ' + JSON.stringify(rubricState));
     await page.reload({ waitUntil: 'load' });
     await waitFor(page, 'document.querySelector(".newestan-rubric-score")?.value === "4"', 'Term 01 rubric score persists after refresh');
+    await waitFor(page, 'document.querySelector(".newestan-worksheet") && document.querySelector("#newestan-ws-1-1-family")', 'Term 01 guided worksheet renders');
+    await page.locator("#newestan-ws-1-1-family").fill("مادر و پدر");
+    await page.reload({ waitUntil: 'load' });
+    await waitFor(page, 'document.querySelector("#newestan-ws-1-1-family")?.value === "مادر و پدر"', 'Term 01 worksheet notes persist after refresh');
 
-    await page.goto(target + '#/term/2/newestan/lesson/1', { waitUntil: 'load', timeout: 120000 });
+    await page.goto(target + '#/term/2/newestan/lesson/2', { waitUntil: 'load', timeout: 120000 });
     await waitFor(page, 'typeof window.renderNewestanTerm1 === "function" && document.querySelector(".newestan-workshop")', 'Term 02 Newestan workshop opens');
+    await waitFor(page, 'document.querySelector(".newestan-worksheet") && document.querySelector("#newestan-ws-2-2-person")', 'Term 02 guided worksheet renders');
+    await page.locator("#newestan-ws-2-2-person").fill("یک ورزشکار ایرانی");
+    await page.reload({ waitUntil: 'load' });
+    await waitFor(page, 'document.querySelector("#newestan-ws-2-2-person")?.value === "یک ورزشکار ایرانی"', 'Term 02 worksheet notes persist after refresh');
+    const worksheetState = await page.evaluate(() => JSON.parse(localStorage.getItem("newestan-writing-worksheets-v1") || "{}"));
+    if (worksheetState["t1-1"]?.family !== "مادر و پدر" || worksheetState["t2-2"]?.person !== "یک ورزشکار ایرانی") throw new Error("Term 01 and Term 02 worksheet notes are not isolated by term/chapter.");
     if (await page.locator('.newestan-rubric').count()) throw new Error('A 20-point rubric was invented for Term 02 despite no such rubric in the reviewed OCR pages.');
 
     await page.goto(target + '#/term/3/newestan/lesson/2', { waitUntil: 'load', timeout: 120000 });
@@ -353,7 +363,7 @@ async function waitFor(page, expression, label) {
     await waitFor(page, 'document.querySelector("#sharedVocabCard .meaning-en")?.textContent.trim().length > 0', 'Learning School opens the shared trilingual vocabulary card');
     const linkAudit = await page.evaluate(() => {
       const host = document.createElement('div');
-      host.innerHTML = 'منابع واژه‌ساختگی';
+      host.innerHTML = 'دانشجویان واژه‌ساختگی';
       document.body.append(host);
       const count = window.attachVocabularyLinks(host);
       const links = [...host.querySelectorAll('.kh-word')].map(button => ({
@@ -362,11 +372,12 @@ async function waitFor(page, expression, label) {
       }));
       return { count, links: links.map(item => ({ text: item.text, headword: item.row?.fa })), fakeLinked: links.some(item => item.text === 'واژه‌ساختگی') };
     });
-    if (linkAudit.count !== 1 || linkAudit.links[0]?.text !== 'منابع' || linkAudit.links[0]?.headword !== 'منبع' || linkAudit.fakeLinked) {
+    if (linkAudit.count !== 1 || linkAudit.links[0]?.text !== 'دانشجویان' || linkAudit.links[0]?.headword !== 'دانشجو' || linkAudit.fakeLinked) {
       throw new Error('Curated alias/exact-only vocabulary linking failed: ' + JSON.stringify(linkAudit));
     }
-    console.log('PASS: reviewed plural alias opens its base card; unrelated example token remains unlinked');
-    await page.locator('.kh-word').filter({ hasText: 'منابع' }).click();
+    console.log('PASS: reviewed inflection alias resolves to its base card; unrelated token remains unlinked');
+    await page.locator('.kh-word').filter({ hasText: 'دانشجویان' }).click();
+    await waitFor(page, 'document.querySelector("#sharedVocabCard .fa")?.textContent.includes("دانشجو")', 'Curated inflection opens its base headword card');
     await page.locator('#sharedVocabFlip').click();
     await waitFor(page, 'document.querySelector("#sharedVocabCard .meaning-en")?.textContent.trim().length > 0', 'Curated alias reveals the base card English meaning');
     await page.keyboard.press('Escape');

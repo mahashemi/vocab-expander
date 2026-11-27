@@ -11,7 +11,7 @@
   selectedLesson=rec.no;
   let drafts={};try{drafts=JSON.parse(localStorage.getItem(draftsKey)||"{}")}catch(e){}
   const draft=drafts[draftKey()]||{};
-  const rubric=window.renderNewestanRubric?window.renderNewestanRubric(activeTerm,rec.no):"";
+  const rubric=window.renderNewestanRubric?window.renderNewestanRubric(activeTerm,rec.no):"";const worksheet=window.renderNewestanWritingWorksheet?window.renderNewestanWritingWorksheet(activeTerm,rec.no):"";
   const model=rec.model
    ? '<div class="newestan-model-section"><b>مقدمه</b><p class="fa-block">'+esc(rec.model.muqaddama)+'</p></div>'+
      '<div class="newestan-model-section"><b>متن · بند اول</b><p class="fa-block">'+esc(rec.model.band1)+'</p></div>'+
@@ -26,7 +26,7 @@
    (window.renderNewestanLanguageLesson?window.renderNewestanLanguageLesson(activeTerm,rec.no):'')+
    '<div class="newestan-model-section"><b>تمرین واقعی درس · Textbook exercise</b><p class="fa-block">'+esc(rec.prompt)+'</p><p class="mut">'+esc(rec.promptEn)+'</p></div>'+
    '<div class="newestan-model-section"><b>ریزموضوع‌ها · Supporting subtopics</b><ol class="newestan-support">'+rec.subtopics.map(x=>'<li class="fa-block">'+esc(x)+'</li>').join("")+'</ol></div>'+
-   '<div class="newestan-model-section"><b>روش انجام تمرین · Writing steps</b><ol class="newestan-support">'+rec.steps.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ol></div>'+rubric+
+   '<div class="newestan-model-section"><b>روش انجام تمرین · Writing steps</b><ol class="newestan-support">'+rec.steps.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ol></div>'+rubric+worksheet+
    '<details open><summary><b>Model response · نمونهٔ پاسخ</b></summary><div class="dc">'+model+'</div></details>'+
    '<div class="newestan-model-section"><b>تمرین شما · Your own writing</b><textarea id="newestanDraft" class="essay-draft" placeholder="مقدمه، بند اول، بند دوم و نتیجه را بنویسید...">'+esc(draft.text||"")+'</textarea><div class="mut" id="newestanDraftSaved">Your draft is saved locally in this browser.</div></div>'+
    '</section>';
@@ -43,7 +43,7 @@
    const status=document.getElementById("newestanDraftSaved");
    if(status)status.textContent="Saved locally · "+new Date().toLocaleTimeString();
   });
-  if(window.bindNewestanRubric)window.bindNewestanRubric(activeTerm,selectedLesson);
+  if(window.bindNewestanRubric)window.bindNewestanRubric(activeTerm,selectedLesson);if(window.bindNewestanWritingWorksheet)window.bindNewestanWritingWorksheet(activeTerm,selectedLesson);
   if(typeof attachVocabularyLinks==="function"){const scope=document.querySelector(".writing-wrap");if(scope)attachVocabularyLinks(scope)}
   const print=document.getElementById("printNewestanLesson");
   if(print)print.onclick=printCurrent;
