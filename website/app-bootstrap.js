@@ -1277,6 +1277,7 @@ function attachVocabularyLinks(scope){
  ensureVocabularyModal(scope);
  return linkedCount;
 }
+window.attachVocabularyLinks=attachVocabularyLinks;
 function ensureVocabularyModal(scope){
  let modal=document.getElementById('sharedVocabModal');
  if(!modal){
