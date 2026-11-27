@@ -29,6 +29,7 @@
   }
   return (first>>>0).toString(36)+(second>>>0).toString(36);
  }
+ function legacyStableKey(legacyId,headword){return "vocab:source:"+encodeURIComponent(legacyId)+":"+encodeURIComponent(headword)}
  function stableKey(headword,kind,pos,meanings){
   const sense=[kind,normalize(pos),...meaningFields.map(field=>normalize(meanings?.[field]))].join("\u0000");
   return "vocab:canonical:"+encodeURIComponent(normalize(headword))+":"+hash(sense);
@@ -91,7 +92,7 @@
    headword,kind,pos:row.pos||null,meanings,
    acceptedForms:unique(row.acceptedForms),
    aliases:unique([...asArray(row.aliases),...asArray(row.variants),...asArray(row.synonyms)]),
-   legacyIds:[String(row.id)],occurrences:[occurrence],
+   legacyIds:[String(row.id),legacyStableKey(String(row.id),headword)],occurrences:[occurrence],
    examples:exampleRecords(row,sources),
    notes:unique([row.note,row.nt,...asArray(row.extraNotes)]),
    sourceConfidence:sources.length?"source-present":"user-added"
@@ -189,5 +190,5 @@
   }
   return [...grouped.values()];
  }
- root.VocabLearningManifest=Object.freeze({build,stableKey,selectPracticeRows});
+ root.VocabLearningManifest=Object.freeze({build,stableKey,legacyStableKey,selectPracticeRows});
 })(typeof window!=="undefined"?window:globalThis);
