@@ -114,6 +114,7 @@ jobs:
           node tools/test-performance-budgets.cjs
           node tools/audit-newestan-all-terms.cjs
           node tools/test-newestan-writing-worksheets.cjs
+          node tools/test-newestan-writing-worksheets.cjs
           node tools/test-learning-imla-diagnostics.cjs
 
       - name: Run Term 01 audit
