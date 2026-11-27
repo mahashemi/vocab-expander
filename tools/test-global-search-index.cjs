@@ -26,6 +26,6 @@ for(const marker of [
  "window.__getGlobalSearchDiagnostics"
 ])assert(portal.includes(marker),"Persistent search index is missing "+marker);
 assert(loader.includes("window.VOCAB_DATA_VERSION = assetVersion"),"Term loader must publish the data version");
-assert(html.includes("term-portal.js?v=20261127-postpaint-semantics"),"Search code cache key must be versioned");
+assert(html.includes("term-portal.js?v=20261127-postpaint-timer"),"Search code cache key must be versioned");
 assert(html.includes("term-loader.js?v=20261127-lazy-term-semantics"),"Data version cache key must be versioned");
 console.log("PASS: compact versioned search-index cache, complete content fingerprint, record reattachment and asset-version contract are present.");
