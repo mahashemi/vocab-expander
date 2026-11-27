@@ -330,6 +330,16 @@ async function waitFor(page, expression, label) {
       window.TERM1_DATA.push({...shared});
       window.TERM2_DATA.push({...shared, unit: 98, fa: 'واژهٔ آزمایش دوم', tr: 'azmāyesh dovom'});
       window.TERM3_DATA.push({...shared, unit: 98, fa: 'واژهٔ آزمایش سوم', tr: 'azmāyesh sevom'});
+      // The adapter intentionally derives meanings from the central semantic
+      // registry rather than trusting row-local sem fields.
+      window.PERSIAN_SEMANTICS = {
+        ...(window.PERSIAN_SEMANTICS || {}),
+        'عبارت آزمایشی ویژه': {
+          faMeaning: 'persian-semantic-fixture',
+          enMeaning: 'english-semantic-fixture',
+          arMeaning: 'arabic-semantic-fixture'
+        }
+      };
       // Term 02's runtime book is a BOOK2 + TERM2_DATA concatenation, so
       // refresh the canonical books after injecting isolated browser fixtures.
       window.__refreshVocabBooks();
