@@ -367,6 +367,7 @@ async function waitFor(page, expression, label) {
     }
     console.log('PASS: reviewed inflection alias resolves to its base card; unrelated token remains unlinked');
     await page.locator('.kh-word').filter({ hasText: 'دانشجویان' }).click();
+    await waitFor(page, 'document.querySelector("#sharedVocabCard .fa")?.textContent.includes("دانشجو")', 'Curated inflection opens its base headword card');
     await page.locator('#sharedVocabFlip').click();
     await waitFor(page, 'document.querySelector("#sharedVocabCard .meaning-en")?.textContent.trim().length > 0', 'Curated alias reveals the base card English meaning');
     await page.keyboard.press('Escape');
