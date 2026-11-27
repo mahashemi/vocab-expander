@@ -20,7 +20,7 @@ for(let term=1;term<=3;term++){
  const files=fs.readdirSync(dir);
  for(let no=1;no<=10;no++){
   const id="N"+term+"-"+String(no).padStart(2,"0");
-  const prefix="T"+term+"_N"+term+"_"+String(no).padStart(2,"0")+"-";
+  const prefix=term===3?"T3_N3-"+String(no).padStart(2,"0")+"-":"T"+term+"_N"+term+"_"+String(no).padStart(2,"0")+"-";
   const sourceFile=files.find(name=>name.startsWith(prefix)&&name.endsWith(".txt"));
   assert(sourceFile,"Missing original OCR source for "+id);
   const raw=fs.readFileSync(path.join(dir,sourceFile),"utf8");
