@@ -11,7 +11,8 @@
     3: 2161
   });
 
-  const assetVersion = "20261127-term01-02-writing-worksheets";
+  const assetVersion = "20261127-persistent-global-search-index";
+  window.VOCAB_DATA_VERSION = assetVersion;
   const sharedSemanticScript = "semantic-meanings.js";
   const term01CoreScripts = [
     "term01-data.js",
