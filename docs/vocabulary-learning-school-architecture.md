@@ -1,6 +1,6 @@
 # Vocabulary Learning School — Architecture Contract
 
-**Status:** P0 design baseline  
+**Status:** P0 design baseline; implementation in progress (updated 2026-11-27)  
 **Scope:** Term 01, Term 02, Term 03, every book, words and multiword expressions  
 **Separate from:** Newestan writing instruction (essay/paragraph/research-writing curriculum)
 
@@ -9,6 +9,14 @@
 The school teaches learners to remember and correctly write the Persian vocabulary they have studied. It is not a second dictionary, a random quiz generator, or a replacement for Newestan. Every activity is a distinct learning mode with its own teaching and interaction logic; all modes share one vocabulary identity model and one learner-progress model.
 
 The first release exposes **Imla (املاء)**, **Skip-gram**, and **Meaning Recall** (English and Arabic directions) as independent modes. Other modes can be registered later without changing the item model or progress schema.
+
+### Implementation status — 2026-11-27
+
+- The shared mode registry now validates independent mode modules, rejects duplicate IDs and incomplete contracts, and returns eligibility assessments with a reason. The Learning School adapters assign stable IDs to Imla, Skip-gram and Meaning Recall.
+- The progress-summary service groups real attempts by Term 01/02/03 and by mode. The UI shows attempts, distinct items practised and observed accuracy; it explicitly does **not** label accuracy as mastery.
+- Practice exercises link to the existing central trilingual vocabulary flashcard; no duplicate dictionary/card UI is introduced.
+- Browser coverage verifies the Learning School route, all three registered modes, a source-backed Imla answer, opening/revealing the shared card and closing it with Escape.
+- These improvements do not yet solve explicit cross-term lexical identity: current canonical IDs still map legacy runtime records. Do not treat matching headwords as the same lexical item without reviewed equivalence data.
 
 ## 2. Existing data inventory
 
@@ -179,7 +187,7 @@ Do not generate exercises for every item by force. A phrase may be suitable for 
 
 ### P1 — shared foundation
 - [x] Read-only source-row manifest builder, validator and legacy alias resolver; 4,045 source rows validate with no ambiguous aliases.
-- [x] Independent mode eligibility checks for Imla and Skip-gram; shared explainable registry remains pending.
+- [x] Independent mode eligibility checks for Imla and Skip-gram; shared registry, duplicate-ID/contract validation and eligibility assessments are implemented. Mode-specific ineligibility explanations and full scoring/feedback hooks remain follow-up.
 - [x] Independent Imla and Skip-gram APIs with deterministic Skip-gram masks and unit tests.
 - [x] Separate local attempt event store with canonical item IDs, preserved legacy aliases, correctness, error categories, hints and elapsed time. Legacy completion remains untouched.
 
@@ -187,12 +195,13 @@ Do not generate exercises for every item by force. A phrase may be suitable for 
 - [x] Imla module and independent tests, including grapheme-level error diagnostics and explicit ZWNJ handling.
 - [x] English/Arabic Meaning Recall module with reviewed-synonym validation and independent progress histories.
 - [x] Skip-gram module and independent tests.
-- [x] Mobile-responsive practice UI, keyboard submission, term filters and persistent route. Central flashcard deep-link integration remains a follow-up.
+- [x] Mobile-responsive practice UI, keyboard submission, term filters and persistent route.
+- [x] Practice exercises open the existing central trilingual flashcard, with focus return and Escape-to-close behavior.
 
 ### P2 — retention and additional modes
 - [ ] Confusable letters, reconstruction, meaning retrieval and contextual completion.
 - [x] Mistake notebook, evidence-based difficulty, grapheme-error analytics and 1/3/7/14/30-day spaced revision.
-- [ ] Cross-term practice summaries.
+- [x] Cross-term practice summaries for all three terms and per-mode attempts/accuracy; labelled as practice statistics, not mastery.
 
 ### P3 — audio
 - [ ] Listening dictation only for verified audio sources.
@@ -208,3 +217,15 @@ Do not generate exercises for every item by force. A phrase may be suitable for 
 - Do not create separate per-term learning engines.
 - Do not regress global search, route/deep-link behavior, central vocabulary cards, Verb Treasury, or existing saved progress.
 - Keep performance lazy-loading: the school and its mode modules must load only when the learner opens practice.
+
+
+## Implementation follow-up and honest remaining gaps
+
+**Delivered in PRs #152–#158 (squash-merged):** mode registry, cross-term practice summary, central flashcard opener, explicit stable mode IDs, route diagnostics and browser coverage. The first browser attempt exposed the missing IDs; the integration was corrected before treating the School as mounted.
+
+**Still open:**
+- The current manifest is a deterministic read-only index over legacy records, not a reviewed, persistent, explicitly assigned cross-term canonical identity graph. Cross-term homographs and semantic equivalence still require editorial review.
+- The registry currently enforces the common eligible/createPrompt/validate/hint methods. Per-mode scoring, detailed feedback and explicit reason taxonomies are not yet a complete shared contract.
+- Attempt history and summaries remain browser-local; cross-device sync is not promised.
+- Additional modes (confusable-letter contrasts, contextual completion and verified-audio dictation) remain unimplemented.
+- Full all-term mobile/desktop browser verification and performance artifact publication are release gates, not assumed complete from unit tests alone.
