@@ -8,6 +8,12 @@ const html=fs.readFileSync("website/index.html","utf8");
 for(const marker of [
  "vocab_expander_global_search_index_v1",
  "fingerprintSearchRows",
+ "function searchableFields(x)",
+ "x.acceptedForms,x.aliases",
+ "x.variants,x.synonyms,x.xf,x.xt,x.xe",
+ "x.extraExamples,x.extraNotes",
+ "x.m,x.a,x.note,x.ms,x.amr,x.units",
+ "_hay:normalize(searchableFields(x.record||{}).concat([x.label,x.tr,x.meaning,x.forms,x.source]).join(\" \"))",
  "payload.version===version",
  "payload.fingerprint===fingerprint",
  "localStorage.getItem(SEARCH_INDEX_STORAGE_KEY)",
