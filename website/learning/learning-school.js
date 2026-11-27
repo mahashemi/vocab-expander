@@ -12,7 +12,7 @@
  let mode="imla",term="all",queueFilter="all",queue=[],index=0,current=null,prompt=null,hints=0,started=0,checked=false,identitySnapshot=null,reviewMap=new Map(),reviewCounts={new:0,due:0,weak:0},showMistakes=false,focusedLegacyId=null,meaningLanguage="en";
  function buildIdentity(){identitySnapshot=window.VocabLearningManifest.build(items())}
  function canonicalItemId(legacyId){const result=window.VocabLearningIdentity.resolveLegacyId(identitySnapshot?.aliasIndex,String(legacyId||""));return result.status==="resolved"?result.itemId:"legacy:"+String(legacyId||"unknown")}
- function history(){return read().map(event=>{const legacyId=event.legacyId||event.itemId;const storedId=String(event.itemId||"");const itemId=storedId.startsWith("vocab:source:")?storedId:canonicalItemId(legacyId);return {...event,legacyId,itemId}})}
+ function history(){return read().map(event=>{const legacyId=event.legacyId||event.itemId;const itemId=canonicalItemId(legacyId);return {...event,legacyId,itemId}})}
  function reviewKey(itemId,modeId){return itemId+"|"+modeId}
  function progressModeId(){return mode==="meaning-recall"?"meaning-recall-"+meaningLanguage:mode}
  function buildReviewMap(){reviewMap=new Map();for(const event of history()){const key=reviewKey(event.itemId,event.modeId);if(!reviewMap.has(key))reviewMap.set(key,[]);reviewMap.get(key).push(event)}}
