@@ -20,6 +20,7 @@ on:
       - "tools/report-term03-fa3-page1-gaps.cjs"
       - "tools/report-term03-fa3-reading-gaps.cjs"
       - "tools/test-term03-fa3-cross-term-gaps.cjs"
+      - "tools/test-lazy-loading.cjs"
       - "tests/test_term03_content.py"
       - "TERM03_FIRST_PAGE_AUDIT.md"
       - ".github/workflows/audit-term03.yml"
@@ -73,6 +74,7 @@ jobs:
           node --check tools/report-term03-fa3-page1-gaps.cjs
           node --check tools/report-term03-fa3-reading-gaps.cjs
           node --check tools/test-term03-fa3-cross-term-gaps.cjs
+          node --check tools/test-lazy-loading.cjs
           node --check tools/report-term03-kh3-n3-sh3-page1-gaps.cjs
 
       - name: Run source-based Newestan writing and chapter-guide audit
