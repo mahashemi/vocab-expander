@@ -247,7 +247,9 @@
    const term=activeTerm;
    termSemanticsScheduled.add(term);
    const enrich=()=>{termSemanticsScheduled.delete(term);window.ensureTermSemantics(term).catch(error=>console.error("Term 0"+term+" semantic enrichment failed",error));};
-   if(typeof window.requestIdleCallback==="function")window.requestIdleCallback(enrich,{timeout:1800});
+   // requestIdleCallback can be throttled in background/headless tabs.
+   // One animation frame plus a timer guarantees first-render paint opportunity.
+   if(typeof window.requestAnimationFrame==="function")window.requestAnimationFrame(()=>window.setTimeout(enrich,0));
    else window.setTimeout(enrich,0);
   }
   if(activeTerm===3&&tab!=="portal"&&!window.TERM03_SEMANTICS_READY&&window.ensureTerm03Semantics&&!term03SemanticsScheduled){
