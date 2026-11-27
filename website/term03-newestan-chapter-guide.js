@@ -15,16 +15,93 @@
   10:{title:"Research questions and project writing",fa:"پرسش پژوهش و سازمان‌دهی تحقیق",outcomes:["انتخاب موضوع محدود و قابل بررسی","ساختن پرسش اصلی و پرسش‌های فرعی","یادداشت‌برداری و ثبت مشخصات منابع","سازمان‌دهی عنوان‌ها، چکیده و ۵ تا ۸ کلیدواژه"],example:{fa:"موضوع: یادگیری زبان فارسی\nپرسش اصلی: چه عواملی به یادگیری مؤثر زبان فارسی کمک می‌کنند؟\nپرسش فرعی: تمرین روزانه چه نقشی دارد؟",en:"The main question is explanatory, not a yes/no question."},task:"کدام گزینه پرسش پژوهشی توضیحی و قابل گسترش است؟",options:["آیا فارسی زبان خوبی است؟","چه عواملی بر یادگیری زبان فارسی تأثیر می‌گذارند؟","آیا باید مطالعه کنیم؟"],answer:1,why:"این پرسش پاسخ بله/خیر ندارد و می‌توان آن را با پرسش‌های فرعی، شواهد و منابع بررسی کرد.",activity:"یک موضوع انتخاب کنید، یک پرسش اصلی و سه پرسش فرعی بنویسید، دو منبع ثبت کنید و در پایان چکیده و ۵ تا ۸ کلیدواژه آماده کنید.",source:"N3-10 · OCR pp. 2–9"}
  };
  const esc=s=>typeof window.esc==="function"?window.esc(String(s??"")):String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+ const worksheets={
+  1:{title:"Paragraph plan and job-application form · طرح بند و فرم درخواست کار",fields:[
+   ["topic","جملهٔ موضوع","موضوع اصلی بند را در یک جمله بنویسید."],
+   ["support","جمله‌های پشتیبان","دو یا سه توضیح مرتبط بنویسید؛ همه باید از یک موضوع پشتیبانی کنند."],
+   ["closing","جملهٔ پایانی","بند را با یک نکتهٔ مهم جمع‌بندی کنید."],
+   ["applicant","مشخصات و تحصیلات متقاضی","نام، تحصیلات و مهارت‌های مرتبط را یادداشت کنید."],
+   ["experience","سوابق و هدف درخواست","تجربهٔ مرتبط و دلیل درخواست این شغل را بنویسید."]
+  ]},
+  2:{title:"Biography research and timeline · تحقیق و جدول زمانی زندگی‌نامه",fields:[
+   ["person","شخص مورد نظر","نام فرد و دلیل انتخاب او را بنویسید."],
+   ["sources","منابع قابل بررسی","کتاب، مقاله، وب‌سایت معتبر یا مصاحبه را ثبت کنید."],
+   ["timeline","جدول زمانی","هر رویداد را همراه با تاریخ و منبع آن در یک خط بنویسید."],
+   ["turning","نقطه‌های عطف و دستاوردها","مهم‌ترین تغییرها، آثار یا دستاوردها را مشخص کنید."],
+   ["interview","پرسش مصاحبه","سه پرسش باز بنویسید که پاسخ آن‌ها فقط بله یا خیر نباشد."]
+  ]},
+  3:{title:"Description and point-of-view planner · طرح توصیف و زاویهٔ دید",fields:[
+   ["subject","مکان یا خاطره","چه مکان، شیء یا خاطره‌ای را توصیف می‌کنید؟"],
+   ["inside","زاویهٔ دید درونی","اگر راوی «من» باشد، چه می‌بیند، می‌شنود یا احساس می‌کند؟"],
+   ["outside","زاویهٔ دید بیرونی","همان صحنه را با ضمیر «او» چگونه توصیف می‌کنید؟"],
+   ["details","جزئیات حسی و رویدادها","رنگ، صدا، بو، احساس و ترتیب رویدادها را یادداشت کنید."],
+   ["tenses","زمان فعل‌ها","مشخص کنید کجا گذشتهٔ ساده، استمراری، نقلی یا بعید لازم است."]
+  ]},
+  4:{title:"Social-issue analysis · پرسش‌نامه و تحلیل مسئلهٔ اجتماعی",fields:[
+   ["issue","تعریف مسئله","مسئله را دقیق و بدون قضاوت شخصی تعریف کنید."],
+   ["questions","پرسش‌های بررسی","سه پرسش روشن برای شناخت مسئله بنویسید."],
+   ["causes","علت‌ها","علت‌های فردی، خانوادگی و اجتماعی را دسته‌بندی کنید."],
+   ["effects","پیامدها","پیامدهای مسئله بر سلامت، خانواده یا جامعه را توضیح دهید."],
+   ["conclusion","جمع‌بندی و راه‌حل","یک راه‌حل واقع‌بینانه و دلیل آن را بنویسید."]
+  ]},
+  5:{title:"Observation notebook · دفتر مشاهده برای نوشتن توصیفی",fields:[
+   ["general","ویژگی‌های کلی","ابتدا شکل، موقعیت یا فضای کلی موضوع را توصیف کنید."],
+   ["specific","جزئیات مشخص","سه جزئیات دقیق و قابل مشاهده بنویسید."],
+   ["senses","جزئیات حسی","آنچه می‌بینید، می‌شنوید، بو می‌کنید یا لمس می‌کنید ثبت کنید."],
+   ["simile","تشبیه","یک تشبیه مناسب و روشن بسازید."],
+   ["personification","جان‌بخشی","به یک شیء یا پدیده ویژگی انسانی بدهید."]
+  ]},
+  6:{title:"Fair media critique · کاربرگ نقد منصفانهٔ رسانه",fields:[
+   ["work","اثر یا رسانهٔ مورد نقد","نام کتاب، متن، وب‌سایت یا خدمت اینترنتی را بنویسید."],
+   ["strengths","نقاط قوت","دو نقطهٔ قوت را با شاهد یا مثال توضیح دهید."],
+   ["weaknesses","نقاط ضعف","یک یا دو محدودیت مشخص را بدون حمله به نویسنده بیان کنید."],
+   ["evidence","شواهد و دلیل‌ها","برای هر داوری، شاهد یا دلیل قابل بررسی بیاورید."],
+   ["suggestion","پیشنهاد سازنده","یک راه بهبود عملی پیشنهاد دهید."]
+  ]},
+  7:{title:"Weekly planning table · برنامه‌ریزی هفتگی",fields:[
+   ["goal","هدف هفته","هدف روشن و قابل سنجش خود را بنویسید."],
+   ["priorities","اولویت‌ها","کارها را از مهم‌ترین تا کم‌اهمیت‌ترین مرتب کنید."],
+   ["schedule","تقسیم زمان","روز، ساعت و فعالیت هر بازه را در خط‌های جداگانه بنویسید."],
+   ["review","مرور و تکرار","زمان مرور درس‌ها و تمرین‌های ناقص را مشخص کنید."],
+   ["backup","زمان جبرانی","اگر برنامه‌ای انجام نشد، چه زمانی آن را جبران می‌کنید؟"]
+  ]},
+  8:{title:"Comparison and summary worksheet · کاربرگ مقایسه و خلاصه",fields:[
+   ["subjects","دو موضوع مورد مقایسه","نام کشورها، فرهنگ‌ها یا دو موضوع را بنویسید."],
+   ["criteria","معیارهای مقایسه","سه معیار مشترک مانند غذا، آداب یا هزینه انتخاب کنید."],
+   ["method","روش نگارش","انتخاب کنید: روش کلی یا روش جزءبه‌جزء؛ دلیل انتخاب را بنویسید."],
+   ["connectors","واژه‌ها و حروف ربط","از عبارت‌هایی مانند از نظر، از لحاظ، اما، درحالی‌که استفاده کنید."],
+   ["summary","خلاصهٔ متن","موضوع اصلی و نکات مهم را با روش مفهوم یا حذف خلاصه کنید."]
+  ]},
+  9:{title:"Academic study and scientific writing · کاربرگ مطالعه و نوشتار علمی",fields:[
+   ["comparison","دانشگاه حضوری و مجازی","دو شباهت و دو تفاوت را یادداشت کنید."],
+   ["study","روش مطالعه","پیش‌مطالعه، هدف‌گذاری، مرور و یادداشت‌برداری خود را برنامه‌ریزی کنید."],
+   ["claim","ادعای علمی","یک ادعای روشن و محدود دربارهٔ موضوع بنویسید."],
+   ["evidence","شاهد و منبع","منبع معتبر و شاهدی را که ادعا را پشتیبانی می‌کند ثبت کنید."],
+   ["revision","بازبینی زبان علمی","عبارت‌های محاوره‌ای، مبهم یا تکراری را با عبارت دقیق جایگزین کنید."]
+  ]},
+  10:{title:"Research-plan worksheet · فرم برنامهٔ تحقیق",fields:[
+   ["topic","موضوع محدود تحقیق","موضوعی خاص و قابل بررسی انتخاب کنید؛ از موضوع بسیار کلی بپرهیزید."],
+   ["main","پرسش اصلی","موضوع را به پرسشی توضیحی تبدیل کنید؛ نه پرسش بله/خیر."],
+   ["sub","پرسش‌های فرعی","سه پرسش بنویسید که با پاسخ آن‌ها بتوانید پرسش اصلی را پاسخ دهید."],
+   ["sources","یادداشت منابع","نویسنده، سال، عنوان، ناشر و صفحه یا نشانی منبع را ثبت کنید."],
+   ["abstract","طرح چکیده","موضوع، روش، نکات اصلی و یافته‌های مورد انتظار را خلاصه کنید."],
+   ["keywords","کلیدواژه‌ها","۵ تا ۸ واژه یا عبارت کلیدی بنویسید."]
+  ]}
+ };
  window.TERM03_NEWESTAN_CHAPTER_GUIDE=chapters;
+ window.TERM03_NEWESTAN_WORKSHEETS=worksheets;
  window.renderNewestanChapterGuide=(lessonNo)=>{
   const c=chapters[Number(lessonNo)];if(!c)return "";
+  const ws=worksheets[Number(lessonNo)]||{title:"Guided practice",fields:[]};
+  let saved={};try{saved=JSON.parse(localStorage.getItem("newestan-chapter-worksheet-v1")||"{}")[String(lessonNo)]||{}}catch(e){}
+  const worksheet='<div class="newestan-guide-worksheet"><b>Guided worksheet · کاربرگ تکمیلی</b><h4>'+esc(ws.title)+'</h4><p class="mut">Supplementary practice based on this chapter. Your notes are saved locally in this browser.</p>'+ws.fields.map(([id,label,placeholder])=>'<label class="newestan-guide-field"><span>'+esc(label)+'</span><textarea rows="2" data-guide-field="'+esc(id)+'" placeholder="'+esc(placeholder)+'">'+esc(saved[id]||"")+'</textarea></label>').join("")+'<small class="newestan-guide-worksheet-status" aria-live="polite">Saved locally on this device.</small></div>';
   return '<section class="newestan-chapter-guide panel" data-guide-lesson="'+Number(lessonNo)+'">'+
    '<div class="newestan-guide-kicker">CHAPTER LEARNING GUIDE · راهنمای یادگیری فصل</div>'+
    '<h3>'+esc(c.fa)+' · '+esc(c.title)+'</h3>'+
    '<div class="newestan-guide-block"><b>By the end of this chapter · در پایان این درس</b><ul>'+c.outcomes.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul></div>'+
    '<div class="newestan-guide-block"><b>Worked example · نمونهٔ توضیح‌دار</b><p class="fa-block" dir="rtl">'+esc(c.example.fa).replace(/\n/g,"<br>")+'</p><p>'+esc(c.example.en)+'</p></div>'+
    '<div class="newestan-guide-practice"><b>Quick understanding check · سنجش یادگیری</b><p>'+esc(c.task)+'</p><div class="newestan-guide-options">'+c.options.map((x,i)=>'<label><input type="radio" name="newestanGuideAnswer" value="'+i+'"> <span>'+esc(x)+'</span></label>').join("")+'</div><button type="button" class="newestan-guide-check">Check answer · بررسی پاسخ</button><p class="newestan-guide-feedback" aria-live="polite" hidden></p></div>'+
-   '<div class="newestan-guide-block"><b>Now practise · تمرین تکمیلی</b><p>'+esc(c.activity)+'</p></div>'+
+   '<div class="newestan-guide-block"><b>Now practise · تمرین تکمیلی</b><p>'+esc(c.activity)+'</p></div>'+worksheet+
    (c.caution?'<p class="newestan-guide-caution"><b>Source caution · نکتهٔ منبع:</b> '+esc(c.caution)+'</p>':'')+
    '<div class="newestan-guide-source">'+esc(c.source)+' · Supplementary teaching aid based on the chapter OCR; examples are instructional, not quotations.</div>'+
    '</section>';
@@ -32,6 +109,12 @@
  window.bindNewestanChapterGuide=()=>{
   const root=document.querySelector(".newestan-chapter-guide");if(!root)return;
   const button=root.querySelector(".newestan-guide-check"),feedback=root.querySelector(".newestan-guide-feedback");
+  root.querySelectorAll("textarea[data-guide-field]").forEach(field=>field.addEventListener("input",()=>{
+   const lesson=String(root.dataset.guideLesson);let all={};try{all=JSON.parse(localStorage.getItem("newestan-chapter-worksheet-v1")||"{}")}catch(e){}
+   all[lesson]=all[lesson]||{};all[lesson][field.dataset.guideField]=field.value;
+   try{localStorage.setItem("newestan-chapter-worksheet-v1",JSON.stringify(all))}catch(e){}
+   const status=root.querySelector(".newestan-guide-worksheet-status");if(status)status.textContent="Saved locally · یادداشت شما ذخیره شد.";
+  }));
   if(!button||!feedback)return;
   button.onclick=()=>{
    const chosen=root.querySelector('input[name="newestanGuideAnswer"]:checked');

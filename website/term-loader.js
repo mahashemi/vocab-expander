@@ -11,7 +11,7 @@
     3: 2161
   });
 
-  const assetVersion = "20261127-newestan-chapter-guide";
+  const assetVersion = "20261127-newestan-guided-worksheets";
   const sharedSemanticScript = "semantic-meanings.js";
   const term01CoreScripts = [
     "term01-data.js",

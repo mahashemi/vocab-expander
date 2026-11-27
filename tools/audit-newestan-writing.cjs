@@ -70,13 +70,16 @@ assert(t3["N3-06"].modelInternet?.band2,"Dars 06 must model the internet benefit
 
 const chapterGuide=global.TERM03_NEWESTAN_CHAPTER_GUIDE;
 assert.equal(Object.keys(chapterGuide||{}).length,10,"Term 03 must have a chapter guide for all ten lessons");
+assert.equal(Object.keys(global.TERM03_NEWESTAN_WORKSHEETS||{}).length,10,"Term 03 must have a guided worksheet for every chapter");
 for(let i=1;i<=10;i++){
  const guide=chapterGuide[i];
  assert(guide&&guide.title&&guide.fa&&guide.outcomes?.length>=3&&guide.example?.fa&&guide.example?.en,"Incomplete Term 03 chapter guide: "+i);
  assert(guide.task&&guide.options?.length>=2&&Number.isInteger(guide.answer)&&guide.answer>=0&&guide.answer<guide.options.length,"Invalid formative check: N3-"+i);
  assert(guide.why&&guide.activity&&guide.source,"Missing explanation, activity or source attribution: N3-"+i);
+ const worksheet=global.TERM03_NEWESTAN_WORKSHEETS[i];
+ assert(worksheet?.title&&worksheet.fields?.length>=3,"Missing guided worksheet fields for N3-"+i);
  const rendered=global.renderNewestanChapterGuide(i);
- assert(rendered.includes("CHAPTER LEARNING GUIDE")&&rendered.includes("Quick understanding check")&&rendered.includes(guide.title),"Chapter guide failed to render: N3-"+i);
+ assert(rendered.includes("CHAPTER LEARNING GUIDE")&&rendered.includes("Quick understanding check")&&rendered.includes(guide.title)&&rendered.includes("Guided worksheet"),"Chapter guide or worksheet failed to render: N3-"+i);
 }
 assert(chapterGuide[2].caution&&chapterGuide[7].caution,"OCR uncertainty must be explicitly disclosed for N3-02 and N3-07");
 const language=global.NEWESTAN_LANGUAGE_LESSONS;
