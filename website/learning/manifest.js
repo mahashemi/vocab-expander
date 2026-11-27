@@ -14,7 +14,8 @@
  }
  function kindFor(row,headword){
   const pos=String(row.pos||"");
-  if(row.ms||row.amr||/فعل مرکب|compound verb/i.test(pos))return "compound-verb";
+  if(/فعل مرکب|compound verb/i.test(pos))return "compound-verb";
+  if(row.ms||row.amr)return /\s/.test(headword)?"compound-verb":"word";
   return /\s/.test(headword)?"phrase":"word";
  }
  function hash(value){
@@ -91,7 +92,7 @@
    aliases:unique([...(row.aliases||[]),...(row.variants||[]),...(row.synonyms||[])]),
    legacyIds:[String(row.id)],occurrences:[occurrence],
    examples:exampleRecords(row,sources),
-   notes:unique([row.note,row.nt,...(row.extraNotes||[])]),
+   notes:unique([row.note,row.nt,...(Array.isArray(row.extraNotes)?row.extraNotes:[])]),
    sourceConfidence:sources.length?"source-present":"user-added"
   };
  }
@@ -136,10 +137,10 @@
   const validation=root.VocabLearningIdentity.validateManifest(manifest);
   const aliasIndex=root.VocabLearningIdentity.buildLegacyAliasIndex(manifest);
   const occurrenceCount=items.reduce((sum,item)=>sum+item.occurrences.length,0);
+  const crossTermMerged=items.filter(item=>new Set(item.occurrences.map(occurrence=>occurrence.term)).size>1).length;
   return {manifest,validation,aliasIndex,stats:{
    sourceRows:(rows||[]).length,indexedItems:items.length,occurrences:occurrenceCount,
-   ambiguousAliases:aliasIndex.ambiguous.length,unmappedRows:unmapped.length,
-   crossTermMerged:Math.max(0,occurrenceCount-items.length)
+   ambiguousAliases:aliasIndex.ambiguous.length,unmappedRows:unmapped.length,crossTermMerged
   }};
  }
  function rowQuality(row){
