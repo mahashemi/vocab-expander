@@ -119,8 +119,8 @@ const forbiddenInitial = [
 for (const file of forbiddenInitial) {
   if (indexOf(file) >= 0) loaderOrderErrors.push(file + ' must remain out of the initial HTML payload');
 }
-if (!loaderText.includes('length: 46') || !loaderText.includes('term03-additional-semantics-')) {
-  loaderOrderErrors.push('Term 03 loader must include all 46 additional semantic chunks');
+if (!loaderText.includes('term03-additional-semantics-bundle.js') || loaderText.includes('length: 46')) {
+  loaderOrderErrors.push('Term 03 loader must defer the single verified 46-batch semantic bundle');
 }
 
 const quotedJsFiles = value => value.split('"').filter(x => x.endsWith('.js'));
@@ -144,7 +144,7 @@ const featureStart = loaderText.indexOf('const featureScripts');
 const featureEnd = loaderText.indexOf('const scriptLoads');
 const explicitTerm3Files = quotedJsFiles(loaderText.slice(term3CoreStart, term3CoreEnd));
 const lazyTerm03CoreScriptCount = explicitTerm3Files.length;
-const term03SemanticEnrichmentScriptCount = 46;
+const term03SemanticEnrichmentScriptCount = 1;
 const lazyFeatureFiles = quotedJsFiles(loaderText.slice(featureStart, featureEnd));
 const sharedFeatureFiles = ['newestan-writing-library.js', 'newestan-language-lessons.js', 'newestan-rubric.js', 'newestan-writing-ui.js'];
 const lazyFeatureScriptCount = new Set([...lazyFeatureFiles, ...sharedFeatureFiles]).size;
