@@ -28,6 +28,8 @@ const id1=VocabLearningIdentity.resolveLegacyId(built.aliasIndex,"1|1|FA1-01|ک�
 const id2=VocabLearningIdentity.resolveLegacyId(built.aliasIndex,"2|2|FA2-02|کتاب");
 assert.equal(id1.status,"resolved");
 assert.equal(id1.itemId,id2.itemId,"legacy progress IDs from both terms resolve to the same canonical identity");
+const priorSourceId=VocabLearningManifest.legacyStableKey("1|1|FA1-01|کتاب","کتاب");
+assert.equal(VocabLearningIdentity.resolveLegacyId(built.aliasIndex,priorSourceId).itemId,id1.itemId,"previously saved source-specific progress IDs migrate to the canonical identity");
 assert.equal(VocabLearningIdentity.resolveLegacyId(built.aliasIndex,"3|3|FA3-03|کتاب").itemId===id1.itemId,false,"different senses do not collapse");
 assert.equal(built.manifest.items.find(x=>x.headword==="در نتیجه").kind,"phrase");
 assert.equal(built.manifest.items.find(x=>x.headword==="تماس گرفتن").kind,"compound-verb");
