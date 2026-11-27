@@ -20,6 +20,8 @@ on:
       - "tools/audit-term03.cjs"
       - "website/learning/**"
       - "tools/test-learning-*.cjs"
+      - "website/learning/**"
+      - "tools/test-learning-*.cjs"
       - ".github/workflows/audit-term01-term02.yml"
   pull_request:
     branches: [main]
@@ -38,6 +40,8 @@ on:
       - "tools/audit-term01.cjs"
       - "tools/audit-term02.cjs"
       - "tools/audit-term03.cjs"
+      - "website/learning/**"
+      - "tools/test-learning-*.cjs"
       - ".github/workflows/audit-term01-term02.yml"
   workflow_dispatch:
 
@@ -64,6 +68,7 @@ jobs:
           node --check website/newestan-rubric.js
           node --check tools/audit-website-loading.cjs
           for file in website/learning/*.js tools/test-learning-*.cjs; do node --check "$file"; done
+          for file in website/learning/*.js tools/test-learning-*.cjs; do node --check "$file"; done
 
       - name: Audit website initial loading and script dependencies
         run: node tools/audit-website-loading.cjs
@@ -83,6 +88,7 @@ jobs:
           node tools/test-learning-identity.cjs
           node tools/test-learning-manifest.cjs
           node tools/test-learning-registry.cjs
+          node tools/test-learning-progress-summary.cjs
           node tools/test-learning-modes.cjs
           node tools/test-learning-meaning.cjs
           node tools/test-learning-review.cjs
