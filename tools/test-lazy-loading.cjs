@@ -4,10 +4,19 @@
 // Browser smoke tests for the lazy-loaded Term 03 payload and lesson features.
 const { chromium } = require('playwright');
 
-const target = process.env.SITE_URL || 'https://mahashemi.github.io/vocab-expander/';
+const targetUrl = new URL(process.env.SITE_URL || 'https://mahashemi.github.io/vocab-expander/');
+targetUrl.searchParams.set('ci-run', process.env.GITHUB_RUN_ID || String(Date.now()));
+const target = targetUrl.toString();
 
-async function waitFor(page, expression, label) {
-  await page.waitForFunction(expression, null, { timeout: 120000 });
+function routeUrl(hash, params = {}) {
+  const url = new URL(target);
+  for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
+  url.hash = hash;
+  return url.toString();
+}
+
+async function waitFor(page, expression, label, timeout = 120000) {
+  await page.waitForFunction(expression, null, { timeout });
   console.log('PASS: ' + label);
 }
 
@@ -21,6 +30,9 @@ async function waitFor(page, expression, label) {
   page.on('console', message => {
     if (message.type() === 'error' && message.text().includes('Term 03 deduplication audit requires attention')) {
       dedupAuditErrors.push(message.text());
+    }
+    if (message.type() === 'error' && /Term 0[12].*semantic|semantic enrichment failed/i.test(message.text())) {
+      console.log('BROWSER ERROR: ' + message.text());
     }
   });
 
@@ -47,7 +59,7 @@ async function waitFor(page, expression, label) {
     // A fresh page must be able to open Term 03 without first visiting Term 01/02.
     const directPage = await context.newPage();
     directPage.on('pageerror', error => pageErrors.push(String(error)));
-    await directPage.goto(target + '?route-test=fresh-term03#/term/3/fa/chapter/1', { waitUntil: 'domcontentloaded', timeout: 120000 });
+    await directPage.goto(routeUrl('#/term/3/fa/chapter/1', { 'route-test': 'fresh-term03' }), { waitUntil: 'domcontentloaded', timeout: 120000 });
     const freshRouteState = await directPage.evaluate(() => ({
       boot: document.documentElement.classList.contains('route-boot'),
       requestedRoute: location.hash === '#/term/3/fa/chapter/1',
@@ -96,7 +108,19 @@ async function waitFor(page, expression, label) {
 
     await page.goto(target + '#/term/1/fa', { waitUntil: 'load', timeout: 120000 });
     await waitFor(page, 'window.getLoadedTermNumbers().includes(1) && Array.isArray(window.TERM1_DATA) && window.TERM1_DATA.length > 0', 'Term 01 active core data loads');
-    await waitFor(page, 'window.TERM01_SEMANTICS_READY === true', 'Term 01 semantic enrichment completes after the first render');
+    const term01LoaderDiagnostic = await page.evaluate(() => ({
+      ensureTermSemantics: typeof window.ensureTermSemantics,
+      readyFlag: window.TERM01_SEMANTICS_READY,
+      routeMarks: performance.getEntriesByName('vocab-term01-route-ready').map(mark => mark.startTime),
+      semanticsMarks: performance.getEntriesByName('vocab-term01-semantics-ready').map(mark => mark.startTime),
+      activeTitle: document.getElementById('activeTermTitle')?.textContent || null,
+      activeTab: document.querySelector('#termTabs .on')?.dataset.t || null,
+      requestIdleCallback: typeof window.requestIdleCallback,
+      termLoader: [...document.scripts].find(script => script.src.includes('term-loader.js'))?.src || null,
+      termPortal: [...document.scripts].find(script => script.src.includes('term-portal.js'))?.src || null
+    }));
+    console.log('Term 01 semantic loader diagnostic: ' + JSON.stringify(term01LoaderDiagnostic));
+    await waitFor(page, 'window.TERM01_SEMANTICS_READY === true', 'Term 01 semantic enrichment completes after the first render', 30000);
     const term01Timing = await page.evaluate(() => ({
       route: performance.getEntriesByName('vocab-term01-route-ready')[0]?.startTime ?? null,
       semantics: performance.getEntriesByName('vocab-term01-semantics-ready')[0]?.startTime ?? null
@@ -117,7 +141,16 @@ async function waitFor(page, expression, label) {
 
     await page.goto(target + '#/term/2/fa', { waitUntil: 'load', timeout: 120000 });
     await waitFor(page, 'window.getLoadedTermNumbers().includes(2) && Array.isArray(window.TERM2_DATA) && window.TERM2_DATA.length > 0', 'Term 02 active core data loads');
-    await waitFor(page, 'window.TERM02_SEMANTICS_READY === true', 'Term 02 semantic enrichment completes after the first render');
+    const term02LoaderDiagnostic = await page.evaluate(() => ({
+      ensureTermSemantics: typeof window.ensureTermSemantics,
+      readyFlag: window.TERM02_SEMANTICS_READY,
+      routeMarks: performance.getEntriesByName('vocab-term02-route-ready').map(mark => mark.startTime),
+      semanticsMarks: performance.getEntriesByName('vocab-term02-semantics-ready').map(mark => mark.startTime),
+      activeTitle: document.getElementById('activeTermTitle')?.textContent || null,
+      activeTab: document.querySelector('#termTabs .on')?.dataset.t || null
+    }));
+    console.log('Term 02 semantic loader diagnostic: ' + JSON.stringify(term02LoaderDiagnostic));
+    await waitFor(page, 'window.TERM02_SEMANTICS_READY === true', 'Term 02 semantic enrichment completes after the first render', 30000);
     const term02Timing = await page.evaluate(() => ({
       route: performance.getEntriesByName('vocab-term02-route-ready')[0]?.startTime ?? null,
       semantics: performance.getEntriesByName('vocab-term02-semantics-ready')[0]?.startTime ?? null
@@ -136,7 +169,7 @@ async function waitFor(page, expression, label) {
     }
     console.log('PASS: Term 01/02 data reconciles after both terms are opened');
 
-    await page.goto(target + '?route-test=deep-link#/term/3/fa/chapter/1', { waitUntil: 'domcontentloaded', timeout: 120000 });
+    await page.goto(routeUrl('#/term/3/fa/chapter/1', { 'route-test': 'deep-link' }), { waitUntil: 'domcontentloaded', timeout: 120000 });
     const directRouteState = await page.evaluate(() => ({
       boot: document.documentElement.classList.contains('route-boot'),
       requestedRoute: location.hash === '#/term/3/fa/chapter/1',
