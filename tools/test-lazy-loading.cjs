@@ -229,6 +229,39 @@ async function waitFor(page, expression, label) {
       });
       if (!order) throw new Error('Term ' + term + ' Sukhanrani Qur’anic section does not follow the speech structure section.');
     }
+    // Verify the newly deployed Term 03 Newestan chapter guide and its formative feedback.
+    await page.goto(target + '#/term/3/newestan/lesson/1', { waitUntil: 'load', timeout: 120000 });
+    await waitFor(page, 'document.querySelector(".newestan-chapter-guide")?.dataset.guideLesson === "1"', 'Term 03 chapter learning guide opens');
+    const firstGuide = await page.evaluate(() => window.TERM03_NEWESTAN_CHAPTER_GUIDE?.[1]);
+    if (!firstGuide || firstGuide.outcomes.length < 3 || !firstGuide.activity) {
+      throw new Error('Term 03 chapter guide is missing its learning outcomes or follow-up activity.');
+    }
+    const wrongChoice = firstGuide.answer === 0 ? 1 : 0;
+    await page.locator('.newestan-guide-options input[value="' + wrongChoice + '"]').check();
+    await page.locator('.newestan-guide-check').click();
+    await waitFor(page, 'document.querySelector(".newestan-guide-feedback")?.classList.contains("is-review")', 'Chapter guide gives corrective feedback');
+    for (let lesson = 1; lesson <= 10; lesson++) {
+      if (lesson > 1) {
+        await page.locator('#newestanLesson').selectOption(String(lesson));
+      }
+      await waitFor(page,
+        'document.querySelector(".newestan-chapter-guide")?.dataset.guideLesson === "' + lesson + '"',
+        'Term 03 chapter guide ' + lesson + ' renders');
+      const answer = await page.evaluate(no => window.TERM03_NEWESTAN_CHAPTER_GUIDE?.[no]?.answer, lesson);
+      if (!Number.isInteger(answer)) throw new Error('Missing formative answer for Term 03 chapter ' + lesson);
+      await page.locator('.newestan-guide-options input[value="' + answer + '"]').check();
+      await page.locator('.newestan-guide-check').click();
+      await waitFor(page,
+        'document.querySelector(".newestan-guide-feedback")?.classList.contains("is-correct")',
+        'Term 03 chapter ' + lesson + ' formative answer is checked');
+      if ([2, 7].includes(lesson)) {
+        if (!(await page.locator('.newestan-guide-caution').count())) {
+          throw new Error('OCR uncertainty note missing from Term 03 chapter ' + lesson);
+        }
+      }
+    }
+    console.log('PASS: Term 03 Newestan learning outcomes, examples, activities and answer feedback work for all ten chapters');
+
     console.log('PASS: Terms 02 and 03 show speech structure before the Qur’anic section');
 
     await page.goto(target, { waitUntil: 'load', timeout: 120000 });
