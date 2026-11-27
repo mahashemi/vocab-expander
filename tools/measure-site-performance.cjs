@@ -118,6 +118,9 @@ async function measureViewport(name, config) {
     const longTaskSummary = summarizeLongTasks(browserMetrics.longTasks);
     browserMetrics.longTaskMs = longTaskSummary.totalDurationMs;
     browserMetrics.longTaskCount = longTaskSummary.count;
+    if (routeTerm && browserMetrics.termRouteReadyMs == null) {
+      throw new Error('Term ' + routeTerm + ' route-ready marker was not recorded for ' + label);
+    }
 
     return {
       label,
