@@ -67,7 +67,7 @@ async function measureViewport(name, config) {
   page.on('request', () => { requestCount += 1; });
   page.on('pageerror', error => { pageErrors.push(String(error)); });
 
-  async function capture(label, navigate, url = target, readySelector = '#globalSearchInput') {
+  async function capture(label, navigate, url = target, readySelector = '#globalSearchInput', routeTerm = null) {
     requestCount = 0;
     pageErrors = [];
     const startedAt = Date.now();
@@ -77,7 +77,7 @@ async function measureViewport(name, config) {
     await page.waitForSelector(readySelector, { state: 'visible', timeout: 120000 });
     await delay(1800);
 
-    const browserMetrics = await page.evaluate(() => {
+    const browserMetrics = await page.evaluate((routeTerm) => {
       const samples = window.__sitePerfSamples || { lcp: [], cls: [], longTasks: [] };
       const navigation = performance.getEntriesByType('navigation')[0];
       const resources = performance.getEntriesByType('resource');
@@ -106,21 +106,25 @@ async function measureViewport(name, config) {
         transferBytes: sum(resources),
         scriptTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'script' || /\\.js(?:[?#]|$)/i.test(entry.name))),
         cssTransferBytes: sum(resources.filter(entry => entry.initiatorType === 'css' || /\\.css(?:[?#]|$)/i.test(entry.name))),
+        termRouteReadyMs: routeTerm ? performance.getEntriesByName('vocab-term' + String(routeTerm).padStart(2, '0') + '-route-ready').at(-1)?.startTime ?? null : null,
         term03RouteReadyMs: performance.getEntriesByName('vocab-term03-route-ready')[0]?.startTime ?? null,
         term03LastRenderMs: performance.getEntriesByName('vocab-term03-route-ready').at(-1)?.startTime ?? null,
         term03SemanticsReadyMs: performance.getEntriesByName('vocab-term03-semantics-ready').at(-1)?.startTime ?? null,
       };
-    });
+    }, routeTerm);
     // PerformanceObserver may be unsupported or may not emit entries in a sample.
     // Normalize in Node so every report path (including Markdown) receives an array.
     browserMetrics.longTasks = normalizeLongTasks(browserMetrics.longTasks);
     const longTaskSummary = summarizeLongTasks(browserMetrics.longTasks);
     browserMetrics.longTaskMs = longTaskSummary.totalDurationMs;
     browserMetrics.longTaskCount = longTaskSummary.count;
+    if (routeTerm && browserMetrics.termRouteReadyMs == null) {
+      throw new Error('Term ' + routeTerm + ' route-ready marker was not recorded for ' + label);
+    }
 
     return {
       label,
-      scenario: readySelector === '#globalSearchInput' ? 'Portal' : 'Term 03 direct chapter route',
+      scenario: routeTerm ? 'Term 0' + routeTerm + ' direct chapter route' : 'Portal',
       elapsedWallMs: Date.now() - startedAt,
       mainDocumentStatus: response?.status() ?? null,
       requestCount,
@@ -132,19 +136,26 @@ async function measureViewport(name, config) {
   try {
     const cold = await capture(name + ' portal cold cache', true);
     const warm = await capture(name + ' portal warm cache', false);
-    // Measure the expensive real-world path separately: a direct Term 03 URL
-    // with an empty HTTP cache, followed by a refresh with a warm cache.
-    await cdp.send('Network.clearBrowserCache');
-    const deepUrl = target + '?route-test=deep-link#/term/3/fa/chapter/1';
-    const deepCold = await capture(name + ' Term 03 deep-route cold cache', true, deepUrl, '.term-welcome');
-    const deepWarm = await capture(name + ' Term 03 deep-route warm refresh', false, deepUrl, '.term-welcome');
+    // Measure each term's direct chapter route independently. This reveals
+    // whether the remaining Term 01/02 core and semantic bundles need finer
+    // chapter-level loading, without changing the existing Term 03 budget gate.
+    const termRoutes = {};
+    for (const term of [1, 2, 3]) {
+      await cdp.send('Network.clearBrowserCache');
+      const routeUrl = target + '?route-test=deep-link&term=' + term + '#/term/' + term + '/fa/chapter/1';
+      const coldRoute = await capture(name + ' Term 0' + term + ' deep-route cold cache', true, routeUrl, '.term-welcome', term);
+      const warmRoute = await capture(name + ' Term 0' + term + ' deep-route warm refresh', false, routeUrl, '.term-welcome', term);
+      termRoutes[term] = { cold: coldRoute, warm: warmRoute };
+    }
     return {
       viewport: name,
       conditions: config,
       cold,
       warm,
-      deepCold,
-      deepWarm,
+      term01: termRoutes[1],
+      term02: termRoutes[2],
+      deepCold: termRoutes[3].cold,
+      deepWarm: termRoutes[3].warm,
     };
   } finally {
     await cdp.detach();
@@ -202,15 +213,15 @@ async function measureViewport(name, config) {
     '',
     '> Synthetic Chromium lab data. Not field/Core Web Vitals data. INP is not measured.',
     '',
-    '| Viewport | Scenario | Cache | FCP ms | LCP ms | First route ready ms | Last route render ms | Semantics ready ms | CLS | Long-task ms | Requests | Transfer bytes | JS bytes | CSS bytes | Load ms |',
+    '| Viewport | Scenario | Cache | FCP ms | LCP ms | Route ready ms | Last route render ms | Semantics ready ms | CLS | Long-task ms | Requests | Transfer bytes | JS bytes | CSS bytes | Load ms |',
     '|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
   ];
   for (const viewport of results) {
-    for (const sample of [viewport.cold, viewport.warm, viewport.deepCold, viewport.deepWarm]) {
+    for (const sample of [viewport.cold, viewport.warm, viewport.term01.cold, viewport.term01.warm, viewport.term02.cold, viewport.term02.warm, viewport.deepCold, viewport.deepWarm]) {
       lines.push('| ' + viewport.viewport + ' | ' + sample.scenario + ' | ' +
         (sample.label.toLowerCase().includes('cold') ? 'cold' : 'warm') +
         ' | ' + fmt(sample.fcpMs) + ' | ' + fmt(sample.lcpMs) + ' | ' +
-        fmt(sample.term03RouteReadyMs) + ' | ' + fmt(sample.term03LastRenderMs) + ' | ' + fmt(sample.term03SemanticsReadyMs) + ' | ' +
+        fmt(sample.termRouteReadyMs ?? sample.term03RouteReadyMs) + ' | ' + fmt(sample.term03LastRenderMs) + ' | ' + fmt(sample.term03SemanticsReadyMs) + ' | ' +
         (sample.cls == null ? 'n/a' : sample.cls.toFixed(4)) + ' | ' + fmt(sample.longTaskMs) +
         ' | ' + sample.requestCount + ' | ' + fmt(sample.transferBytes) + ' | ' +
         fmt(sample.scriptTransferBytes) + ' | ' + fmt(sample.cssTransferBytes) + ' | ' +
@@ -218,7 +229,7 @@ async function measureViewport(name, config) {
     }
   }
   for (const viewport of results) {
-    for (const sample of [viewport.deepCold, viewport.deepWarm]) {
+    for (const sample of [viewport.term01.cold, viewport.term01.warm, viewport.term02.cold, viewport.term02.warm, viewport.deepCold, viewport.deepWarm]) {
       const label = viewport.viewport + ' · ' + (sample.label.toLowerCase().includes('cold') ? 'cold' : 'warm');
       lines.push('', '## Largest resources · ' + label, '', '| Resource | Type | Transfer bytes | Encoded bytes | Duration ms | Start ms |', '|---|---|---:|---:|---:|---:|');
       for (const resource of sample.largestResources) lines.push('| `' + resource.name + '` | ' + resource.initiatorType + ' | ' + fmt(resource.transferBytes) + ' | ' + fmt(resource.encodedBytes) + ' | ' + fmt(resource.duration) + ' | ' + fmt(resource.startTime) + ' |');
