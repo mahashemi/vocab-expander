@@ -312,6 +312,8 @@ async function waitFor(page, expression, label) {
     await page.goto(target + '#/learning', { waitUntil: 'load', timeout: 120000 });
     try {
       await page.waitForSelector('.learning-school', { timeout: 30000 });
+    const registeredModes = await page.evaluate(() => window.VocabLearningSchoolModeIds || []);
+    if (registeredModes.join(',') !== 'imla,skip-gram,meaning-recall') throw new Error('Learning School registry modes are incomplete: ' + registeredModes.join(','));
     } catch (error) {
       const state = await page.evaluate(() => ({
         hash: location.hash,
