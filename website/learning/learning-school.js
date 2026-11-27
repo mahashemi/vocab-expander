@@ -17,7 +17,13 @@
  function progressModeId(){return mode==="meaning-recall"?"meaning-recall-"+meaningLanguage:mode}
  function buildReviewMap(){reviewMap=new Map();for(const event of history()){const key=reviewKey(event.itemId,event.modeId);if(!reviewMap.has(key))reviewMap.set(key,[]);reviewMap.get(key).push(event)}}
  function reviewFor(item){return window.VocabReviewScheduler.evaluate(reviewMap.get(reviewKey(canonicalItemId(item.id),progressModeId()))||[])}
- function eligibleRows(){const selected=modeRegistry.get(mode);return items().filter(x=>(term==="all"||Number(x.bk)===Number(term))&&selected&&selected.eligible(x,mode==="meaning-recall"?{language:meaningLanguage}:{}))}
+ function eligibleRows(){
+  const selected=modeRegistry.get(mode);
+  let candidates=items().filter(x=>term==="all"||Number(x.bk)===Number(term));
+  if(focusedLegacyId)candidates=candidates.filter(x=>String(x.id)===String(focusedLegacyId));
+  const canonicalRows=window.VocabLearningManifest.selectPracticeRows(candidates,identitySnapshot?.aliasIndex,term);
+  return canonicalRows.filter(x=>selected&&selected.eligible(x,mode==="meaning-recall"?{language:meaningLanguage}:{}));
+ }
  function notebookRows(){
   const latest=new Map(),byLegacy=new Map(items().map(x=>[String(x.id),x]));
   for(const event of history()){const key=reviewKey(event.itemId,event.modeId),old=latest.get(key);if(!old||Date.parse(event.occurredAt||0)>=Date.parse(old.occurredAt||0))latest.set(key,event)}
