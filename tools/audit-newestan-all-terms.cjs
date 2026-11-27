@@ -37,7 +37,7 @@ for(let term=1;term<=3;term++){
   if(term<3){
    const rec=(writing[term]||[]).find(x=>Number(x.no)===no);
    assert(rec,"Missing source-linked writing workshop for "+id);
-   assert(String(rec.source||"").includes(id),"Writing workshop source mismatch for "+id);
+   assert(String(rec.source||"").includes("T"+term+"_N"+term+"_"+String(no).padStart(2,"0")),"Writing workshop source mismatch for "+id);
    assert(rec.prompt&&rec.promptEn&&rec.skill,"Missing writing prompt or teaching skill for "+id);
    assert(Array.isArray(rec.steps)&&rec.steps.length>=3,"Missing staged writing method for "+id);
    assert(Array.isArray(rec.subtopics)&&rec.subtopics.length>=3,"Missing exam-relevant supporting subtopics for "+id);
