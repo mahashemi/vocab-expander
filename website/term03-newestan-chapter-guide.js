@@ -89,6 +89,7 @@
   ]}
  };
  window.TERM03_NEWESTAN_CHAPTER_GUIDE=chapters;
+ window.TERM03_NEWESTAN_WORKSHEETS=worksheets;
  window.renderNewestanChapterGuide=(lessonNo)=>{
   const c=chapters[Number(lessonNo)];if(!c)return "";
   const ws=worksheets[Number(lessonNo)]||{title:"Guided practice",fields:[]};
