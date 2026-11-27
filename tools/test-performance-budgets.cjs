@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 const assert=require("node:assert/strict");
+const fs=require("node:fs");
 const {evaluate,LIMITS}=require("./performance-budgets.cjs");
 function sample(viewport,scenario){
  const values={lcpMs:1000,term03RouteReadyMs:800,transferBytes:100000,scriptTransferBytes:90000,requestCount:10,longTaskMs:100,cls:0.01};
@@ -15,4 +16,10 @@ const missing=structuredClone(report);delete missing.results[0].deepWarm;
 assert.equal(evaluate(missing).passed,false);
 const missingMetric=structuredClone(report);delete missingMetric.results[1].cold.cls;
 assert.equal(evaluate(missingMetric).passed,false);
-console.log("PASS: mobile/desktop performance budgets, regression detection and missing-metric failure");
+const measureSource=fs.readFileSync("tools/measure-site-performance.cjs","utf8");
+const portalSource=fs.readFileSync("website/term-portal.js","utf8");
+assert.ok(measureSource.includes("for (const term of [1, 2, 3])"),"the baseline must measure each term route independently");
+assert.ok(measureSource.includes("term01: termRoutes[1]")&&measureSource.includes("term02: termRoutes[2]"),"the report must retain separate Term 01 and Term 02 samples");
+assert.ok(measureSource.includes("termRouteReadyMs"),"each direct term route must report its route-ready marker");
+assert.ok(portalSource.includes('window.performance.mark("vocab-term"+String(activeTerm).padStart(2,"0")+"-route-ready")'),"all term routes must emit a common performance marker");
+console.log("PASS: mobile/desktop budgets, regression detection, missing metrics and per-term route coverage");
