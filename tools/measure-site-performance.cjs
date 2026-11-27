@@ -75,6 +75,9 @@ async function measureViewport(name, config) {
       ? await page.goto(url, { waitUntil: 'load', timeout: 120000 })
       : await page.reload({ waitUntil: 'load', timeout: 120000 });
     await page.waitForSelector(readySelector, { state: 'visible', timeout: 120000 });
+    if (routeTerm) {
+      await page.waitForFunction((term) => performance.getEntriesByName('vocab-term' + String(term).padStart(2, '0') + '-route-ready').length > 0, routeTerm, { timeout: 120000 });
+    }
     await delay(1800);
 
     const browserMetrics = await page.evaluate((routeTerm) => {
@@ -142,9 +145,11 @@ async function measureViewport(name, config) {
     const termRoutes = {};
     for (const term of [1, 2, 3]) {
       await cdp.send('Network.clearBrowserCache');
-      const routeUrl = target + '?route-test=deep-link&term=' + term + '#/term/' + term + '/fa/chapter/1';
-      const coldRoute = await capture(name + ' Term 0' + term + ' deep-route cold cache', true, routeUrl, '.term-welcome', term);
-      const warmRoute = await capture(name + ' Term 0' + term + ' deep-route warm refresh', false, routeUrl, '.term-welcome', term);
+      const routeName = term === 3 ? 'fa' : 'flashcards';
+      const routeUrl = target + '?route-test=deep-link&term=' + term + '#/term/' + term + '/' + routeName + '/chapter/1';
+      const readySelector = term === 3 ? '.term-welcome' : '#v';
+      const coldRoute = await capture(name + ' Term 0' + term + ' deep-route cold cache', true, routeUrl, readySelector, term);
+      const warmRoute = await capture(name + ' Term 0' + term + ' deep-route warm refresh', false, routeUrl, readySelector, term);
       termRoutes[term] = { cold: coldRoute, warm: warmRoute };
     }
     return {
