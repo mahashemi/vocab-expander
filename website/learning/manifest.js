@@ -34,6 +34,10 @@
   const sense=[kind,normalize(pos),...meaningFields.map(field=>normalize(meanings?.[field]))].join("\u0000");
   return "vocab:canonical:"+encodeURIComponent(normalize(headword))+":"+hash(sense);
  }
+ function identityForRow(row){
+  const headword=String(row?.fa||"").trim();
+  return stableKey(headword,kindFor(row||{},headword),row?.pos,meaningsFor(row||{}));
+ }
  function sameMeaningSet(a,b){
   return meaningFields.every(field=>normalize(a?.[field])===normalize(b?.[field]));
  }
@@ -182,13 +186,18 @@
   for(const row of Array.isArray(rows)?rows:[]){
    if(!row||!row.id)continue;
    if(selectedTerm!=="all"&&Number(row.bk)!==selectedTerm)continue;
-   const resolved=root.VocabLearningIdentity.resolveLegacyId(aliasIndex,String(row.id));
-   const canonicalId=resolved.status==="resolved"?resolved.itemId:"legacy:"+String(row.id);
+   let resolved=root.VocabLearningIdentity.resolveLegacyId(aliasIndex,String(row.id));
+   if(resolved.status!=="resolved"){
+    const sourceId=legacyStableKey(String(row.id),String(row.fa));
+    resolved=root.VocabLearningIdentity.resolveLegacyId(aliasIndex,sourceId);
+   }
+   const canonicalId=resolved.status==="resolved"?resolved.itemId:
+    "unresolved:"+[String(row.id),normalize(row.fa),kindFor(row,String(row.fa)),normalize(row.pos),...meaningFields.map(field=>normalize(meaningsFor(row)[field]))].join("|");
    const key=canonicalId+"|"+(selectedTerm==="all"?"all":Number(row.bk));
    if(grouped.has(key))grouped.set(key,mergePracticeRows(grouped.get(key),row));
    else grouped.set(key,{...row});
   }
   return [...grouped.values()];
  }
- root.VocabLearningManifest=Object.freeze({build,stableKey,legacyStableKey,selectPracticeRows});
+ root.VocabLearningManifest=Object.freeze({build,stableKey,legacyStableKey,identityForRow,selectPracticeRows});
 })(typeof window!=="undefined"?window:globalThis);
