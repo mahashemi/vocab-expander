@@ -31,6 +31,7 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - "tools/test-global-search-index.cjs"
       - "website/term01-*.js"
       - "website/term02-*.js"
       - "website/term03-*.js"
