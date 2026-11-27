@@ -361,6 +361,8 @@ async function waitFor(page, expression, label) {
     await page.waitForSelector('#sharedVocabModal[aria-hidden="false"]', { timeout: 10000 });
     await page.locator('#sharedVocabFlip').click();
     await waitFor(page, 'document.querySelector("#sharedVocabCard .meaning-en")?.textContent.trim().length > 0', 'Learning School opens the shared trilingual vocabulary card');
+    await page.keyboard.press('Escape');
+    await page.locator('#sharedVocabModal').waitFor({ state: 'hidden', timeout: 10000 });
     const linkAudit = await page.evaluate(() => {
       const host = document.createElement('div');
       host.innerHTML = 'دانشجویان واژه‌ساختگی';
@@ -382,8 +384,6 @@ async function waitFor(page, expression, label) {
     await waitFor(page, 'document.querySelector("#sharedVocabCard .meaning-en")?.textContent.trim().length > 0', 'Curated alias reveals the base card English meaning');
     await page.keyboard.press('Escape');
     await page.locator('#sharedVocabModal').waitFor({ state: 'hidden', timeout: 10000 });
-    await page.keyboard.press('Escape');
-    await page.locator("#sharedVocabModal").waitFor({ state: "hidden", timeout: 10000 });
     if (await page.locator("#sharedVocabModal").getAttribute("aria-hidden") !== "true") throw new Error("Escape must close the shared vocabulary card and set aria-hidden=true.");
 
     await page.locator('[data-mode="skip-gram"]').click();
