@@ -96,6 +96,15 @@ async function waitFor(page, expression, label) {
 
     await page.goto(target + '#/term/1/fa', { waitUntil: 'load', timeout: 120000 });
     await waitFor(page, 'window.getLoadedTermNumbers().includes(1) && Array.isArray(window.TERM1_DATA) && window.TERM1_DATA.length > 0', 'Term 01 active core data loads');
+    await waitFor(page, 'window.TERM01_SEMANTICS_READY === true', 'Term 01 semantic enrichment completes after the first render');
+    const term01Timing = await page.evaluate(() => ({
+      route: performance.getEntriesByName('vocab-term01-route-ready')[0]?.startTime ?? null,
+      semantics: performance.getEntriesByName('vocab-term01-semantics-ready')[0]?.startTime ?? null
+    }));
+    if (term01Timing.route == null || term01Timing.semantics == null || term01Timing.route >= term01Timing.semantics) {
+      throw new Error('Term 01 meanings must enrich after the first route render: ' + JSON.stringify(term01Timing));
+    }
+    console.log('PASS: Term 01 renders core content before deferred semantic enrichment');
     const firstTermIsolation = await page.evaluate(() => ({
       term2: typeof window.TERM2_DATA,
       term3: typeof window.TERM3_DATA,
@@ -107,11 +116,20 @@ async function waitFor(page, expression, label) {
     console.log('PASS: Term 01 route loads only its active term');
 
     await page.goto(target + '#/term/2/fa', { waitUntil: 'load', timeout: 120000 });
-    await waitFor(page, 'window.getLoadedTermNumbers().includes(2) && Array.isArray(window.TERM2_DATA) && window.TERM2_DATA.length > 0', 'Term 02 loads its own core data and semantic layer');
+    await waitFor(page, 'window.getLoadedTermNumbers().includes(2) && Array.isArray(window.TERM2_DATA) && window.TERM2_DATA.length > 0', 'Term 02 active core data loads');
+    await waitFor(page, 'window.TERM02_SEMANTICS_READY === true', 'Term 02 semantic enrichment completes after the first render');
+    const term02Timing = await page.evaluate(() => ({
+      route: performance.getEntriesByName('vocab-term02-route-ready')[0]?.startTime ?? null,
+      semantics: performance.getEntriesByName('vocab-term02-semantics-ready')[0]?.startTime ?? null
+    }));
+    if (term02Timing.route == null || term02Timing.semantics == null || term02Timing.route >= term02Timing.semantics) {
+      throw new Error('Term 02 meanings must enrich after the first route render: ' + JSON.stringify(term02Timing));
+    }
+    console.log('PASS: Term 02 renders core content before deferred semantic enrichment');
     // The portal manifest includes shared Newestan additions and Term 03.
     // Request the explicit all-library workflow before comparing full totals.
     await page.evaluate(() => window.ensureAllTermsLoaded());
-    await waitFor(page, 'window.ALL_TERM_CORE_DATA_READY === true && window.TERM03_SEMANTICS_READY === true', 'explicit all-term workflow loads the complete cross-term library');
+    await waitFor(page, 'window.ALL_TERM_CORE_DATA_READY === true && window.TERM01_SEMANTICS_READY === true && window.TERM02_SEMANTICS_READY === true && window.TERM03_SEMANTICS_READY === true', 'explicit all-term workflow loads the complete cross-term library');
     const allTermCounts = await page.evaluate(() => window.__getRuntimeVocabCounts());
     if (allTermCounts[1] !== initial.portalSummary[1] || allTermCounts[2] !== initial.portalSummary[2]) {
       throw new Error('Deferred Term 01/02 data does not reconcile to the portal manifest: ' + JSON.stringify(allTermCounts));
