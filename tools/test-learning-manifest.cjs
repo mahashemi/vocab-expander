@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 const assert=require("node:assert/strict");
+const fs=require("node:fs");
 require("../website/learning/identity.js");
 require("../website/learning/manifest.js");
 const rows=[
@@ -57,4 +58,8 @@ assert.equal(VocabLearningIdentity.resolveLegacyId(duplicateAlias.aliasIndex,"1|
 const duplicateRow=VocabLearningManifest.build([rows[0],{...rows[0],sources:["FA1-02"]}]);
 assert.equal(duplicateRow.stats.indexedItems,1,"same source ID and headword should retain one stable identity");
 assert.equal(duplicateRow.manifest.items[0].occurrences.length,2);
-console.log("PASS: cross-term canonical vocabulary/sense identities, source aggregation, practice de-duplication, stable IDs and ambiguous legacy blocking");
+const schoolSource=fs.readFileSync("website/learning/learning-school.js","utf8");
+assert.ok(schoolSource.includes('priorId.startsWith("vocab:source:")'),"saved source-specific item IDs must be resolved before raw legacy IDs");
+assert.ok(schoolSource.includes('legacyStableKey(String(legacyId||""),String(headword))'),"ambiguous raw legacy IDs must resolve through their source/headword identity");
+assert.ok(schoolSource.includes('canonicalItemId(legacyId,event.itemId,event.fa)'),"history must migrate existing attempts to the current canonical identity");
+console.log("PASS: cross-term canonical vocabulary/sense identities, source aggregation, practice de-duplication, legacy progress migration and ambiguous legacy blocking");
