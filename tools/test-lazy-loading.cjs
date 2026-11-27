@@ -305,15 +305,30 @@ async function waitFor(page, expression, label) {
     console.log('PASS: Terms 02 and 03 show speech structure before the Qur’anic section');
 
     await page.goto(target, { waitUntil: 'load', timeout: 120000 });
+    await page.evaluate(() => localStorage.removeItem('vocab_expander_global_search_index_v1'));
     await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
     await page.locator('#globalSearchInput').fill('کتاب');
     await waitFor(page, 'document.querySelectorAll(".global-search-result").length > 0', 'global search loads Term 03 and returns results');
     const searchIndexFirst = await page.evaluate(() => window.__getGlobalSearchDiagnostics?.());
-    if (!searchIndexFirst || !searchIndexFirst.built || searchIndexFirst.size < 3000) throw new Error('Global search did not build a complete reusable index: ' + JSON.stringify(searchIndexFirst));
+    if (!searchIndexFirst || searchIndexFirst.built !== 1 || searchIndexFirst.restored !== 0 || searchIndexFirst.size < 3000 || !searchIndexFirst.persisted || !searchIndexFirst.storageBytes) throw new Error('Global search did not build and persist a complete versioned index: ' + JSON.stringify(searchIndexFirst));
     await page.locator('#globalSearchInput').fill('return');
-    await waitFor(page, 'window.__getGlobalSearchDiagnostics?.().built === 1', 'global search reuses its pre-normalized index for later queries');
+    await waitFor(page, 'window.__getGlobalSearchDiagnostics?.().built === 1', 'global search reuses its in-memory index for later queries');
     const searchIndexSecond = await page.evaluate(() => window.__getGlobalSearchDiagnostics());
-    if (searchIndexSecond.built !== searchIndexFirst.built || searchIndexSecond.size !== searchIndexFirst.size) throw new Error('Global search rebuilt its index on a subsequent query: ' + JSON.stringify({first:searchIndexFirst,second:searchIndexSecond}));
+    if (searchIndexSecond.built !== 1 || searchIndexSecond.restored !== 0 || searchIndexSecond.size !== searchIndexFirst.size) throw new Error('Global search rebuilt its index on a subsequent query: ' + JSON.stringify({first:searchIndexFirst,second:searchIndexSecond}));
+    await page.reload({ waitUntil: 'load' });
+    await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
+    await page.locator('#globalSearchInput').fill('کتاب');
+    await waitFor(page, 'document.querySelectorAll(".global-search-result").length > 0', 'global search restores its persisted index after refresh');
+    const searchIndexRestored = await page.evaluate(() => window.__getGlobalSearchDiagnostics());
+    if (searchIndexRestored.built !== 0 || searchIndexRestored.restored !== 1 || !searchIndexRestored.persisted || searchIndexRestored.size !== searchIndexFirst.size) throw new Error('Global search did not restore the versioned index after refresh: ' + JSON.stringify(searchIndexRestored));
+    await page.evaluate(() => { const key='vocab_expander_global_search_index_v1'; const payload=JSON.parse(localStorage.getItem(key)||'{}'); payload.version='deliberately-stale'; localStorage.setItem(key,JSON.stringify(payload)); });
+    await page.reload({ waitUntil: 'load' });
+    await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
+    await page.locator('#globalSearchInput').fill('کتاب');
+    await waitFor(page, 'document.querySelectorAll(".global-search-result").length > 0', 'global search rebuilds after a version mismatch');
+    const searchIndexInvalidated = await page.evaluate(() => window.__getGlobalSearchDiagnostics());
+    if (searchIndexInvalidated.built !== 1 || searchIndexInvalidated.restored !== 0 || !searchIndexInvalidated.persisted) throw new Error('Global search failed to invalidate a stale version: ' + JSON.stringify(searchIndexInvalidated));
+    console.log('PASS: global search builds once, persists across refresh, and invalidates stale versions');
 
     await page.goto(target, { waitUntil: 'load', timeout: 120000 });
     await page.waitForSelector('[data-open-verbs]', { state: 'visible', timeout: 60000 });
