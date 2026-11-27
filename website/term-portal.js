@@ -236,6 +236,9 @@
   document.documentElement.classList.remove("route-boot");
   if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();else if(tab==="school")window.learningSchool();
   updateStats();syncRoute();
+  if(activeTerm&&tab!=="portal"&&window.performance&&window.performance.mark){
+   window.performance.mark("vocab-term"+String(activeTerm).padStart(2,"0")+"-route-ready");
+  }
   if(activeTerm===3&&window.performance&&window.performance.mark)window.performance.mark("vocab-term03-route-ready");
   // Keep ordinary chapter navigation term-local. Cross-term datasets are
   // loaded only by explicit all-library workflows (search, Verb Treasury,
