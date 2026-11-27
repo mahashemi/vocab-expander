@@ -266,6 +266,27 @@ main{max-width:1120px;padding:28px 24px 16px}.site-head{margin-bottom:26px}.bran
 
 .learning-school .panel{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;margin:14px 0}.learning-school .learning-meaning{font-size:clamp(20px,3vw,28px);margin:14px 0}.learning-school .learning-mask{font-size:clamp(28px,5vw,42px);letter-spacing:.12em;text-align:center;padding:22px;background:var(--soft);border-radius:12px;margin:16px 0}.learning-school .learning-answer{font-size:22px;min-height:54px;text-align:right}.learning-school .semantic-feedback{margin-top:10px;padding:12px;border-radius:10px;background:var(--soft)}.learning-school .semantic-feedback p{margin:6px 0}.learning-school .learning-feedback{border-radius:12px;padding:14px;margin-top:14px;background:var(--soft)}.learning-school .learning-tools{margin-top:12px}.learning-school .learning-notebook{margin-top:14px}.learning-school .learning-mistake-entry{padding:14px 0;border-top:1px solid var(--bd)}.learning-school .learning-mistake-entry .fa{font-size:28px;margin:8px 0}.learning-school .learning-mistake-entry button{margin-top:10px}.learning-school .learning-feedback.correct{border-inline-start:4px solid var(--ok)}.learning-school .learning-feedback.incorrect{border-inline-start:4px solid var(--no)}.learning-school .learning-feedback .fa{font-size:30px;margin:8px 0}.learning-school .learning-hint{padding:10px;border-radius:10px;background:var(--soft);margin-top:10px}.learning-school button:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:650px){.learning-school .row{align-items:stretch}.learning-school .row button{flex:1}.learning-school .panel{padding:14px}}
+
+/* Term 03 Newestan chapter guide: outcomes, worked examples and formative practice. */
+.newestan-chapter-guide{margin:20px 0;padding:clamp(15px,2.2vw,22px);border:1px solid color-mix(in srgb,var(--gold) 38%,var(--bd));border-radius:18px;background:color-mix(in srgb,var(--soft) 56%,var(--card))}
+.newestan-guide-kicker{font-size:10px;font-weight:900;letter-spacing:.13em;color:var(--gold);margin-bottom:5px}
+.newestan-chapter-guide>h3{font-size:clamp(17px,2vw,21px);line-height:1.6;margin:3px 0 14px;color:var(--ink)}
+.newestan-guide-block,.newestan-guide-practice{padding:13px 14px;margin:10px 0;border:1px solid var(--bd);border-radius:13px;background:var(--card)}
+.newestan-guide-block>b,.newestan-guide-practice>b{display:block;color:var(--ac);margin-bottom:7px}
+.newestan-guide-block ul{margin:5px 0;padding-inline-start:22px;line-height:1.85}
+.newestan-guide-block p,.newestan-guide-practice p{line-height:1.8;margin:7px 0}
+.newestan-guide-options{display:grid;gap:7px;margin:10px 0}
+.newestan-guide-options label{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;cursor:pointer;line-height:1.7}
+.newestan-guide-options label:has(input:checked){border-color:var(--ac);background:color-mix(in srgb,var(--ac) 7%,var(--card))}
+.newestan-guide-options input[type=radio]{width:auto;flex:0 0 auto;margin:5px 0 0;accent-color:var(--ac)}
+.newestan-guide-check{background:var(--ac);color:var(--acf);border-color:var(--ac);font-weight:750}
+.newestan-guide-feedback{padding:10px 12px;border-radius:10px;background:var(--soft);font-size:13px}
+.newestan-guide-feedback.is-correct{border-inline-start:4px solid var(--ok)}
+.newestan-guide-feedback.is-review{border-inline-start:4px solid var(--gold)}
+.newestan-guide-caution{padding:10px 12px;border-inline-start:4px solid var(--gold);background:var(--soft);border-radius:8px;font-size:12px;line-height:1.8}
+.newestan-guide-source{font-size:11px;color:var(--mut);margin-top:12px}
+@media(max-width:600px){.newestan-chapter-guide{padding:13px;margin:15px 0}.newestan-guide-block,.newestan-guide-practice{padding:11px}}
+
 </style></head>
 <body><main>
 <div class="bismillah-wrap"><img src="bismillah_text_green.png" alt="بسم الله الرحمن الرحیم" class="bismillah-image"><div class="bismillah-rule"><span>✦</span></div></div>
@@ -380,6 +401,6 @@ main{max-width:1120px;padding:28px 24px 16px}.site-head{margin-bottom:26px}.bran
 
 
 <script src="app-bootstrap.js?v=20261122-newestan-route-fix" defer></script>
-<script src="term-loader.js?v=20261122-newestan-route-fix" defer></script>
+<script src="term-loader.js?v=20261127-newestan-chapter-guide-ui" defer></script>
 <script src="verb-treasury.js" defer></script>\n<script src="term-portal.js?v=20261122-newestan-route-fix" defer></script>
 </body></html>

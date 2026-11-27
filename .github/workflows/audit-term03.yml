@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - "website/term03-*.js"
+      - "website/term03-newestan-chapter-guide.js"
+      - "website/term03-newestan-standalone.js"
+      - "tools/audit-newestan-writing.cjs"
       - "website/term-loader.js"
       - "website/term01-*.js"
       - "website/term02-*.js"
@@ -64,10 +67,16 @@ jobs:
           done
           node --check website/term-loader.js
           node --check website/newestan-rubric.js
+          node --check website/term03-newestan-chapter-guide.js
+          node --check website/term03-newestan-standalone.js
+          node --check tools/audit-newestan-writing.cjs
           node --check tools/report-term03-fa3-page1-gaps.cjs
           node --check tools/report-term03-fa3-reading-gaps.cjs
           node --check tools/test-term03-fa3-cross-term-gaps.cjs
           node --check tools/report-term03-kh3-n3-sh3-page1-gaps.cjs
+
+      - name: Run source-based Newestan writing and chapter-guide audit
+        run: node tools/audit-newestan-writing.cjs
 
       - name: Run Term 03 deployment audit
         run: node tools/audit-term03.cjs

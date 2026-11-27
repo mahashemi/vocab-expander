@@ -10,6 +10,7 @@ require("../website/term03-chapter-mapping.js");
 require("../website/term03-newestan-insha.js");
 require("../website/term03-newestan-teaching.js");
 require("../website/newestan-language-lessons.js");
+require("../website/term03-newestan-chapter-guide.js");
 require("../website/term03-newestan-final-insha.js");
 require("../website/term03-newestan-standalone.js");
 const library=global.NEWESTAN_WRITING_LIBRARY;
@@ -67,6 +68,17 @@ assert(t3["N3-06"].modelInternet?.band2,"Dars 06 must model the internet benefit
 
 
 
+const chapterGuide=global.TERM03_NEWESTAN_CHAPTER_GUIDE;
+assert.equal(Object.keys(chapterGuide||{}).length,10,"Term 03 must have a chapter guide for all ten lessons");
+for(let i=1;i<=10;i++){
+ const guide=chapterGuide[i];
+ assert(guide&&guide.title&&guide.fa&&guide.outcomes?.length>=3&&guide.example?.fa&&guide.example?.en,"Incomplete Term 03 chapter guide: "+i);
+ assert(guide.task&&guide.options?.length>=2&&Number.isInteger(guide.answer)&&guide.answer>=0&&guide.answer<guide.options.length,"Invalid formative check: N3-"+i);
+ assert(guide.why&&guide.activity&&guide.source,"Missing explanation, activity or source attribution: N3-"+i);
+ const rendered=global.renderNewestanChapterGuide(i);
+ assert(rendered.includes("CHAPTER LEARNING GUIDE")&&rendered.includes("Quick understanding check")&&rendered.includes(guide.title),"Chapter guide failed to render: N3-"+i);
+}
+assert(chapterGuide[2].caution&&chapterGuide[7].caution,"OCR uncertainty must be explicitly disclosed for N3-02 and N3-07");
 const language=global.NEWESTAN_LANGUAGE_LESSONS;
 for(let term=1;term<=3;term++)for(let lesson=1;lesson<=10;lesson++){
  const row=language?.[term]?.[lesson];
@@ -91,6 +103,7 @@ assert(index.includes("if(activeTerm===3){v.innerHTML=window.renderNewestanTerm3
 const term03Ui=require("node:fs").readFileSync(path.join(__dirname,"../website/term03-newestan-standalone.js"),"utf8");
 const term12Ui=require("node:fs").readFileSync(path.join(__dirname,"../website/newestan-writing-ui.js"),"utf8");
 assert(term03Ui.includes("newestan-lesson-picker")&&term12Ui.includes("newestan-lesson-picker"),"All Newestan terms must use the prominent lesson navigator");
+assert(term03Ui.includes("renderNewestanChapterGuide(selected)")&&term03Ui.includes("bindNewestanChapterGuide()"),"Term 03 chapter outcomes and formative practice must be rendered and bound");
 assert(term03Ui.includes("attachVocabularyLinks(scope)")&&term12Ui.includes("attachVocabularyLinks(scope)"),"All Newestan model answers must link matching vocabulary to shared flashcards");
 assert(index.includes("function attachVocabularyLinks(scope)"),"Shared exact-match vocabulary linker must be available");
 assert(index.includes("function ensureVocabularyModal(scope)"),"Shared trilingual flashcard modal must be available");
@@ -105,6 +118,7 @@ assert.equal(typeof global.renderNewestanTerm3,"function","Term 03 standalone re
 assert.equal(typeof global.bindNewestanTerm3,"function","Term 03 standalone selector must be wired");
 assert.equal(Object.keys(global.TERM3_NEWESTAN_INSHA).length,10,"Term 03 source prompt library must contain all ten lessons");
 assert(loader.includes("newestan-language-lessons.js"),"OCR-based language lesson module must be lazy-loaded");
+assert(loader.includes("term03-newestan-chapter-guide.js"),"Term 03 chapter guide must be lazy-loaded with the writing curriculum");
 for(let term=1;term<=3;term++)for(let i=1;i<=10;i++){
  const lesson=global.NEWESTAN_LANGUAGE_LESSONS?.[term]?.[i];
  assert(lesson&&lesson.source&&lesson.sections?.length>=1,"Missing source-based Biyamoozim lesson: Term "+term+" Dars "+i);
@@ -117,6 +131,7 @@ for(let i=1;i<=10;i++){
  assert(html.includes("Choose a Newestan lesson"),"Term 03 lesson selector missing: "+i);
  assert(html.includes("Textbook exercise")||html.includes("Research topics"),"Term 03 exercise missing: "+i);
   assert(html.includes("BIYĀMOZĪM"),"Term 03 Biyamoozim language lesson missing: "+i);
+ assert(html.includes("CHAPTER LEARNING GUIDE")&&html.includes("Quick understanding check"),"Term 03 chapter guide missing from rendered lesson: "+i);
 }
 for(const term of [1,2]){
  global.activeTerm=term;
