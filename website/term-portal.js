@@ -237,12 +237,19 @@
   if(tab==="portal")portal();else if(tab==="home")home();else if(tab==="cards")cards();else if(tab==="quiz")startQuiz();else if(tab==="khulasa")khulasa();else if(tab==="essays")essays();else if(tab==="speeches")speeches();else if(tab==="verbs")window.verbTreasury();else if(tab==="school")window.learningSchool();
   updateStats();syncRoute();
   if(activeTerm&&tab!=="portal"&&window.performance&&window.performance.mark){
-   window.performance.mark("vocab-term"+String(activeTerm).padStart(2,"0")+"-route-ready");
+   const routeMark="vocab-term"+String(activeTerm).padStart(2,"0")+"-route-ready";
+   if(!window.performance.getEntriesByName(routeMark).length)window.performance.mark(routeMark);
   }
   if(activeTerm===3&&window.performance&&window.performance.mark)window.performance.mark("vocab-term03-route-ready");
-  // Keep ordinary chapter navigation term-local. Cross-term datasets are
-  // loaded only by explicit all-library workflows (search, Verb Treasury,
-  // learning school and Newestan) through ensureAllTermsLoaded().
+  // Render Term 01/02 core content first, then enrich meanings during idle time.
+  // Complete-data workflows still await these same shared promises.
+  if((activeTerm===1||activeTerm===2)&&tab!=="portal"&&window.ensureTermSemantics&&!window["TERM0"+activeTerm+"_SEMANTICS_READY"]&&!termSemanticsScheduled.has(activeTerm)){
+   const term=activeTerm;
+   termSemanticsScheduled.add(term);
+   const enrich=()=>{termSemanticsScheduled.delete(term);window.ensureTermSemantics(term).catch(error=>console.error("Term 0"+term+" semantic enrichment failed",error));};
+   if(typeof window.requestIdleCallback==="function")window.requestIdleCallback(enrich,{timeout:1800});
+   else window.setTimeout(enrich,0);
+  }
   if(activeTerm===3&&tab!=="portal"&&!window.TERM03_SEMANTICS_READY&&window.ensureTerm03Semantics&&!term03SemanticsScheduled){
    term03SemanticsScheduled=true;
    const enrich=()=>{term03SemanticsScheduled=false;window.ensureTerm03Semantics().catch(error=>console.error("Term 03 semantic enrichment failed",error));};
@@ -252,7 +259,13 @@
  };
  window.refreshActiveTermViewIfSafe=function(){
   if(activeTerm&&tab==="home"&&(!window.scrollY||window.scrollY<80))window.render();
-  else updateStats();
+  else if(activeTerm&&tab==="cards"){
+   const currentId=deck[idx]?.id;
+   deck=pool();
+   const restoredIndex=deck.findIndex(item=>item.id===currentId);
+   if(restoredIndex>=0)idx=restoredIndex;
+   window.render();
+  }else updateStats();
  };
  window.gotoTab=async function(t){
   const request=++tabRequest;
