@@ -22,7 +22,29 @@
  window.VocabLearningSchoolModeIds=modeRegistry.list().map(item=>item.id);
  if(!modeRegistry.get("imla")||!modeRegistry.get("skip-gram")||!modeRegistry.get("meaning-recall"))throw new Error("The Learning School is missing a required independent learning mode.");
  let mode="imla",term="all",queueFilter="all",queue=[],index=0,current=null,prompt=null,hints=0,started=0,checked=false,identitySnapshot=null,reviewMap=new Map(),reviewCounts={new:0,due:0,weak:0},showMistakes=false,focusedLegacyId=null,meaningLanguage="en";
- function buildIdentity(){if(identitySnapshot)return;const data=window.LEARNING_SCHOOL_DATA;identitySnapshot=data?.manifest&&data?.aliasIndex?{manifest:data.manifest,aliasIndex:data.aliasIndex,stats:data.stats||{}}:window.VocabLearningManifest.build(items());canonicalItemIds=new Set(identitySnapshot.manifest.items.map(item=>item.itemId))}
+ function buildIdentity(){
+  if(identitySnapshot)return;
+  const data=window.LEARNING_SCHOOL_DATA;
+  if(data?.manifest&&data?.aliasIndex){
+   const customRows=items().filter(row=>row.source==="user-added");
+   if(customRows.length){
+    const customBuilt=window.VocabLearningManifest.build(customRows);
+    const merged=new Map(data.manifest.items.map(item=>[item.itemId,{...item}]));
+    for(const item of customBuilt.manifest.items){
+     const prior=merged.get(item.itemId);
+     if(!prior){merged.set(item.itemId,item);continue}
+     prior.legacyIds=[...new Set([...prior.legacyIds,...item.legacyIds])];
+     prior.occurrences=[...prior.occurrences,...item.occurrences];
+     prior.acceptedForms=[...new Set([...prior.acceptedForms,...item.acceptedForms])];
+     prior.aliases=[...new Set([...prior.aliases,...item.aliases])];
+    }
+    const manifest={schemaVersion:1,items:[...merged.values()]};
+    const aliasIndex=window.VocabLearningIdentity.buildLegacyAliasIndex(manifest);
+    identitySnapshot={manifest,aliasIndex,stats:{...(data.stats||{}),indexedItems:manifest.items.length,ambiguousAliases:aliasIndex.ambiguous.length}};
+   }else identitySnapshot={manifest:data.manifest,aliasIndex:data.aliasIndex,stats:data.stats||{}};
+  }else identitySnapshot=window.VocabLearningManifest.build(items());
+  canonicalItemIds=new Set(identitySnapshot.manifest.items.map(item=>item.itemId));
+ }
  function canonicalItemId(legacyId,storedItemId,row){
   const priorId=String(storedItemId||"");
   if(priorId.startsWith("vocab:canonical:")&&canonicalItemIds.has(priorId))return priorId;
