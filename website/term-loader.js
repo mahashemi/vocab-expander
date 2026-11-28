@@ -362,13 +362,7 @@
           const canonicalId = aliases[String(row.id)] ||
             aliases["vocab:source:" + encodeURIComponent(String(row.id)) + ":" + encodeURIComponent(String(row.fa || ""))];
           const itemMeanings = meanings[canonicalId];
-          if (itemMeanings) {
-            row.sem = {
-              faMeaning: itemMeanings.fa || null,
-              enMeaning: itemMeanings.en || null,
-              arMeaning: itemMeanings.ar || null
-            };
-          }
+          if (itemMeanings) row.sem = itemMeanings;
         }
         window.LEARNING_SCHOOL_SEMANTICS_READY = true;
         window.TERM01_SEMANTICS_READY = true;
