@@ -365,9 +365,6 @@
           if (itemMeanings) row.sem = itemMeanings;
         }
         window.LEARNING_SCHOOL_SEMANTICS_READY = true;
-        window.TERM01_SEMANTICS_READY = true;
-        window.TERM02_SEMANTICS_READY = true;
-        window.TERM03_SEMANTICS_READY = true;
         if (window.performance && window.performance.mark) {
           window.performance.mark("vocab-learning-school-semantics-ready");
         }
