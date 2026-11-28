@@ -500,11 +500,11 @@ async function waitFor(page, expression, label, timeout = 120000) {
     await page.waitForSelector('.learning-question #learningAnswer', { timeout: 30000 });
     const schoolFirstPaint = await page.evaluate(() => ({
       coreReady: performance.getEntriesByName('vocab-learning-school-core-ready')[0]?.startTime ?? null,
-      firstExercise: performance.getEntriesByType('resource').length,
+      firstExercise: performance.getEntriesByName('vocab-learning-school-first-exercise')[0]?.startTime ?? null,
       semanticFlags: [window.TERM01_SEMANTICS_READY, window.TERM02_SEMANTICS_READY, window.TERM03_SEMANTICS_READY],
       semanticRequests: performance.getEntriesByType('resource').filter(entry => /semantic-meanings|term01-semantic|term02-(?:core|additional)-semantics|term03-additional-semantics/.test(entry.name)).map(entry => entry.name)
     }));
-    if (schoolFirstPaint.coreReady == null || schoolFirstPaint.semanticFlags.some(Boolean) || schoolFirstPaint.semanticRequests.length) {
+    if (schoolFirstPaint.coreReady == null || schoolFirstPaint.firstExercise == null || schoolFirstPaint.firstExercise < schoolFirstPaint.coreReady || schoolFirstPaint.semanticFlags.some(Boolean) || schoolFirstPaint.semanticRequests.length) {
       throw new Error('Learning School should render its first exercise before optional semantic bundles load: ' + JSON.stringify(schoolFirstPaint));
     }
     console.log('PASS: Learning School first exercise renders without loading optional semantic dictionaries');
