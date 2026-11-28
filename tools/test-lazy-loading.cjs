@@ -162,7 +162,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     // The portal manifest includes shared Newestan additions and Term 03.
     // Request the explicit all-library workflow before comparing full totals.
     await page.evaluate(() => window.ensureAllTermsLoaded());
-    await waitFor(page, 'window.ALL_TERM_CORE_DATA_READY === true && window.TERM01_SEMANTICS_READY === true && window.TERM02_SEMANTICS_READY === true && window.TERM03_SEMANTICS_READY === true', 'explicit all-term workflow loads the complete cross-term library');
+    await waitFor(page, 'window.ALL_TERM_CORE_DATA_READY === true && window.LEARNING_SCHOOL_SEMANTICS_READY === true', 'explicit all-term workflow loads the complete cross-term library');
     const allTermCounts = await page.evaluate(() => window.__getRuntimeVocabCounts());
     if (allTermCounts[1] !== initial.portalSummary[1] || allTermCounts[2] !== initial.portalSummary[2]) {
       throw new Error('Deferred Term 01/02 data does not reconcile to the portal manifest: ' + JSON.stringify(allTermCounts));
