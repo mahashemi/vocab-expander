@@ -49,6 +49,7 @@ async function waitFor(page, expression, label, timeout = 60000) {
       loadedTerms: window.getLoadedTermNumbers?.() || [],
       quickStartRows: window.LEARNING_SCHOOL_DATA?.quickStartRows || 0,
       quickStartItems: window.LEARNING_SCHOOL_DATA?.quickStartItems || 0,
+      quickStartTermCounts: window.LEARNING_SCHOOL_DATA?.quickStartTermCounts || {},
       allRows: window.LEARNING_SCHOOL_DATA?.allItemRefs?.length || 0,
       termCounts: (window.LEARNING_SCHOOL_DATA?.allItemRefs || []).reduce((counts, row) => { counts[row.bk] = (counts[row.bk] || 0) + 1; return counts; }, {}),
       fullReady: performance.getEntriesByName('vocab-learning-school-full-data-ready')[0]?.startTime ?? null,
@@ -61,7 +62,7 @@ async function waitFor(page, expression, label, timeout = 60000) {
     if (startup.dataReady == null || startup.coreReady == null || startup.firstExercise == null || startup.firstExercise < startup.coreReady) {
       throw new Error('The first exercise did not follow Learning School core readiness: ' + JSON.stringify(startup));
     }
-    if (startup.loadedTerms.length !== 0 || startup.quickStartRows < 1 || startup.quickStartRows >= 1000 || startup.quickStartItems < 300 || startup.allRows < 3000 || ![1, 2, 3].every(term => startup.termCounts[term] > 0) || (startup.fullReady != null && startup.fullReady <= startup.firstExercise)) {
+    if (startup.loadedTerms.length !== 0 || startup.quickStartRows < 1 || startup.quickStartRows >= 1000 || startup.quickStartItems < 300 || startup.allRows < 3000 || ![1, 2, 3].every(term => startup.quickStartTermCounts[term] > 0) || ![1, 2, 3].every(term => startup.termCounts[term] > 0) || (startup.fullReady != null && startup.fullReady <= startup.firstExercise)) {
       throw new Error('The cross-term core vocabulary is incomplete: ' + JSON.stringify(startup));
     }
     if (startup.semanticFlags.some(Boolean) || startup.semanticRequests.length) {
@@ -142,7 +143,7 @@ async function waitFor(page, expression, label, timeout = 60000) {
     if (mobileStartup.dataReady == null || mobileStartup.coreReady == null || mobileStartup.firstExercise == null || mobileStartup.firstExercise < mobileStartup.coreReady) {
       throw new Error('Mobile first exercise did not follow Learning School core readiness: ' + JSON.stringify(mobileStartup));
     }
-    if (mobileStartup.loadedTerms.length !== 0 || mobileStartup.quickStartRows < 1 || mobileStartup.quickStartRows >= 1000 || mobileStartup.quickStartItems < 300 || mobileStartup.allRows < 3000 || (mobileStartup.fullReady != null && mobileStartup.fullReady <= mobileStartup.firstExercise) || mobileStartup.semanticFlags.some(Boolean) || mobileStartup.semanticRequests.length) {
+    if (mobileStartup.loadedTerms.length !== 0 || mobileStartup.quickStartRows < 1 || mobileStartup.quickStartRows >= 1000 || mobileStartup.quickStartItems < 300 || mobileStartup.allRows < 3000 || ![1, 2, 3].every(term => mobileStartup.quickStartTermCounts[term] > 0) || (mobileStartup.fullReady != null && mobileStartup.fullReady <= mobileStartup.firstExercise) || mobileStartup.semanticFlags.some(Boolean) || mobileStartup.semanticRequests.length) {
       throw new Error('Mobile Learning School loaded optional semantics before the first exercise: ' + JSON.stringify(mobileStartup));
     }
     console.log('Learning School mobile 3G/4x timing: core ready ' + Math.round(mobileStartup.coreReady) + ' ms; first exercise ' + Math.round(mobileStartup.firstExercise) + ' ms; queue/render after core ' + Math.max(0, Math.round(mobileStartup.firstExercise - mobileStartup.coreReady)) + ' ms');
