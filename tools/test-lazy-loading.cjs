@@ -510,8 +510,9 @@ async function waitFor(page, expression, label, timeout = 120000) {
     console.log('Learning School first-exercise timing: core ready ' + Math.round(schoolFirstPaint.coreReady) + ' ms; first exercise ' + Math.round(schoolFirstPaint.firstExercise) + ' ms; post-core queue/render ' + Math.max(0, Math.round(schoolFirstPaint.firstExercise - schoolFirstPaint.coreReady)) + ' ms');
     console.log('PASS: Learning School first exercise renders without loading optional semantic dictionaries');
     const manifestStatus = await page.evaluate(() => {
-      const built = window.VocabLearningManifest.build(window.__getAllVocabRows());
-      return {valid: built.validation.valid, errors: built.validation.errors, count: built.stats.indexedItems, ambiguous: built.stats.ambiguousAliases};
+      const data = window.LEARNING_SCHOOL_DATA;
+      const validation = window.VocabLearningIdentity.validateManifest(data.manifest);
+      return {valid: validation.valid && data.aliasIndex.valid, errors: validation.errors, count: data.stats.indexedItems, ambiguous: data.aliasIndex.ambiguous.length};
     });
     if (!manifestStatus.valid || manifestStatus.count < 3000 || manifestStatus.ambiguous !== 0) {
       throw new Error('Canonical source identity manifest is invalid or incomplete: ' + JSON.stringify(manifestStatus));
@@ -519,7 +520,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     console.log('PASS: canonical manifest indexes all term records with no ambiguous legacy IDs (' + manifestStatus.count + ')');
     if (await page.locator('.learning-term-card').count() !== 3) throw new Error('Cross-term practice summary must show all three terms.');
     await page.locator('#learningTerm').selectOption('1');
-    const imlaTarget = await page.evaluate(() => window.__getAllVocabRows().find(item => item.bk === 1 && window.VocabImla.eligible(item))?.fa);
+    const imlaTarget = await page.evaluate(() => window.LEARNING_SCHOOL_DATA.rows.find(item => item.bk === 1 && window.VocabImla.eligible(item))?.fa);
     if (!imlaTarget) throw new Error('No eligible Term 01 Imla sample was found.');
     await page.locator('#learningAnswer').fill(imlaTarget);
     await page.locator('#learningCheck').click();
@@ -531,6 +532,9 @@ async function waitFor(page, expression, label, timeout = 120000) {
     await waitFor(page, 'document.querySelector("#sharedVocabCard .meaning-en")?.textContent.trim().length > 0', 'Learning School opens the shared trilingual vocabulary card');
     await page.keyboard.press('Escape');
     await page.locator('#sharedVocabModal').waitFor({ state: 'hidden', timeout: 10000 });
+    // Curated site-wide links intentionally use the live term arrays. Load them
+    // only for this separate global-linking regression, after school startup was measured.
+    await page.evaluate(() => window.ensureAllTermsLoaded());
     const linkAudit = await page.evaluate(() => {
       const host = document.createElement('div');
       host.innerHTML = 'دانشجویان واژه‌ساختگی';
@@ -555,7 +559,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     if (await page.locator("#sharedVocabModal").getAttribute("aria-hidden") !== "true") throw new Error("Escape must close the shared vocabulary card and set aria-hidden=true.");
 
     await page.locator('[data-mode="skip-gram"]').click();
-    const skipTarget = await page.evaluate(() => window.__getAllVocabRows().find(item => item.bk === 1 && window.VocabSkipGram.eligible(item))?.fa);
+    const skipTarget = await page.evaluate(() => window.LEARNING_SCHOOL_DATA.rows.find(item => item.bk === 1 && window.VocabSkipGram.eligible(item))?.fa);
     if (!skipTarget) throw new Error('No eligible Term 01 Skip-gram sample was found.');
     await page.locator('#learningAnswer').fill(skipTarget);
     await page.locator('#learningCheck').click();
@@ -620,7 +624,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     const mistakeId = await page.locator('[data-practice-mistake]').first().getAttribute('data-practice-mistake');
     await page.locator('[data-practice-mistake]').first().click();
     await page.waitForSelector('.learning-question', { timeout: 10000 });
-    const mistakeAnswer = await page.evaluate(id => window.__getAllVocabRows().find(item => item.id === id)?.fa, mistakeId);
+    const mistakeAnswer = await page.evaluate(id => window.LEARNING_SCHOOL_DATA.rows.find(item => item.id === id)?.fa, mistakeId);
     if (!mistakeAnswer) throw new Error('The mistake notebook did not preserve its source item identity.');
     await page.locator('#learningAnswer').fill(mistakeAnswer);
     await page.locator('#learningCheck').click();
