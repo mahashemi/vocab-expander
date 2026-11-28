@@ -66,8 +66,53 @@ async function waitFor(page, expression, label, timeout = 60000) {
     await page.waitForSelector('.learning-question #learningAnswer', { timeout: 10000 });
     console.log('PASS: Imla and Skip-gram remain available after semantic enrichment');
 
+    // Measure the same click-to-first-exercise path on a mobile viewport
+    // with the same 3G-like network and 4x CPU throttling used by the site baseline.
+    const mobileContext = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+      serviceWorkers: 'block'
+    });
+    const mobilePage = await mobileContext.newPage();
+    mobilePage.on('pageerror', error => errors.push('mobile: ' + String(error)));
+    const mobileBase = new URL(base.toString());
+    mobileBase.searchParams.set('learning-school-test', 'mobile-' + (process.env.GITHUB_RUN_ID || 'local'));
+    const mobileCdp = await mobileContext.newCDPSession(mobilePage);
+    await mobileCdp.send('Network.enable');
+    await mobileCdp.send('Network.emulateNetworkConditions', {
+      offline: false,
+      latency: 150,
+      downloadThroughput: 200 * 1024,
+      uploadThroughput: 75 * 1024,
+      connectionType: 'cellular3g'
+    });
+    await mobileCdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+    await mobileCdp.send('Network.clearBrowserCache');
+    await mobilePage.goto(mobileBase.toString(), { waitUntil: 'load', timeout: 120000 });
+    await mobilePage.waitForSelector('.learning-question #learningAnswer', { timeout: 90000 });
+    const mobileStartup = await mobilePage.evaluate(() => ({
+      coreReady: performance.getEntriesByName('vocab-learning-school-core-ready')[0]?.startTime ?? null,
+      firstExercise: performance.getEntriesByName('vocab-learning-school-first-exercise')[0]?.startTime ?? null,
+      semanticFlags: [window.TERM01_SEMANTICS_READY, window.TERM02_SEMANTICS_READY, window.TERM03_SEMANTICS_READY],
+      semanticRequests: performance.getEntriesByType('resource')
+        .filter(entry => /semantic-meanings|term01-semantic|term02-(?:core|additional)-semantics|term03-additional-semantics/.test(entry.name))
+        .map(entry => new URL(entry.name).pathname.split('/').pop())
+    }));
+    if (mobileStartup.coreReady == null || mobileStartup.firstExercise == null || mobileStartup.firstExercise < mobileStartup.coreReady) {
+      throw new Error('Mobile first exercise did not follow Learning School core readiness: ' + JSON.stringify(mobileStartup));
+    }
+    if (mobileStartup.semanticFlags.some(Boolean) || mobileStartup.semanticRequests.length) {
+      throw new Error('Mobile Learning School loaded optional semantics before the first exercise: ' + JSON.stringify(mobileStartup));
+    }
+    console.log('Learning School mobile 3G/4x timing: core ready ' + Math.round(mobileStartup.coreReady) + ' ms; first exercise ' + Math.round(mobileStartup.firstExercise) + ' ms; queue/render after core ' + Math.max(0, Math.round(mobileStartup.firstExercise - mobileStartup.coreReady)) + ' ms');
+    console.log('PASS: mobile first exercise appears before optional semantic enrichment');
+    await mobileCdp.detach();
+    await mobileContext.close();
+
     if (errors.length) throw new Error('Browser page errors: ' + errors.join(' | '));
-    console.log('Learning School cold-start browser test passed.');
+    console.log('Learning School desktop and mobile cold-start browser tests passed.');
   } finally {
     await browser.close();
   }
