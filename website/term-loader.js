@@ -106,6 +106,7 @@
   let sharedSemanticsPromise = null;
   let coreTermsPromise = null;
   let learningSchoolPromise = null;
+  let learningSemanticsPromise = null;
   let term03SemanticsPromise = null;
   let sharedTermAdditionsPromise = null;
   let allTermCorePromise = null;
@@ -321,13 +322,23 @@
   }
 
   async function ensureLearningSemantics() {
-    // Imla and Skip-gram need only verified core vocabulary rows. Load the
-    // heavier semantic dictionaries only when the learner opens Meaning Recall.
-    await ensureAllTermCoreDataLoaded();
-    await Promise.all([ensureTermSemantics(1), ensureTermSemantics(2), ensureTerm03Semantics()]);
-    if (window.performance && window.performance.mark) {
-      window.performance.mark("vocab-learning-school-semantics-ready");
+    if (window.LEARNING_SCHOOL_SEMANTICS_READY) return;
+    if (!learningSemanticsPromise) {
+      learningSemanticsPromise = (async () => {
+        // Imla and Skip-gram need only verified core vocabulary rows. Load the
+        // heavier semantic dictionaries only when the learner opens Meaning Recall.
+        await ensureAllTermCoreDataLoaded();
+        await Promise.all([ensureTermSemantics(1), ensureTermSemantics(2), ensureTerm03Semantics()]);
+        window.LEARNING_SCHOOL_SEMANTICS_READY = true;
+        if (window.performance && window.performance.mark) {
+          window.performance.mark("vocab-learning-school-semantics-ready");
+        }
+      })().catch(error => {
+        learningSemanticsPromise = null;
+        throw error;
+      });
     }
+    return learningSemanticsPromise;
   }
 
   async function ensureLearningSchool() {
