@@ -100,7 +100,7 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
     const coreFile = 'learning-school-core.' + hash(coreText) + '.json';
     const meaningsFile = 'learning-school-meanings.' + hash(meaningsText) + '.json';
     for (const name of fs.readdirSync(outputDir)) {
-      if (/^learning-school-(?:core|meanings)\\.[a-f0-9]{16}\\.json$/.test(name)) fs.unlinkSync(path.join(outputDir, name));
+      if (/^learning-school-(?:core|meanings)\.[a-f0-9]{16}\.json$/.test(name)) fs.unlinkSync(path.join(outputDir, name));
     }
     fs.writeFileSync(path.join(outputDir, coreFile), coreText + '\n');
     fs.writeFileSync(path.join(outputDir, meaningsFile), meaningsText + '\n');
