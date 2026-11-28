@@ -67,7 +67,6 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
       const core = {
         schemaVersion: 1,
         generatedAt: new Date().toISOString(),
-        sourceCommit: process.env.GITHUB_SHA || null,
         rows: coreRows,
         manifest,
         aliasIndex: built.aliasIndex,
@@ -82,6 +81,7 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
     });
 
     const payload = JSON.parse(serialized);
+    payload.core.sourceCommit = process.env.GITHUB_SHA || null;
     fs.mkdirSync(outputDir, { recursive: true });
     const coreText = JSON.stringify(payload.core);
     const meaningsText = JSON.stringify(payload.meanings);
