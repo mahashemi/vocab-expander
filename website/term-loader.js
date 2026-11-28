@@ -108,6 +108,7 @@
   let learningSchoolPromise = null;
   let learningSemanticsPromise = null;
   let learningDataPromise = null;
+  let learningIndexPromise = null;
   let term03SemanticsPromise = null;
   let sharedTermAdditionsPromise = null;
   let allTermCorePromise = null;
@@ -322,11 +323,35 @@
     return promise;
   }
 
+  async function ensureLearningSchoolIndex() {
+    if (window.LEARNING_SCHOOL_INDEX) return window.LEARNING_SCHOOL_INDEX;
+    if (!learningIndexPromise) {
+      learningIndexPromise = (async () => {
+        // A tiny no-store pointer keeps the content-hashed JSON assets fresh
+        // whenever GitHub Actions regenerates them from the current OCR sources.
+        const url = new URL("learning/data/learning-school-index.json?t=" + Date.now(), document.baseURI);
+        const response = await fetch(url.href, { cache: "no-store" });
+        if (!response.ok) throw new Error("Unable to load the Learning School data index (" + response.status + ")");
+        const index = await response.json();
+        if (index.schemaVersion !== 1 || typeof index.coreUrl !== "string" || typeof index.meaningsUrl !== "string") {
+          throw new Error("The Learning School data index has an unsupported schema");
+        }
+        window.LEARNING_SCHOOL_INDEX = index;
+        return index;
+      })().catch(error => {
+        learningIndexPromise = null;
+        throw error;
+      });
+    }
+    return learningIndexPromise;
+  }
+
   async function ensureLearningSchoolData() {
     if (window.LEARNING_SCHOOL_DATA) return window.LEARNING_SCHOOL_DATA;
     if (!learningDataPromise) {
       learningDataPromise = (async () => {
-        const url = new URL("learning/data/learning-school-core.json?v=" + assetVersion, document.baseURI);
+        const index = await ensureLearningSchoolIndex();
+        const url = new URL(index.coreUrl, document.baseURI);
         const response = await fetch(url.href, { cache: "force-cache" });
         if (!response.ok) throw new Error("Unable to load the precomputed Learning School data (" + response.status + ")");
         const data = await response.json();
@@ -351,7 +376,8 @@
     if (!learningSemanticsPromise) {
       learningSemanticsPromise = (async () => {
         const data = await ensureLearningSchoolData();
-        const url = new URL("learning/data/learning-school-meanings.json?v=" + assetVersion, document.baseURI);
+        const index = await ensureLearningSchoolIndex();
+        const url = new URL(index.meaningsUrl, document.baseURI);
         const response = await fetch(url.href, { cache: "force-cache" });
         if (!response.ok) throw new Error("Unable to load trilingual Learning School meanings (" + response.status + ")");
         const payload = await response.json();
