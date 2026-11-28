@@ -507,6 +507,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     if (schoolFirstPaint.coreReady == null || schoolFirstPaint.firstExercise == null || schoolFirstPaint.firstExercise < schoolFirstPaint.coreReady || schoolFirstPaint.semanticFlags.some(Boolean) || schoolFirstPaint.semanticRequests.length) {
       throw new Error('Learning School should render its first exercise before optional semantic bundles load: ' + JSON.stringify(schoolFirstPaint));
     }
+    console.log('Learning School first-exercise timing: core ready ' + Math.round(schoolFirstPaint.coreReady) + ' ms; first exercise ' + Math.round(schoolFirstPaint.firstExercise) + ' ms; post-core queue/render ' + Math.max(0, Math.round(schoolFirstPaint.firstExercise - schoolFirstPaint.coreReady)) + ' ms');
     console.log('PASS: Learning School first exercise renders without loading optional semantic dictionaries');
     const manifestStatus = await page.evaluate(() => {
       const built = window.VocabLearningManifest.build(window.__getAllVocabRows());
