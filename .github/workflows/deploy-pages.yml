@@ -55,6 +55,7 @@ jobs:
           node --check website/learning/learning-school.js
           node --check tools/test-learning-review.cjs
           node --check tools/test-learning-school-startup.cjs
+          node --check tools/build-learning-school-index.cjs
           node --check website/term-loader.js
           node --check website/term-portal.js
           node --check website/app-bootstrap.js
@@ -288,7 +289,18 @@ jobs:
             sleep 1
           done
           curl --fail --silent "$SITE_URL" > /dev/null
+          node tools/build-learning-school-index.cjs
           node tools/test-learning-school-startup.cjs
+
+      - name: Upload generated Learning School static data
+        uses: actions/upload-artifact@v4
+        with:
+          name: learning-school-data
+          path: |
+            website/learning/data/learning-school-core.json
+            website/learning/data/learning-school-meanings.json
+          if-no-files-found: error
+          retention-days: 1
 
   deploy:
     name: Publish GitHub Pages
@@ -301,6 +313,12 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Download generated Learning School static data
+        uses: actions/download-artifact@v4
+        with:
+          name: learning-school-data
+          path: website/learning/data
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
