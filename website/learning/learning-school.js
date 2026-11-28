@@ -154,7 +154,16 @@
   if(!root)return;
   root.innerHTML='<div class="panel learning-notebook"><div class="row"><div><h3>Mistake notebook · دفتر اشتباهات</h3><p class="mut">Your latest incorrect response for each item and learning mode.</p></div><button id="closeLearningNotebook">Back to practice</button></div>'+(rows.length?rows.map(({event,item})=>'<article class="learning-mistake-entry"><div class="mut">TERM 0'+item.bk+' · Chapter '+esc(item.ch)+' · '+esc(event.modeId)+' · '+esc(event.occurredAt||"")+'</div><div class="fa" dir="rtl" lang="fa">'+esc(item.fa)+'</div><div>'+esc(item.en||"")+'</div><div class="mut">Your answer: '+esc(event.response||"—")+' · '+esc((event.errorTypes||[]).join(", ")||"unclassified")+(event.errorPositions?.length?' · positions: '+esc(event.errorPositions.join(", ")):"")+'</div>'+(event.errorDetails?.length?'<div class="mut">Details: '+esc(event.errorDetails.slice(0,4).map(x=>x.position+': '+(x.expected||"∅")+' → '+(x.actual||"∅")).join(" · "))+'</div>':"")+'<button data-practice-mistake="'+esc(item.id)+'" data-practice-mode="'+esc(event.modeId)+'">Practise this item</button></article>').join(""):'<p>No mistakes recorded in this term yet. Keep practising; missed answers will appear here.</p>')+'</div>';
   $("#closeLearningNotebook").onclick=()=>{showMistakes=false;exercise()};
-  root.querySelectorAll("[data-practice-mistake]").forEach(button=>button.onclick=()=>{focusedLegacyId=button.dataset.practiceMistake;const savedMode=button.dataset.practiceMode;if(savedMode.startsWith("meaning-recall-")){mode="meaning-recall";meaningLanguage=savedMode.slice("meaning-recall-".length)}else mode=savedMode;queueFilter="all";showMistakes=false;makeQueue();render()});
+  root.querySelectorAll("[data-practice-mistake]").forEach(button=>button.onclick=async()=>{
+   const targetId=button.dataset.practiceMistake;
+   if(!items().some(item=>String(item.id)===String(targetId))&&typeof window.ensureLearningSchoolFullData==="function"){
+    try{await window.ensureLearningSchoolFullData()}catch(_){}
+    rowSnapshot=null;identitySnapshot=null;canonicalItemIds=new Set();reviewMapBuilt=false;
+   }
+   focusedLegacyId=targetId;const savedMode=button.dataset.practiceMode;
+   if(savedMode.startsWith("meaning-recall-")){mode="meaning-recall";meaningLanguage=savedMode.slice("meaning-recall-".length)}else mode=savedMode;
+   queueFilter="all";showMistakes=false;makeQueue();render()
+  });
  }
  function exercise(){
   const root=$("#learningExercise");if(!root)return;
