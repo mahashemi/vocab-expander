@@ -1307,8 +1307,8 @@ function ensureVocabularyModal(scope){
   modal.hidden=true;modal.setAttribute('aria-hidden','true');document.body.style.overflow=previousOverflow;
   if(returnFocus&&returnFocus.isConnected)returnFocus.focus();
  };
- window.openSharedVocabularyCard=(id,trigger)=>{
-  current=all().find(i=>String(i.id)===String(id))||null;if(!current)return false;
+ window.openSharedVocabularyCard=(id,trigger,rowOverride)=>{
+  current=rowOverride&&String(rowOverride.id)===String(id)?rowOverride:(all().find(i=>String(i.id)===String(id))||null);if(!current)return false;
   returnFocus=trigger||document.activeElement;previousOverflow=document.body.style.overflow;revealed=false;render();
   modal.hidden=false;modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';closeButton.focus();
   return true;
