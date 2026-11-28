@@ -76,23 +76,69 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
           if (Array.isArray(value) && !value.length) continue;
           core[field] = value;
         }
+        core.canonicalId = canonicalId;
         return core;
       });
-      // Stable IDs and aliases are precomputed using full trilingual meanings.
-      // Only the alias index is required at runtime; the full manifest stays in build validation.
+      const allItemRefs = coreRows.map(row => ({
+        id: row.id, bk: row.bk, ch: row.ch, fa: row.fa, en: row.en,
+        canonicalId: row.canonicalId,
+        legacyKey: window.VocabLearningManifest.legacyStableKey(String(row.id), String(row.fa))
+      }));
+      const selectedCanonicalIds = new Set();
+      for (const term of [1, 2, 3]) {
+        const candidates = coreRows.filter(row => Number(row.bk) === term && row.fa && row.en);
+        const byChapter = new Map();
+        for (const row of candidates) {
+          const chapter = String(row.ch || 0);
+          if (!byChapter.has(chapter)) byChapter.set(chapter, []);
+          byChapter.get(chapter).push(row);
+        }
+        const chapters = [...byChapter.entries()].sort((a, b) => Number(a[0]) - Number(b[0])).map(([, values]) =>
+          values.sort((a, b) => String(a.id).localeCompare(String(b.id)))
+        );
+        const selectedForTerm = new Set();
+        let offset = 0;
+        while (selectedForTerm.size < 150 && chapters.some(group => offset < group.length)) {
+          for (const group of chapters) {
+            const row = group[offset];
+            if (row && !selectedForTerm.has(row.canonicalId)) {
+              selectedForTerm.add(row.canonicalId);
+              selectedCanonicalIds.add(row.canonicalId);
+              if (selectedForTerm.size >= 150) break;
+            }
+          }
+          offset++;
+        }
+      }
+      const firstRows = coreRows.filter(row => selectedCanonicalIds.has(row.canonicalId));
+      const quickAliases = Object.create(null);
+      for (const ref of allItemRefs) {
+        quickAliases[String(ref.id)] = ref.canonicalId;
+        quickAliases[ref.legacyKey] = ref.canonicalId;
+      }
+      const generatedAt = new Date().toISOString();
       const core = {
         schemaVersion: 1,
-        generatedAt: new Date().toISOString(),
+        generatedAt,
         rows: coreRows,
         aliasIndex: built.aliasIndex,
         stats: built.stats
       };
+      const first = {
+        schemaVersion: 1,
+        generatedAt,
+        rows: firstRows,
+        allItemRefs,
+        aliasIndex: { valid: true, errors: [], aliases: quickAliases, ambiguous: [] },
+        stats: built.stats,
+        quickStartItems: selectedCanonicalIds.size
+      };
       const meanings = {
         schemaVersion: 1,
-        generatedAt: core.generatedAt,
+        generatedAt,
         byItemId: meaningsByItemId
       };
-      return JSON.stringify({ core, meanings });
+      return JSON.stringify({ core, first, meanings });
     });
 
     const payload = JSON.parse(serialized);
