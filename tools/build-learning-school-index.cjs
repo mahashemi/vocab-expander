@@ -111,11 +111,6 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
         }
       }
       const firstRows = coreRows.filter(row => selectedCanonicalIds.has(row.canonicalId));
-      const quickAliases = Object.create(null);
-      for (const ref of allItemRefs) {
-        quickAliases[String(ref.id)] = ref.canonicalId;
-        quickAliases[ref.legacyKey] = ref.canonicalId;
-      }
       const generatedAt = new Date().toISOString();
       const core = {
         schemaVersion: 1,
@@ -129,7 +124,6 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
         generatedAt,
         rows: firstRows,
         allItemRefs,
-        aliasIndex: { valid: true, errors: [], aliases: quickAliases, ambiguous: [] },
         stats: built.stats,
         quickStartItems: selectedCanonicalIds.size
       };
