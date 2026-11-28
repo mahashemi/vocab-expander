@@ -133,6 +133,7 @@ async function waitFor(page, expression, label, timeout = 60000) {
       loadedTerms: window.getLoadedTermNumbers?.() || [],
       quickStartRows: window.LEARNING_SCHOOL_DATA?.quickStartRows || 0,
       quickStartItems: window.LEARNING_SCHOOL_DATA?.quickStartItems || 0,
+      quickStartTermCounts: window.LEARNING_SCHOOL_DATA?.quickStartTermCounts || {},
       allRows: window.LEARNING_SCHOOL_DATA?.allItemRefs?.length || 0,
       fullReady: performance.getEntriesByName('vocab-learning-school-full-data-ready')[0]?.startTime ?? null,
       semanticFlags: [window.TERM01_SEMANTICS_READY, window.TERM02_SEMANTICS_READY, window.TERM03_SEMANTICS_READY],
