@@ -33,7 +33,7 @@
    if(customRows.length){
     const customBuilt=window.VocabLearningManifest.build(customRows);
     for(const [legacyId,itemId] of Object.entries(customBuilt.aliasIndex.aliases||{})){
-     if(aliases[legacyId]&&aliases[legacyId]!==itemId){ambiguous.push(legacyId);continue}
+     if(aliases[legacyId]&&aliases[legacyId]!==itemId)continue;
      aliases[legacyId]=itemId;
      canonicalIds.add(itemId);
     }
