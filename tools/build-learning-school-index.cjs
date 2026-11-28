@@ -125,7 +125,8 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
         rows: firstRows,
         allItemRefs,
         stats: built.stats,
-        quickStartItems: selectedCanonicalIds.size
+        quickStartItems: selectedCanonicalIds.size,
+        quickStartRows: firstRows.length
       };
       const meanings = {
         schemaVersion: 1,
