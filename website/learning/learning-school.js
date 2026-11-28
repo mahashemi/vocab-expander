@@ -128,12 +128,10 @@
   const answer=$("#learningAnswer");answer.focus();answer.addEventListener("keydown",e=>{if(e.key==="Enter"&&!checked)check()});
   $("#learningCheck").onclick=check;$("#learningNext").onclick=next;$("#learningHint").onclick=hint;
   $("#learningVocabCard").onclick=async()=>{
-   const button=$("#learningVocabCard"),targetTerm=Number(current?.bk);
+   const button=$("#learningVocabCard");
    try{
-    if(typeof window.ensureTermLoaded==="function")await window.ensureTermLoaded(targetTerm);
-    if(targetTerm===3&&typeof window.ensureTerm03Semantics==="function")await window.ensureTerm03Semantics();
-    else if(typeof window.ensureTermSemantics==="function")await window.ensureTermSemantics(targetTerm);
-    window.openSharedVocabularyCard?.(current.id,button);
+    if(typeof window.ensureLearningSemantics==="function"&&!window.LEARNING_SCHOOL_SEMANTICS_READY)await window.ensureLearningSemantics();
+    window.openSharedVocabularyCard?.(current.id,button,current);
    }catch(error){
     const feedback=$("#learningFeedback");
     if(feedback)feedback.innerHTML='<div class="learning-feedback incorrect" role="alert">The vocabulary card could not be opened. Please try again.</div>';
