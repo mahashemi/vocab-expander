@@ -190,10 +190,14 @@
   for(const row of Array.isArray(rows)?rows:[]){
    if(!row||!row.id)continue;
    if(selectedTerm!=="all"&&Number(row.bk)!==selectedTerm)continue;
-   let resolved=root.VocabLearningIdentity.resolveLegacyId(aliasIndex,String(row.id));
-   if(resolved.status!=="resolved"){
-    const sourceId=legacyStableKey(String(row.id),String(row.fa));
-    resolved=root.VocabLearningIdentity.resolveLegacyId(aliasIndex,sourceId);
+   let resolved={status:"unresolved",itemId:null};
+   if(row.canonicalId)resolved={status:"resolved",itemId:String(row.canonicalId)};
+   else{
+    resolved=root.VocabLearningIdentity.resolveLegacyId(aliasIndex,String(row.id));
+    if(resolved.status!=="resolved"){
+     const sourceId=legacyStableKey(String(row.id),String(row.fa));
+     resolved=root.VocabLearningIdentity.resolveLegacyId(aliasIndex,sourceId);
+    }
    }
    const canonicalId=resolved.status==="resolved"?resolved.itemId:
     "unresolved:"+[String(row.id),normalize(row.fa),kindFor(row,String(row.fa)),normalize(row.pos),...meaningFields.map(field=>normalize(meaningsFor(row)[field]))].join("|");
