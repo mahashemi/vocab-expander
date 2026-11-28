@@ -11,7 +11,7 @@
     3: 2161
   });
 
-  const assetVersion = "20261127-persistent-global-search-index";
+  const assetVersion = "20261128-learning-core-first";
   window.VOCAB_DATA_VERSION = assetVersion;
   const sharedSemanticScript = "semantic-meanings.js";
   const term01CoreScripts = [
@@ -320,11 +320,29 @@
     return promise;
   }
 
+  async function ensureLearningSemantics() {
+    // Imla and Skip-gram need only verified core vocabulary rows. Load the
+    // heavier semantic dictionaries only when the learner opens Meaning Recall.
+    await ensureAllTermCoreDataLoaded();
+    await Promise.all([ensureTermSemantics(1), ensureTermSemantics(2), ensureTerm03Semantics()]);
+    if (window.performance && window.performance.mark) {
+      window.performance.mark("vocab-learning-school-semantics-ready");
+    }
+  }
+
   async function ensureLearningSchool() {
     if (!learningSchoolPromise) {
       learningSchoolPromise = (async () => {
-        await ensureAllTermsLoaded();
+        if (window.performance && window.performance.mark) {
+          window.performance.mark("vocab-learning-school-start");
+        }
+        // The school defaults to Imla. Do not block its first exercise on the
+        // optional trilingual semantic enrichment used by Meaning Recall.
+        await ensureAllTermCoreDataLoaded();
         await loadScriptsInOrder(["learning/identity.js", "learning/manifest.js", "learning/mode-registry.js", "learning/imla.js", "learning/skip-gram.js", "learning/review-scheduler.js", "learning/meaning-recall.js", "learning/progress-summary.js", "learning/learning-school.js"], false);
+        if (window.performance && window.performance.mark) {
+          window.performance.mark("vocab-learning-school-core-ready");
+        }
       })().catch(error => {
         learningSchoolPromise = null;
         throw error;
@@ -334,6 +352,7 @@
   }
 
   window.ensureLearningSchool = ensureLearningSchool;
+  window.ensureLearningSemantics = ensureLearningSemantics;
   window.ensureAllTermCoreDataLoaded = ensureAllTermCoreDataLoaded;
   window.ensureTerm03Semantics = ensureTerm03Semantics;
   window.ensureTermSemantics = ensureTermSemantics;
