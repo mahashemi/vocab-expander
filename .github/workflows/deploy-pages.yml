@@ -296,7 +296,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: learning-school-data
-          path: website/learning/data/*.json
+          path: website/learning/data/*
           if-no-files-found: error
           retention-days: 1
 
