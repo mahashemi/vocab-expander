@@ -472,6 +472,11 @@ async function waitFor(page, expression, label, timeout = 120000) {
     await page.waitForSelector('#verbSearch', { state: 'visible', timeout: 120000 });
     console.log('PASS: Verb Treasury loads all-term data on demand');
 
+    // Reset to a clean portal context: Verb Treasury intentionally loaded all
+    // semantic dictionaries, which must not contaminate the school cold-start test.
+    await page.goto(target, { waitUntil: 'load', timeout: 120000 });
+    await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
+
     const learningDiagnostics = [];
     page.on('pageerror', error => learningDiagnostics.push('pageerror: ' + String(error)));
     page.on('console', message => { if (message.type() === 'error') learningDiagnostics.push('console: ' + message.text()); });
