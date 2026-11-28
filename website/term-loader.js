@@ -346,15 +346,30 @@
     return learningIndexPromise;
   }
 
+  async function fetchLearningSchoolJson(gzipUrl, plainUrl) {
+    if (gzipUrl && typeof DecompressionStream === "function") {
+      try {
+        const compressed = await fetch(new URL(gzipUrl, document.baseURI).href, { cache: "force-cache" });
+        if (compressed.ok) {
+          const bytes = await compressed.arrayBuffer();
+          const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+          return await new Response(stream).json();
+        }
+      } catch (error) {
+        // Older browsers or a misconfigured static MIME type can use the plain JSON fallback.
+      }
+    }
+    const response = await fetch(new URL(plainUrl, document.baseURI).href, { cache: "force-cache" });
+    if (!response.ok) throw new Error("Unable to load Learning School data (" + response.status + ")");
+    return response.json();
+  }
+
   async function ensureLearningSchoolData() {
     if (window.LEARNING_SCHOOL_DATA) return window.LEARNING_SCHOOL_DATA;
     if (!learningDataPromise) {
       learningDataPromise = (async () => {
         const index = await ensureLearningSchoolIndex();
-        const url = new URL(index.coreUrl, document.baseURI);
-        const response = await fetch(url.href, { cache: "force-cache" });
-        if (!response.ok) throw new Error("Unable to load the precomputed Learning School data (" + response.status + ")");
-        const data = await response.json();
+        const data = await fetchLearningSchoolJson(index.coreGzipUrl, index.coreUrl);
         if (data.schemaVersion !== 1 || !Array.isArray(data.rows) || !data.manifest || !data.aliasIndex || !data.aliasIndex.valid) {
           throw new Error("The precomputed Learning School data has an unsupported or incomplete schema");
         }
@@ -377,10 +392,7 @@
       learningSemanticsPromise = (async () => {
         const data = await ensureLearningSchoolData();
         const index = await ensureLearningSchoolIndex();
-        const url = new URL(index.meaningsUrl, document.baseURI);
-        const response = await fetch(url.href, { cache: "force-cache" });
-        if (!response.ok) throw new Error("Unable to load trilingual Learning School meanings (" + response.status + ")");
-        const payload = await response.json();
+        const payload = await fetchLearningSchoolJson(index.meaningsGzipUrl, index.meaningsUrl);
         if (payload.schemaVersion !== 1 || !payload.byItemId) throw new Error("The trilingual Learning School data has an unsupported schema");
         const aliases = data.aliasIndex.aliases || {};
         const meanings = payload.byItemId;
