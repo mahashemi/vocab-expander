@@ -79,6 +79,9 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
         core.canonicalId = canonicalId;
         return core;
       });
+      if (coreRows.some(row => !row.canonicalId)) {
+        throw new Error('The quick-start index contains a row without a canonical learning identity');
+      }
       const allItemRefs = coreRows.map(row => ({
         id: row.id, bk: row.bk, ch: row.ch, fa: row.fa, en: row.en,
         canonicalId: row.canonicalId,
