@@ -25,23 +25,26 @@
  function buildIdentity(){
   if(identitySnapshot)return;
   const data=window.LEARNING_SCHOOL_DATA;
-  if(data?.manifest&&data?.aliasIndex){
+  if(data?.aliasIndex){
+   const aliases={...(data.aliasIndex.aliases||{})};
+   const ambiguous=[...(data.aliasIndex.ambiguous||[])];
+   const canonicalIds=new Set(Object.values(aliases));
    const customRows=items().filter(row=>row.source==="user-added");
    if(customRows.length){
     const customBuilt=window.VocabLearningManifest.build(customRows);
-    const merged=new Map(data.manifest.items.map(item=>[item.itemId,{...item}]));
-    for(const item of customBuilt.manifest.items){
-     const prior=merged.get(item.itemId);
-     if(!prior){merged.set(item.itemId,item);continue}
-     prior.legacyIds=[...new Set([...prior.legacyIds,...item.legacyIds])];
-     prior.occurrences=[...prior.occurrences,...item.occurrences];
-     prior.acceptedForms=[...new Set([...prior.acceptedForms,...item.acceptedForms])];
-     prior.aliases=[...new Set([...prior.aliases,...item.aliases])];
+    for(const [legacyId,itemId] of Object.entries(customBuilt.aliasIndex.aliases||{})){
+     if(aliases[legacyId]&&aliases[legacyId]!==itemId){ambiguous.push(legacyId);continue}
+     aliases[legacyId]=itemId;
+     canonicalIds.add(itemId);
     }
-    const manifest={schemaVersion:1,items:[...merged.values()]};
-    const aliasIndex=window.VocabLearningIdentity.buildLegacyAliasIndex(manifest);
-    identitySnapshot={manifest,aliasIndex,stats:{...(data.stats||{}),indexedItems:manifest.items.length,ambiguousAliases:aliasIndex.ambiguous.length}};
-   }else identitySnapshot={manifest:data.manifest,aliasIndex:data.aliasIndex,stats:data.stats||{}};
+    ambiguous.push(...(customBuilt.aliasIndex.ambiguous||[]));
+   }
+   const aliasIndex={valid:!!data.aliasIndex.valid,errors:[],aliases,ambiguous:[...new Set(ambiguous)]};
+   identitySnapshot={
+    manifest:{schemaVersion:1,items:[...canonicalIds].map(itemId=>({itemId}))},
+    aliasIndex,
+    stats:{...(data.stats||{}),indexedItems:canonicalIds.size,ambiguousAliases:aliasIndex.ambiguous.length}
+   };
   }else identitySnapshot=window.VocabLearningManifest.build(items());
   canonicalItemIds=new Set(identitySnapshot.manifest.items.map(item=>item.itemId));
  }
@@ -57,7 +60,7 @@
    const prior=window.VocabLearningIdentity.resolveLegacyId(identitySnapshot?.aliasIndex,sourceId);
    if(prior.status==="resolved")return prior.itemId;
    const rowId=window.VocabLearningManifest.identityForRow(row);
-   if(identitySnapshot?.manifest?.items.some(item=>item.itemId===rowId))return rowId;
+   if(canonicalItemIds.has(rowId))return rowId;
   }
   const result=window.VocabLearningIdentity.resolveLegacyId(identitySnapshot?.aliasIndex,String(legacyId||""));
   return result.status==="resolved"?result.itemId:"legacy:"+String(legacyId||"unknown");
