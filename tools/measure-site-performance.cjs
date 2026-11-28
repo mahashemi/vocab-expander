@@ -81,6 +81,15 @@ async function measureViewport(name, config) {
       await page.waitForFunction((term) => performance.getEntriesByName('vocab-term' + String(term).padStart(2, '0') + '-route-ready').length > 0, routeTerm, { timeout: 30000 });
       if (routeTerm !== 3) {
         try {
+          // The route's post-paint enrichment is opportunistic. Explicitly await
+          // the same public loader here so lab measurements are deterministic
+          // even when a headless tab suppresses its scheduled callback.
+          await page.evaluate(async (term) => {
+            if (typeof window.ensureTermSemantics !== 'function') {
+              throw new Error('Term semantic loader is unavailable for term ' + term);
+            }
+            await window.ensureTermSemantics(term);
+          }, routeTerm);
           await page.waitForFunction((term) => performance.getEntriesByName('vocab-term' + String(term).padStart(2, '0') + '-semantics-ready').length > 0, routeTerm, { timeout: 30000 });
         } catch (error) {
           const diagnostic = await page.evaluate((term) => ({
