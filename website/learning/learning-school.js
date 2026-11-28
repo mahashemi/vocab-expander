@@ -182,6 +182,9 @@
    const button=$("#learningVocabCard");
    try{
     if(typeof window.ensureLearningSemantics==="function"&&!window.LEARNING_SCHOOL_SEMANTICS_READY)await window.ensureLearningSemantics();
+    const canonicalId=current.canonicalId||canonicalItemId(current.id,null,current);
+    const savedMeaning=window.LEARNING_SCHOOL_MEANINGS?.[canonicalId];
+    if(savedMeaning)current.sem=savedMeaning;
     window.openSharedVocabularyCard?.(current.id,button,current);
    }catch(error){
     const feedback=$("#learningFeedback");
