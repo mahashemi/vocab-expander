@@ -243,14 +243,14 @@
   if(!window.__learningSchoolFirstExerciseMarked&&current&&window.performance&&window.performance.mark){
    window.__learningSchoolFirstExerciseMarked=true;
    window.performance.mark("vocab-learning-school-first-exercise");
-   if(!window.__learningSchoolFullDataStarted&&!window.LEARNING_SCHOOL_FULL_DATA_READY&&typeof window.ensureLearningSchoolFullData==="function"){
-    window.__learningSchoolFullDataStarted=true;
-    window.ensureLearningSchoolFullData().catch(error=>{
-     window.__learningSchoolFullDataStarted=false;
-     const status=$("#learningLibraryStatus");
-     if(status)status.textContent="Quick start remains available. The full library could not be loaded; please refresh to retry.";
-    });
-   }
+  }
+  if(current&&!window.__learningSchoolFullDataStarted&&!window.LEARNING_SCHOOL_FULL_DATA_READY&&typeof window.ensureLearningSchoolFullData==="function"){
+   window.__learningSchoolFullDataStarted=true;
+   window.ensureLearningSchoolFullData().catch(error=>{
+    window.__learningSchoolFullDataStarted=false;
+    const status=$("#learningLibraryStatus");
+    if(status)status.textContent="Quick start remains available. The full library could not be loaded; please refresh to retry.";
+   });
   }
  }
  window.addEventListener("learning-school-full-data-ready",()=>{
