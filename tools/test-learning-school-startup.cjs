@@ -61,6 +61,14 @@ async function waitFor(page, expression, label, timeout = 60000) {
       throw new Error('Meaning Recall coverage regressed after lazy semantic loading: ' + JSON.stringify(coverage));
     }
     console.log('PASS: English and Arabic Meaning Recall retain reviewed Term 03 coverage (' + coverage.english + ' / ' + coverage.arabic + ')');
+    const meaningLoadState = await page.evaluate(() => ({
+      loadedTerms: window.getLoadedTermNumbers?.() || [],
+      termSemanticFlags: [window.TERM01_SEMANTICS_READY, window.TERM02_SEMANTICS_READY, window.TERM03_SEMANTICS_READY]
+    }));
+    if (meaningLoadState.loadedTerms.length || meaningLoadState.termSemanticFlags.some(Boolean)) {
+      throw new Error('Learning School Meaning Recall should not load the full term bundles: ' + JSON.stringify(meaningLoadState));
+    }
+    console.log('PASS: trilingual Meaning Recall uses its own static data without loading full term bundles');
 
     await page.locator('[data-mode="imla"]').click();
     await page.waitForSelector('.learning-question #learningAnswer', { timeout: 10000 });
