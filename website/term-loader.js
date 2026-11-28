@@ -373,7 +373,7 @@
       learningDataPromise = (async () => {
         const index = await ensureLearningSchoolIndex();
         const data = await fetchLearningSchoolJson(index.coreGzipUrl, index.coreUrl);
-        if (data.schemaVersion !== 1 || !Array.isArray(data.rows) || !data.manifest || !data.aliasIndex || !data.aliasIndex.valid) {
+        if (data.schemaVersion !== 1 || !Array.isArray(data.rows) || !data.aliasIndex || !data.aliasIndex.valid) {
           throw new Error("The precomputed Learning School data has an unsupported or incomplete schema");
         }
         window.LEARNING_SCHOOL_DATA = data;
