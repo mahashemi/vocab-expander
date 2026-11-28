@@ -577,7 +577,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
 
     await page.locator('#learningTerm').selectOption('3');
     await page.locator('[data-mode="meaning-recall"]').click();
-    await waitFor(page, 'window.TERM01_SEMANTICS_READY === true && window.TERM02_SEMANTICS_READY === true && window.TERM03_SEMANTICS_READY === true', 'trilingual semantic bundles load only when Meaning Recall is selected');
+    await waitFor(page, 'window.LEARNING_SCHOOL_SEMANTICS_READY === true', 'trilingual semantic bundles load only when Meaning Recall is selected');
     const meaningCoverage = await page.evaluate(() => {
       const rows = window.LEARNING_SCHOOL_DATA.rows;
       return {
