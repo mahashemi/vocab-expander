@@ -139,7 +139,7 @@
   $("#learningQueue").onchange=e=>{queueFilter=e.target.value;focusedLegacyId=null;showMistakes=false;makeQueue();render()};
   root.querySelectorAll("[data-mode]").forEach(b=>b.onclick=async()=>{
    const nextMode=b.dataset.mode;
-   if(nextMode==="meaning-recall"&&typeof window.ensureLearningSemantics==="function"&&!window.TERM01_SEMANTICS_READY&&!window.TERM02_SEMANTICS_READY&&!window.TERM03_SEMANTICS_READY){
+   if(nextMode==="meaning-recall"&&typeof window.ensureLearningSemantics==="function"&&!window.LEARNING_SCHOOL_SEMANTICS_READY){
     const root=$("#learningExercise");
     if(root)root.innerHTML='<div class="panel" role="status">Loading verified trilingual meanings…</div>';
     try{await window.ensureLearningSemantics()}catch(error){
