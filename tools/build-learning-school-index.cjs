@@ -7,6 +7,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const zlib = require('node:zlib');
+const crypto = require('node:crypto');
 const { chromium } = require('playwright');
 
 const target = new URL(process.env.SITE_URL || 'http://127.0.0.1:4173/');
@@ -95,8 +96,22 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
     fs.mkdirSync(outputDir, { recursive: true });
     const coreText = JSON.stringify(payload.core);
     const meaningsText = JSON.stringify(payload.meanings);
-    fs.writeFileSync(path.join(outputDir, 'learning-school-core.json'), coreText + '\n');
-    fs.writeFileSync(path.join(outputDir, 'learning-school-meanings.json'), meaningsText + '\n');
+    const hash = value => crypto.createHash('sha256').update(value).digest('hex').slice(0, 16);
+    const coreFile = 'learning-school-core.' + hash(coreText) + '.json';
+    const meaningsFile = 'learning-school-meanings.' + hash(meaningsText) + '.json';
+    for (const name of fs.readdirSync(outputDir)) {
+      if (/^learning-school-(?:core|meanings)\\.[a-f0-9]{16}\\.json$/.test(name)) fs.unlinkSync(path.join(outputDir, name));
+    }
+    fs.writeFileSync(path.join(outputDir, coreFile), coreText + '\n');
+    fs.writeFileSync(path.join(outputDir, meaningsFile), meaningsText + '\n');
+    const index = {
+      schemaVersion: 1,
+      generatedAt: payload.core.generatedAt,
+      sourceCommit: payload.core.sourceCommit,
+      coreUrl: 'learning/data/' + coreFile,
+      meaningsUrl: 'learning/data/' + meaningsFile
+    };
+    fs.writeFileSync(path.join(outputDir, 'learning-school-index.json'), JSON.stringify(index) + '\n');
 
     const bytes = value => Buffer.byteLength(value);
     const gzipBytes = value => zlib.gzipSync(value).length;
@@ -108,7 +123,9 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
       coreBytes: bytes(coreText),
       coreGzipBytes: gzipBytes(coreText),
       meaningsBytes: bytes(meaningsText),
-      meaningsGzipBytes: gzipBytes(meaningsText)
+      meaningsGzipBytes: gzipBytes(meaningsText),
+      coreFile,
+      meaningsFile
     };
     if (summary.rows < 3000 || summary.indexedItems < 2500) {
       throw new Error('Generated Learning School index is unexpectedly incomplete: ' + JSON.stringify(summary));
