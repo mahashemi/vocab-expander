@@ -60,26 +60,30 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
           else if ((target[key] === null || target[key] === undefined || target[key] === '') && value) target[key] = value;
         }
       }
+      const coreFields = [
+        'id', 'bk', 'ch', 'units', 'fa', 'tr', 'en', 'pos', 'source', 'sources',
+        'xf', 'xt', 'xe', 'nt', 'extraExamples', 'extraNotes', 'acceptedForms',
+        'aliases', 'variants', 'synonyms', 'ms', 'amr', 'm', 'a', 'note'
+      ];
       const coreRows = rows.map(row => {
         const canonicalId = aliases[String(row.id)] ||
           aliases[window.VocabLearningManifest.legacyStableKey(String(row.id), String(row.fa))];
         const meanings = meaningsByItemId[canonicalId] || {};
-        const { sem, ...core } = row;
-        // Imla uses English clues; keep that one field in the small core payload.
-        core.en = core.en || meanings.enMeaning || '';
+        const core = {};
+        for (const field of coreFields) {
+          const value = field === 'en' ? (row.en || meanings.enMeaning || '') : row[field];
+          if (value === undefined || value === null || value === '') continue;
+          if (Array.isArray(value) && !value.length) continue;
+          core[field] = value;
+        }
         return core;
       });
-      // Stable IDs and aliases are precomputed using the full trilingual meanings.
-      // The meaning text itself is kept in a separate file, loaded only for Meaning Recall.
-      const manifest = {
-        schemaVersion: built.manifest.schemaVersion,
-        items: built.manifest.items.map(({ meanings, ...item }) => item)
-      };
+      // Stable IDs and aliases are precomputed using full trilingual meanings.
+      // Only the alias index is required at runtime; the full manifest stays in build validation.
       const core = {
         schemaVersion: 1,
         generatedAt: new Date().toISOString(),
         rows: coreRows,
-        manifest,
         aliasIndex: built.aliasIndex,
         stats: built.stats
       };
