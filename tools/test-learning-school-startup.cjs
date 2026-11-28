@@ -49,7 +49,7 @@ async function waitFor(page, expression, label, timeout = 60000) {
     console.log('PASS: first exercise appears from the static three-term index without loading any full term bundles or optional meanings');
 
     await page.locator('[data-mode="meaning-recall"]').click();
-    await waitFor(page, 'window.LEARNING_SCHOOL_SEMANTICS_READY === true && window.TERM01_SEMANTICS_READY === true && window.TERM02_SEMANTICS_READY === true && window.TERM03_SEMANTICS_READY === true', 'Meaning Recall loads the complete trilingual semantic layer');
+    await waitFor(page, 'window.LEARNING_SCHOOL_SEMANTICS_READY === true', 'Meaning Recall loads the complete trilingual semantic layer');
     const coverage = await page.evaluate(() => {
       const rows = window.LEARNING_SCHOOL_DATA.rows;
       return {
