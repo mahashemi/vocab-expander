@@ -270,6 +270,25 @@ jobs:
         run: |
           node --check website/app-bootstrap.js
 
+      - name: Install browser smoke-test dependencies
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install chromium --with-deps
+
+      - name: Run full browser smoke tests against the pull-request build
+        env:
+          SITE_URL: http://127.0.0.1:4173/
+        run: |
+          python3 -m http.server 4173 --directory website > /tmp/vocab-expander-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent "$SITE_URL" > /dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent "$SITE_URL" > /dev/null
+          node tools/test-lazy-loading.cjs
+
   deploy:
     name: Publish GitHub Pages
     needs: validate
