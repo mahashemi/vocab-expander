@@ -59,6 +59,7 @@
   canonicalItemIds=new Set(identitySnapshot.manifest.items.map(item=>item.itemId));
  }
  function canonicalItemId(legacyId,storedItemId,row){
+  if(!identitySnapshot)buildIdentity();
   if(row?.canonicalId)return String(row.canonicalId);
   const priorId=String(storedItemId||"");
   if(priorId.startsWith("vocab:canonical:"))return priorId;
