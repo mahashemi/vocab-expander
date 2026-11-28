@@ -163,7 +163,7 @@
  };
  const routeTabs={fa:"home",study:"home",flashcards:"cards",quiz:"quiz",khulasa:"khulasa",newestan:"essays",sukhanrani:"speeches"};
  const routeNames={home:"fa",cards:"flashcards",quiz:"quiz",khulasa:"khulasa",essays:"newestan",speeches:"sukhanrani"};
- let applyingRoute=false,routeRequest=0,tabRequest=0,term03SemanticsScheduled=false;
+ let applyingRoute=false,routeRequest=0,tabRequest=0,term03SemanticsScheduled=false,termSemanticsScheduled=new Set();
  function currentRoute(){
   if(tab==="portal")return "#/";
   if(tab==="verbs")return "#/verbs";
