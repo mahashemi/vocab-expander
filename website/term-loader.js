@@ -109,6 +109,7 @@
   let learningSemanticsPromise = null;
   let learningDataPromise = null;
   let learningIndexPromise = null;
+  let learningFullDataPromise = null;
   let term03SemanticsPromise = null;
   let sharedTermAdditionsPromise = null;
   let allTermCorePromise = null;
@@ -333,7 +334,7 @@
         const response = await fetch(url.href, { cache: "no-store" });
         if (!response.ok) throw new Error("Unable to load the Learning School data index (" + response.status + ")");
         const index = await response.json();
-        if (index.schemaVersion !== 1 || typeof index.coreUrl !== "string" || typeof index.meaningsUrl !== "string") {
+        if (index.schemaVersion !== 1 || typeof index.firstUrl !== "string" || typeof index.coreUrl !== "string" || typeof index.meaningsUrl !== "string") {
           throw new Error("The Learning School data index has an unsupported schema");
         }
         window.LEARNING_SCHOOL_INDEX = index;
@@ -372,11 +373,12 @@
     if (!learningDataPromise) {
       learningDataPromise = (async () => {
         const index = await ensureLearningSchoolIndex();
-        const data = await fetchLearningSchoolJson(index.coreGzipUrl, index.coreUrl);
-        if (data.schemaVersion !== 1 || !Array.isArray(data.rows) || !data.aliasIndex || !data.aliasIndex.valid) {
-          throw new Error("The precomputed Learning School data has an unsupported or incomplete schema");
+        const data = await fetchLearningSchoolJson(index.firstGzipUrl, index.firstUrl);
+        if (data.schemaVersion !== 1 || !Array.isArray(data.rows) || !Array.isArray(data.allItemRefs) || !data.stats) {
+          throw new Error("The quick-start Learning School data has an unsupported or incomplete schema");
         }
         window.LEARNING_SCHOOL_DATA = data;
+        window.LEARNING_SCHOOL_FULL_DATA_READY = false;
         if (window.performance && window.performance.mark) {
           window.performance.mark("vocab-learning-school-data-ready");
         }
@@ -389,6 +391,46 @@
     return learningDataPromise;
   }
 
+  function applyLearningSchoolMeanings(rows, aliasIndex, meanings) {
+    const aliases = aliasIndex?.aliases || {};
+    for (const row of Array.isArray(rows) ? rows : []) {
+      const canonicalId = row.canonicalId || aliases[String(row.id)] ||
+        aliases["vocab:source:" + encodeURIComponent(String(row.id)) + ":" + encodeURIComponent(String(row.fa || ""))];
+      const itemMeanings = meanings[canonicalId];
+      if (itemMeanings) row.sem = itemMeanings;
+    }
+  }
+
+  async function ensureLearningSchoolFullData() {
+    if (window.LEARNING_SCHOOL_FULL_DATA_READY) return window.LEARNING_SCHOOL_DATA;
+    if (!learningFullDataPromise) {
+      learningFullDataPromise = (async () => {
+        const index = await ensureLearningSchoolIndex();
+        const full = await fetchLearningSchoolJson(index.coreGzipUrl, index.coreUrl);
+        if (full.schemaVersion !== 1 || !Array.isArray(full.rows) || !full.aliasIndex || !full.aliasIndex.valid) {
+          throw new Error("The full Learning School data has an unsupported or incomplete schema");
+        }
+        const data = await ensureLearningSchoolData();
+        data.rows = full.rows;
+        data.aliasIndex = full.aliasIndex;
+        data.stats = full.stats || data.stats;
+        if (window.LEARNING_SCHOOL_MEANINGS) {
+          applyLearningSchoolMeanings(data.rows, data.aliasIndex, window.LEARNING_SCHOOL_MEANINGS);
+        }
+        window.LEARNING_SCHOOL_FULL_DATA_READY = true;
+        if (window.performance && window.performance.mark) {
+          window.performance.mark("vocab-learning-school-full-data-ready");
+        }
+        window.dispatchEvent(new Event("learning-school-full-data-ready"));
+        return data;
+      })().catch(error => {
+        learningFullDataPromise = null;
+        throw error;
+      });
+    }
+    return learningFullDataPromise;
+  }
+
   async function ensureLearningSemantics() {
     if (window.LEARNING_SCHOOL_SEMANTICS_READY) return;
     if (!learningSemanticsPromise) {
@@ -397,14 +439,8 @@
         const index = await ensureLearningSchoolIndex();
         const payload = await fetchLearningSchoolJson(index.meaningsGzipUrl, index.meaningsUrl);
         if (payload.schemaVersion !== 1 || !payload.byItemId) throw new Error("The trilingual Learning School data has an unsupported schema");
-        const aliases = data.aliasIndex.aliases || {};
-        const meanings = payload.byItemId;
-        for (const row of data.rows) {
-          const canonicalId = aliases[String(row.id)] ||
-            aliases["vocab:source:" + encodeURIComponent(String(row.id)) + ":" + encodeURIComponent(String(row.fa || ""))];
-          const itemMeanings = meanings[canonicalId];
-          if (itemMeanings) row.sem = itemMeanings;
-        }
+        window.LEARNING_SCHOOL_MEANINGS = payload.byItemId;
+        applyLearningSchoolMeanings(data.rows, data.aliasIndex, payload.byItemId);
         window.LEARNING_SCHOOL_SEMANTICS_READY = true;
         if (window.performance && window.performance.mark) {
           window.performance.mark("vocab-learning-school-semantics-ready");
@@ -440,6 +476,7 @@
 
   window.ensureLearningSchool = ensureLearningSchool;
   window.ensureLearningSchoolData = ensureLearningSchoolData;
+  window.ensureLearningSchoolFullData = ensureLearningSchoolFullData;
   window.ensureLearningSemantics = ensureLearningSemantics;
   window.ensureAllTermCoreDataLoaded = ensureAllTermCoreDataLoaded;
   window.ensureTerm03Semantics = ensureTerm03Semantics;
