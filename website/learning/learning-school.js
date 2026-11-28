@@ -115,7 +115,7 @@
    const rank=x=>x.state.isNew?0:x.state.due?1:x.state.weak?2:3;
    return rank(a)-rank(b)||a.state.attempts-b.state.attempts;
   });
-  queue=chosen.map(x=>x.item);index=0;loadCurrent();
+  queue=chosen.map(x=>x.item);index=0;loadCurrent();if(window.LEARNING_SCHOOL_FULL_DATA_READY)pendingFullDataRefresh=false;
  }
  function loadCurrent(){
   if(!queue.length){current=null;prompt=null;return}
@@ -147,7 +147,7 @@
  }
  function shell(){
   const s=stats(),m=identitySnapshot?.stats||{indexedItems:0,ambiguousAliases:0},mistakes=s.mistakes,patterns=s.spellingPatterns.length?" · Common spelling errors: "+s.spellingPatterns.map(([k,v])=>k+" ("+v+")").join(", "):"";
-  return '<section class="writing-wrap learning-school"><div class="eyebrow">VOCAB EXPANDER · LEARNING SCHOOL</div><div class="row"><button type="button" data-learning-back>← Back to library</button></div><h2>تمرین و یادگیری · Practice & Remember</h2><p>Choose a learning method. Practise words and phrases across all three terms, then revisit weak and due items.</p><div class="panel"><div class="row"><label for="learningTerm">Term</label><select id="learningTerm"><option value="all">All terms</option><option value="1">Term 01</option><option value="2">Term 02</option><option value="3">Term 03</option></select><button type="button" data-mode="imla" class="'+(mode==="imla"?"pri":"")+'">املاء · Imla</button><button type="button" data-mode="skip-gram" class="'+(mode==="skip-gram"?"pri":"")+'">Skip-gram</button><button type="button" data-mode="meaning-recall" class="'+(mode==="meaning-recall"?"pri":"")+'">معنی‌یابی · Meaning recall</button></div><div class="row" id="learningMeaningControls" style="'+(mode==="meaning-recall"?"display:flex":"display:none")+'"><label for="learningMeaningLanguage">Meaning language</label><select id="learningMeaningLanguage"><option value="en">English</option><option value="ar">العربية · Arabic</option></select></div><div class="row learning-tools"><label for="learningQueue">Practice queue</label><select id="learningQueue"><option value="all">All eligible items</option><option value="new">New · '+reviewCounts.new+'</option><option value="due">Due · '+reviewCounts.due+'</option><option value="weak">Needs review · '+reviewCounts.weak+'</option></select><button type="button" id="learningNotebook">Mistake notebook · '+mistakes+'</button></div><div class="mut">'+s.attempts+' attempts · '+s.correct+' correct · '+s.items+' distinct items · '+m.indexedItems+' identities indexed · '+m.ambiguousAliases+' ambiguous aliases blocked'+esc(patterns)+'</div></div>'+summaryCards()+'<div id="learningExercise"></div></section>';
+  return '<section class="writing-wrap learning-school"><div class="eyebrow">VOCAB EXPANDER · LEARNING SCHOOL</div><div class="row"><button type="button" data-learning-back>← Back to library</button></div><h2>تمرین و یادگیری · Practice & Remember</h2><p>Choose a learning method. Practise words and phrases across all three terms, then revisit weak and due items.</p>'+(window.LEARNING_SCHOOL_FULL_DATA_READY?"":'<p id="learningLibraryStatus" class="mut" role="status">Quick start is ready. Loading the complete vocabulary in the background…</p>')+'<div class="panel"><div class="row"><label for="learningTerm">Term</label><select id="learningTerm"><option value="all">All terms</option><option value="1">Term 01</option><option value="2">Term 02</option><option value="3">Term 03</option></select><button type="button" data-mode="imla" class="'+(mode==="imla"?"pri":"")+'">املاء · Imla</button><button type="button" data-mode="skip-gram" class="'+(mode==="skip-gram"?"pri":"")+'">Skip-gram</button><button type="button" data-mode="meaning-recall" class="'+(mode==="meaning-recall"?"pri":"")+'">معنی‌یابی · Meaning recall</button></div><div class="row" id="learningMeaningControls" style="'+(mode==="meaning-recall"?"display:flex":"display:none")+'"><label for="learningMeaningLanguage">Meaning language</label><select id="learningMeaningLanguage"><option value="en">English</option><option value="ar">العربية · Arabic</option></select></div><div class="row learning-tools"><label for="learningQueue">Practice queue</label><select id="learningQueue"><option value="all">All eligible items</option><option value="new">New · '+reviewCounts.new+'</option><option value="due">Due · '+reviewCounts.due+'</option><option value="weak">Needs review · '+reviewCounts.weak+'</option></select><button type="button" id="learningNotebook">Mistake notebook · '+mistakes+'</button></div><div class="mut">'+s.attempts+' attempts · '+s.correct+' correct · '+s.items+' distinct items · '+m.indexedItems+' identities indexed · '+m.ambiguousAliases+' ambiguous aliases blocked'+esc(patterns)+'</div></div>'+summaryCards()+'<div id="learningExercise"></div></section>';
  }
  function renderNotebook(){
   const root=$("#learningExercise"),rows=notebookRows();
@@ -193,7 +193,18 @@
   $("#learningFeedback").innerHTML='<div class="learning-feedback '+(result.correct?"correct":"incorrect")+'"><b>'+(result.correct?"آفرین! Correct":"Not quite · Let’s learn it")+'</b><div class="fa" lang="fa" dir="rtl">'+esc(current.fa)+'</div>'+details+(result.correct?'<p>Good retrieval. Your next review interval is '+reviewFor(current).intervalDays+' day(s).</p>':'<p>Review the answer, then continue. Error pattern: '+esc((result.errorTypes||[]).join(", ")||"not classified")+'</p>'+(diagnostics?'<p>Letter-level feedback: '+esc(diagnostics)+'</p>':""))+'</div>';
  }
  function hint(){if(checked||!current)return;const text=modes[mode].hint(current,prompt,hints);hints++;const el=$("#learningFeedback");el.innerHTML='<div class="mut learning-hint">'+esc(text)+'</div>';const b=$("#learningHint");b.textContent="Hint · "+hints}
- function next(){if(focusedLegacyId||queueFilter!=="all"){focusedLegacyId=null;makeQueue();exercise();return}index++;if(index>=queue.length)index=0;loadCurrent();exercise()}
+ function next(){
+  if(pendingFullDataRefresh){
+   const currentId=String(current?.id||"");
+   rowSnapshot=null;identitySnapshot=null;canonicalItemIds=new Set();reviewMapBuilt=false;
+   makeQueue();
+   const currentPosition=queue.findIndex(item=>String(item.id)===currentId);
+   index=currentPosition>=0?currentPosition:-1;
+   pendingFullDataRefresh=false;
+  }
+  if(focusedLegacyId||queueFilter!=="all"){focusedLegacyId=null;makeQueue();exercise();return}
+  index++;if(index>=queue.length)index=0;loadCurrent();exercise();
+ }
  function render(){
   const root=$("#v");root.innerHTML=shell();
   const back=$("[data-learning-back]");if(back)back.onclick=()=>{location.hash="#/"};
@@ -216,7 +227,22 @@
   });
   $("#learningNotebook").onclick=()=>{showMistakes=true;exercise()};
   exercise();
-  if(!window.__learningSchoolFirstExerciseMarked&&current&&window.performance&&window.performance.mark){window.__learningSchoolFirstExerciseMarked=true;window.performance.mark("vocab-learning-school-first-exercise")}
+  if(!window.__learningSchoolFirstExerciseMarked&&current&&window.performance&&window.performance.mark){
+   window.__learningSchoolFirstExerciseMarked=true;
+   window.performance.mark("vocab-learning-school-first-exercise");
+   if(!window.__learningSchoolFullDataStarted&&!window.LEARNING_SCHOOL_FULL_DATA_READY&&typeof window.ensureLearningSchoolFullData==="function"){
+    window.__learningSchoolFullDataStarted=true;
+    window.ensureLearningSchoolFullData().catch(error=>{
+     window.__learningSchoolFullDataStarted=false;
+     const status=$("#learningLibraryStatus");
+     if(status)status.textContent="Quick start remains available. The full library could not be loaded; please refresh to retry.";
+    });
+   }
+  }
  }
+ window.addEventListener("learning-school-full-data-ready",()=>{
+  rowSnapshot=null;identitySnapshot=null;canonicalItemIds=new Set();reviewMapBuilt=false;pendingFullDataRefresh=true;
+  const status=$("#learningLibraryStatus");if(status)status.hidden=true;
+ });
  window.learningSchool=()=>{window.ensureSharedVocabularyModal?.();makeQueue();render()};
 })();
