@@ -351,6 +351,9 @@
       try {
         const compressed = await fetch(new URL(gzipUrl, document.baseURI).href, { cache: "force-cache" });
         if (compressed.ok) {
+          if ((compressed.headers.get("content-encoding") || "").toLowerCase().includes("gzip")) {
+            return compressed.json();
+          }
           const bytes = await compressed.arrayBuffer();
           const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
           return await new Response(stream).json();
