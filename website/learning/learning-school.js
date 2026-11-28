@@ -5,7 +5,18 @@
  const read=()=>{try{const x=JSON.parse(localStorage.getItem(STORE)||"[]");return Array.isArray(x)?x:[]}catch(_){return[]}};
  const write=x=>{try{localStorage.setItem(STORE,JSON.stringify(x.slice(-MAX_EVENTS)))}catch(_){}};
  let rowSnapshot=null,canonicalItemIds=new Set(),reviewMapBuilt=false;
- const items=()=>rowSnapshot||(rowSnapshot=Array.isArray(window.LEARNING_SCHOOL_DATA?.rows)?window.LEARNING_SCHOOL_DATA.rows:(typeof window.__getAllVocabRows==="function"?window.__getAllVocabRows():[]));
+ const items=()=>rowSnapshot||(rowSnapshot=(()=>{
+  const rows=Array.isArray(window.LEARNING_SCHOOL_DATA?.rows)?window.LEARNING_SCHOOL_DATA.rows.slice():(typeof window.__getAllVocabRows==="function"?window.__getAllVocabRows():[]);
+  const custom=typeof window.__getCustomVocabRows==="function"?window.__getCustomVocabRows():[];
+  for(const entry of custom){
+   if(!Array.isArray(entry)||entry.length<5)continue;
+   const [book,chapter,fa,tr,en,xf="",xt="",xe=""]=entry;
+   const bk=Number(book),ch=Number(chapter);
+   if(![1,2,3].includes(bk)||!fa)continue;
+   rows.push({bk,ch,units:[ch],fa:String(fa),tr:String(tr||""),en:String(en||""),xf:String(xf||""),xt:String(xt||""),xe:String(xe||""),nt:"",source:"user-added",sources:[],id:bk+"|"+ch+"|"+String(fa),sem:(window.PERSIAN_SEMANTICS||{})[String(fa)]||null});
+  }
+  return rows;
+ })());
  const modes={imla:{...window.VocabImla,id:"imla"},"skip-gram":{...window.VocabSkipGram,id:"skip-gram"},"meaning-recall":{...window.VocabMeaningRecall,id:"meaning-recall"}};
  const modeRegistry=window.VocabLearningModeRegistry.create(Object.values(modes));
  window.VocabLearningSchoolModeIds=modeRegistry.list().map(item=>item.id);
