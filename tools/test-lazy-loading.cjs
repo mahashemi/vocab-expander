@@ -120,6 +120,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
       termPortal: [...document.scripts].find(script => script.src.includes('term-portal.js'))?.src || null
     }));
     console.log('Term 01 semantic loader diagnostic: ' + JSON.stringify(term01LoaderDiagnostic));
+    await page.evaluate(() => window.ensureTermSemantics(1));
     await waitFor(page, 'window.TERM01_SEMANTICS_READY === true', 'Term 01 semantic enrichment completes after the first render', 30000);
     const term01Timing = await page.evaluate(() => ({
       route: performance.getEntriesByName('vocab-term01-route-ready')[0]?.startTime ?? null,
@@ -150,6 +151,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
       activeTab: document.querySelector('#termTabs .on')?.dataset.t || null
     }));
     console.log('Term 02 semantic loader diagnostic: ' + JSON.stringify(term02LoaderDiagnostic));
+    await page.evaluate(() => window.ensureTermSemantics(2));
     await waitFor(page, 'window.TERM02_SEMANTICS_READY === true', 'Term 02 semantic enrichment completes after the first render', 30000);
     const term02Timing = await page.evaluate(() => ({
       route: performance.getEntriesByName('vocab-term02-route-ready')[0]?.startTime ?? null,
