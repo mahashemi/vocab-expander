@@ -43,19 +43,29 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
 
       const meaningsByItemId = Object.fromEntries(
         built.manifest.items.map(item => [item.itemId, {
-          fa: item.meanings.fa || null,
-          en: item.meanings.en || null,
-          ar: item.meanings.ar || null
+          faMeaning: item.meanings.fa || null,
+          enMeaning: item.meanings.en || null,
+          arMeaning: item.meanings.ar || null
         }])
       );
       const aliases = built.aliasIndex.aliases;
+      for (const row of rows) {
+        const canonicalId = aliases[String(row.id)] ||
+          aliases[window.VocabLearningManifest.legacyStableKey(String(row.id), String(row.fa))];
+        const target = meaningsByItemId[canonicalId];
+        if (!target || !row.sem) continue;
+        for (const [key, value] of Object.entries(row.sem)) {
+          if (Array.isArray(value)) target[key] = [...new Set([...(target[key] || []), ...value])];
+          else if ((target[key] === null || target[key] === undefined || target[key] === '') && value) target[key] = value;
+        }
+      }
       const coreRows = rows.map(row => {
         const canonicalId = aliases[String(row.id)] ||
           aliases[window.VocabLearningManifest.legacyStableKey(String(row.id), String(row.fa))];
         const meanings = meaningsByItemId[canonicalId] || {};
         const { sem, ...core } = row;
         // Imla uses English clues; keep that one field in the small core payload.
-        core.en = core.en || meanings.en || '';
+        core.en = core.en || meanings.enMeaning || '';
         return core;
       });
       // Stable IDs and aliases are precomputed using the full trilingual meanings.
