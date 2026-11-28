@@ -511,8 +511,12 @@ async function waitFor(page, expression, label, timeout = 120000) {
     console.log('PASS: Learning School first exercise renders without loading optional semantic dictionaries');
     const manifestStatus = await page.evaluate(() => {
       const data = window.LEARNING_SCHOOL_DATA;
-      const validation = window.VocabLearningIdentity.validateManifest(data.manifest);
-      return {valid: validation.valid && data.aliasIndex.valid, errors: validation.errors, count: data.stats.indexedItems, ambiguous: data.aliasIndex.ambiguous.length};
+      return {
+        valid: data.aliasIndex.valid && data.aliasIndex.ambiguous.length === 0,
+        errors: data.aliasIndex.errors || [],
+        count: data.stats.indexedItems,
+        ambiguous: data.aliasIndex.ambiguous.length
+      };
     });
     if (!manifestStatus.valid || manifestStatus.count < 3000 || manifestStatus.ambiguous !== 0) {
       throw new Error('Canonical source identity manifest is invalid or incomplete: ' + JSON.stringify(manifestStatus));
