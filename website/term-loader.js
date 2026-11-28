@@ -11,7 +11,7 @@
     3: 2161
   });
 
-  const assetVersion = "20261127-persistent-global-search-index";
+  const assetVersion = "20261128-learning-core-first";
   window.VOCAB_DATA_VERSION = assetVersion;
   const sharedSemanticScript = "semantic-meanings.js";
   const term01CoreScripts = [
@@ -106,6 +106,7 @@
   let sharedSemanticsPromise = null;
   let coreTermsPromise = null;
   let learningSchoolPromise = null;
+  let learningSemanticsPromise = null;
   let term03SemanticsPromise = null;
   let sharedTermAdditionsPromise = null;
   let allTermCorePromise = null;
@@ -320,11 +321,39 @@
     return promise;
   }
 
+  async function ensureLearningSemantics() {
+    if (window.LEARNING_SCHOOL_SEMANTICS_READY) return;
+    if (!learningSemanticsPromise) {
+      learningSemanticsPromise = (async () => {
+        // Imla and Skip-gram need only verified core vocabulary rows. Load the
+        // heavier semantic dictionaries only when the learner opens Meaning Recall.
+        await ensureAllTermCoreDataLoaded();
+        await Promise.all([ensureTermSemantics(1), ensureTermSemantics(2), ensureTerm03Semantics()]);
+        window.LEARNING_SCHOOL_SEMANTICS_READY = true;
+        if (window.performance && window.performance.mark) {
+          window.performance.mark("vocab-learning-school-semantics-ready");
+        }
+      })().catch(error => {
+        learningSemanticsPromise = null;
+        throw error;
+      });
+    }
+    return learningSemanticsPromise;
+  }
+
   async function ensureLearningSchool() {
     if (!learningSchoolPromise) {
       learningSchoolPromise = (async () => {
-        await ensureAllTermsLoaded();
+        if (window.performance && window.performance.mark) {
+          window.performance.mark("vocab-learning-school-start");
+        }
+        // The school defaults to Imla. Do not block its first exercise on the
+        // optional trilingual semantic enrichment used by Meaning Recall.
+        await ensureAllTermCoreDataLoaded();
         await loadScriptsInOrder(["learning/identity.js", "learning/manifest.js", "learning/mode-registry.js", "learning/imla.js", "learning/skip-gram.js", "learning/review-scheduler.js", "learning/meaning-recall.js", "learning/progress-summary.js", "learning/learning-school.js"], false);
+        if (window.performance && window.performance.mark) {
+          window.performance.mark("vocab-learning-school-core-ready");
+        }
       })().catch(error => {
         learningSchoolPromise = null;
         throw error;
@@ -334,6 +363,7 @@
   }
 
   window.ensureLearningSchool = ensureLearningSchool;
+  window.ensureLearningSemantics = ensureLearningSemantics;
   window.ensureAllTermCoreDataLoaded = ensureAllTermCoreDataLoaded;
   window.ensureTerm03Semantics = ensureTerm03Semantics;
   window.ensureTermSemantics = ensureTermSemantics;

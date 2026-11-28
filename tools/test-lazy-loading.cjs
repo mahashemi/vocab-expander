@@ -472,6 +472,11 @@ async function waitFor(page, expression, label, timeout = 120000) {
     await page.waitForSelector('#verbSearch', { state: 'visible', timeout: 120000 });
     console.log('PASS: Verb Treasury loads all-term data on demand');
 
+    // Reset to a clean portal context: Verb Treasury intentionally loaded all
+    // semantic dictionaries, which must not contaminate the school cold-start test.
+    await page.goto(target, { waitUntil: 'load', timeout: 120000 });
+    await page.waitForSelector('#globalSearchInput', { state: 'visible', timeout: 60000 });
+
     const learningDiagnostics = [];
     page.on('pageerror', error => learningDiagnostics.push('pageerror: ' + String(error)));
     page.on('console', message => { if (message.type() === 'error') learningDiagnostics.push('console: ' + message.text()); });
@@ -492,6 +497,18 @@ async function waitFor(page, expression, label, timeout = 120000) {
       throw new Error('Learning School did not mount: ' + JSON.stringify(state) + '; diagnostics: ' + learningDiagnostics.join(' | ') + '; ' + String(error));
     }
     await waitFor(page, 'typeof window.VocabImla?.validate === "function" && typeof window.VocabSkipGram?.validate === "function" && typeof window.VocabReviewScheduler?.evaluate === "function" && typeof window.VocabMeaningRecall?.validate === "function" && typeof window.VocabLearningModeRegistry?.create === "function" && typeof window.VocabLearningProgressSummary?.build === "function" && typeof window.__getAllVocabRows === "function"', 'Learning School and independent Imla/Skip-gram modules load on demand');
+    await page.waitForSelector('.learning-question #learningAnswer', { timeout: 30000 });
+    const schoolFirstPaint = await page.evaluate(() => ({
+      coreReady: performance.getEntriesByName('vocab-learning-school-core-ready')[0]?.startTime ?? null,
+      firstExercise: performance.getEntriesByName('vocab-learning-school-first-exercise')[0]?.startTime ?? null,
+      semanticFlags: [window.TERM01_SEMANTICS_READY, window.TERM02_SEMANTICS_READY, window.TERM03_SEMANTICS_READY],
+      semanticRequests: performance.getEntriesByType('resource').filter(entry => /semantic-meanings|term01-semantic|term02-(?:core|additional)-semantics|term03-additional-semantics/.test(entry.name)).map(entry => entry.name)
+    }));
+    if (schoolFirstPaint.coreReady == null || schoolFirstPaint.firstExercise == null || schoolFirstPaint.firstExercise < schoolFirstPaint.coreReady || schoolFirstPaint.semanticFlags.some(Boolean) || schoolFirstPaint.semanticRequests.length) {
+      throw new Error('Learning School should render its first exercise before optional semantic bundles load: ' + JSON.stringify(schoolFirstPaint));
+    }
+    console.log('Learning School first-exercise timing: core ready ' + Math.round(schoolFirstPaint.coreReady) + ' ms; first exercise ' + Math.round(schoolFirstPaint.firstExercise) + ' ms; post-core queue/render ' + Math.max(0, Math.round(schoolFirstPaint.firstExercise - schoolFirstPaint.coreReady)) + ' ms');
+    console.log('PASS: Learning School first exercise renders without loading optional semantic dictionaries');
     const manifestStatus = await page.evaluate(() => {
       const built = window.VocabLearningManifest.build(window.__getAllVocabRows());
       return {valid: built.validation.valid, errors: built.validation.errors, count: built.stats.indexedItems, ambiguous: built.stats.ambiguousAliases};
@@ -554,6 +571,9 @@ async function waitFor(page, expression, label, timeout = 120000) {
     await waitFor(page, 'JSON.parse(localStorage.getItem("vocab_learning_attempts_v1") || "[]").length >= 2', 'Imla and Skip-gram attempt history persists after refresh');
     console.log('PASS: Skip-gram reconstruction and cross-mode attempt persistence');
 
+    await page.locator('#learningTerm').selectOption('3');
+    await page.locator('[data-mode="meaning-recall"]').click();
+    await waitFor(page, 'window.TERM01_SEMANTICS_READY === true && window.TERM02_SEMANTICS_READY === true && window.TERM03_SEMANTICS_READY === true', 'trilingual semantic bundles load only when Meaning Recall is selected');
     const meaningCoverage = await page.evaluate(() => {
       const rows = window.__getAllVocabRows();
       return {
@@ -562,8 +582,6 @@ async function waitFor(page, expression, label, timeout = 120000) {
       };
     });
     if (meaningCoverage.english < 100 || meaningCoverage.arabic < 100) throw new Error('Term 03 reviewed trilingual meaning coverage is unexpectedly low: ' + JSON.stringify(meaningCoverage));
-    await page.locator('#learningTerm').selectOption('3');
-    await page.locator('[data-mode="meaning-recall"]').click();
     await page.locator('#learningMeaningLanguage').selectOption('ar');
     const arabicMeaning = await page.evaluate(() => {
       const item = window.__getAllVocabRows().find(x => x.bk === 3 && window.VocabMeaningRecall.eligible(x, {language: 'ar'}));
