@@ -21,14 +21,23 @@
  const modeRegistry=window.VocabLearningModeRegistry.create(Object.values(modes));
  window.VocabLearningSchoolModeIds=modeRegistry.list().map(item=>item.id);
  if(!modeRegistry.get("imla")||!modeRegistry.get("skip-gram")||!modeRegistry.get("meaning-recall"))throw new Error("The Learning School is missing a required independent learning mode.");
- let mode="imla",term="all",queueFilter="all",queue=[],index=0,current=null,prompt=null,hints=0,started=0,checked=false,identitySnapshot=null,reviewMap=new Map(),reviewCounts={new:0,due:0,weak:0},showMistakes=false,focusedLegacyId=null,meaningLanguage="en";
+ let mode="imla",term="all",queueFilter="all",queue=[],index=0,current=null,prompt=null,hints=0,started=0,checked=false,identitySnapshot=null,reviewMap=new Map(),reviewCounts={new:0,due:0,weak:0},showMistakes=false,focusedLegacyId=null,meaningLanguage="en",pendingFullDataRefresh=false;
  function buildIdentity(){
   if(identitySnapshot)return;
   const data=window.LEARNING_SCHOOL_DATA;
-  if(data?.aliasIndex){
-   const aliases={...(data.aliasIndex.aliases||{})};
-   const ambiguous=[...(data.aliasIndex.ambiguous||[])];
-   const canonicalIds=new Set(Object.values(aliases));
+  if(data){
+   let aliases={...(data.aliasIndex?.aliases||{})};
+   const ambiguous=[...(data.aliasIndex?.ambiguous||[])];
+   const refs=Array.isArray(data.allItemRefs)?data.allItemRefs:[];
+   const canonicalIds=new Set(refs.map(ref=>ref.canonicalId).filter(Boolean));
+   if(!Object.keys(aliases).length){
+    for(const ref of refs){
+     if(!ref?.id||!ref?.canonicalId)continue;
+     aliases[String(ref.id)]=ref.canonicalId;
+     if(ref.legacyKey)aliases[String(ref.legacyKey)]=ref.canonicalId;
+    }
+   }
+   for(const itemId of Object.values(aliases))canonicalIds.add(itemId);
    const customRows=items().filter(row=>row.source==="user-added");
    if(customRows.length){
     const customBuilt=window.VocabLearningManifest.build(customRows);
@@ -39,7 +48,8 @@
     }
     ambiguous.push(...(customBuilt.aliasIndex.ambiguous||[]));
    }
-   const aliasIndex={valid:!!data.aliasIndex.valid,errors:[],aliases,ambiguous:[...new Set(ambiguous)]};
+   const aliasIndex={valid:true,errors:[],aliases,ambiguous:[...new Set(ambiguous)]};
+   data.aliasIndex=aliasIndex;
    identitySnapshot={
     manifest:{schemaVersion:1,items:[...canonicalIds].map(itemId=>({itemId}))},
     aliasIndex,
@@ -49,8 +59,9 @@
   canonicalItemIds=new Set(identitySnapshot.manifest.items.map(item=>item.itemId));
  }
  function canonicalItemId(legacyId,storedItemId,row){
+  if(row?.canonicalId)return String(row.canonicalId);
   const priorId=String(storedItemId||"");
-  if(priorId.startsWith("vocab:canonical:")&&canonicalItemIds.has(priorId))return priorId;
+  if(priorId.startsWith("vocab:canonical:"))return priorId;
   if(priorId.startsWith("vocab:source:")){
    const prior=window.VocabLearningIdentity.resolveLegacyId(identitySnapshot?.aliasIndex,priorId);
    if(prior.status==="resolved")return prior.itemId;
@@ -77,9 +88,15 @@
   const canonicalRows=window.VocabLearningManifest.selectPracticeRows(candidates,identitySnapshot?.aliasIndex,term);
   return canonicalRows.filter(x=>selected&&selected.eligible(x,mode==="meaning-recall"?{language:meaningLanguage}:{}));
  }
+ function progressRows(){
+  const data=window.LEARNING_SCHOOL_DATA;
+  const refs=Array.isArray(data?.allItemRefs)?data.allItemRefs:items();
+  const custom=items().filter(row=>row.source==="user-added");
+  return refs.concat(custom);
+ }
  function notebookRows(){
   const latest=new Map(),byLegacy=new Map();
-  for(const row of items()){
+  for(const row of progressRows()){
    const key=String(row.id)+"|"+canonicalItemId(row.id,null,row);
    byLegacy.set(key,row);
   }
@@ -120,7 +137,7 @@
   const notebook=$("#learningNotebook");if(notebook)notebook.textContent="Mistake notebook · "+notebookRows().length;
  }
  function summaryCards(){
-  const report=window.VocabLearningProgressSummary.build(history(),items());
+  const report=window.VocabLearningProgressSummary.build(history(),progressRows());
   const cards=report.terms.map(item=>{
    const accuracy=item.accuracy==null?"Not practised yet":Math.round(item.accuracy*100)+"% accuracy";
    return '<article class="learning-term-card"><b>Term 0'+item.term+'</b><strong>'+item.distinctItems+'</strong><span>items practised</span><small>'+item.attempts+' attempts · '+accuracy+'</small></article>';
