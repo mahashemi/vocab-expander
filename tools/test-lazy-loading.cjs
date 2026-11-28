@@ -502,7 +502,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
       coreReady: performance.getEntriesByName('vocab-learning-school-core-ready')[0]?.startTime ?? null,
       firstExercise: performance.getEntriesByName('vocab-learning-school-first-exercise')[0]?.startTime ?? null,
       semanticFlags: [window.TERM01_SEMANTICS_READY, window.TERM02_SEMANTICS_READY, window.TERM03_SEMANTICS_READY],
-      semanticRequests: performance.getEntriesByType('resource').filter(entry => /semantic-meanings|term01-semantic|term02-(?:core|additional)-semantics|term03-additional-semantics/.test(entry.name)).map(entry => entry.name)
+      semanticRequests: performance.getEntriesByType('resource').filter(entry => /learning-school-meanings|semantic-meanings|term01-semantic|term02-(?:core|additional)-semantics|term03-additional-semantics/.test(entry.name)).map(entry => entry.name)
     }));
     if (schoolFirstPaint.coreReady == null || schoolFirstPaint.firstExercise == null || schoolFirstPaint.firstExercise < schoolFirstPaint.coreReady || schoolFirstPaint.semanticFlags.some(Boolean) || schoolFirstPaint.semanticRequests.length) {
       throw new Error('Learning School should render its first exercise before optional semantic bundles load: ' + JSON.stringify(schoolFirstPaint));
@@ -510,8 +510,13 @@ async function waitFor(page, expression, label, timeout = 120000) {
     console.log('Learning School first-exercise timing: core ready ' + Math.round(schoolFirstPaint.coreReady) + ' ms; first exercise ' + Math.round(schoolFirstPaint.firstExercise) + ' ms; post-core queue/render ' + Math.max(0, Math.round(schoolFirstPaint.firstExercise - schoolFirstPaint.coreReady)) + ' ms');
     console.log('PASS: Learning School first exercise renders without loading optional semantic dictionaries');
     const manifestStatus = await page.evaluate(() => {
-      const built = window.VocabLearningManifest.build(window.__getAllVocabRows());
-      return {valid: built.validation.valid, errors: built.validation.errors, count: built.stats.indexedItems, ambiguous: built.stats.ambiguousAliases};
+      const data = window.LEARNING_SCHOOL_DATA;
+      return {
+        valid: data.aliasIndex.valid && data.aliasIndex.ambiguous.length === 0,
+        errors: data.aliasIndex.errors || [],
+        count: data.stats.indexedItems,
+        ambiguous: data.aliasIndex.ambiguous.length
+      };
     });
     if (!manifestStatus.valid || manifestStatus.count < 3000 || manifestStatus.ambiguous !== 0) {
       throw new Error('Canonical source identity manifest is invalid or incomplete: ' + JSON.stringify(manifestStatus));
@@ -519,7 +524,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     console.log('PASS: canonical manifest indexes all term records with no ambiguous legacy IDs (' + manifestStatus.count + ')');
     if (await page.locator('.learning-term-card').count() !== 3) throw new Error('Cross-term practice summary must show all three terms.');
     await page.locator('#learningTerm').selectOption('1');
-    const imlaTarget = await page.evaluate(() => window.__getAllVocabRows().find(item => item.bk === 1 && window.VocabImla.eligible(item))?.fa);
+    const imlaTarget = await page.evaluate(() => window.LEARNING_SCHOOL_DATA.rows.find(item => item.bk === 1 && window.VocabImla.eligible(item))?.fa);
     if (!imlaTarget) throw new Error('No eligible Term 01 Imla sample was found.');
     await page.locator('#learningAnswer').fill(imlaTarget);
     await page.locator('#learningCheck').click();
@@ -531,6 +536,9 @@ async function waitFor(page, expression, label, timeout = 120000) {
     await waitFor(page, 'document.querySelector("#sharedVocabCard .meaning-en")?.textContent.trim().length > 0', 'Learning School opens the shared trilingual vocabulary card');
     await page.keyboard.press('Escape');
     await page.locator('#sharedVocabModal').waitFor({ state: 'hidden', timeout: 10000 });
+    // Curated site-wide links intentionally use the live term arrays. Load them
+    // only for this separate global-linking regression, after school startup was measured.
+    await page.evaluate(() => window.ensureAllTermsLoaded());
     const linkAudit = await page.evaluate(() => {
       const host = document.createElement('div');
       host.innerHTML = 'دانشجویان واژه‌ساختگی';
@@ -555,7 +563,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     if (await page.locator("#sharedVocabModal").getAttribute("aria-hidden") !== "true") throw new Error("Escape must close the shared vocabulary card and set aria-hidden=true.");
 
     await page.locator('[data-mode="skip-gram"]').click();
-    const skipTarget = await page.evaluate(() => window.__getAllVocabRows().find(item => item.bk === 1 && window.VocabSkipGram.eligible(item))?.fa);
+    const skipTarget = await page.evaluate(() => window.LEARNING_SCHOOL_DATA.rows.find(item => item.bk === 1 && window.VocabSkipGram.eligible(item))?.fa);
     if (!skipTarget) throw new Error('No eligible Term 01 Skip-gram sample was found.');
     await page.locator('#learningAnswer').fill(skipTarget);
     await page.locator('#learningCheck').click();
@@ -573,9 +581,9 @@ async function waitFor(page, expression, label, timeout = 120000) {
 
     await page.locator('#learningTerm').selectOption('3');
     await page.locator('[data-mode="meaning-recall"]').click();
-    await waitFor(page, 'window.TERM01_SEMANTICS_READY === true && window.TERM02_SEMANTICS_READY === true && window.TERM03_SEMANTICS_READY === true', 'trilingual semantic bundles load only when Meaning Recall is selected');
+    await waitFor(page, 'window.LEARNING_SCHOOL_SEMANTICS_READY === true', 'trilingual semantic bundles load only when Meaning Recall is selected');
     const meaningCoverage = await page.evaluate(() => {
-      const rows = window.__getAllVocabRows();
+      const rows = window.LEARNING_SCHOOL_DATA.rows;
       return {
         english: rows.filter(item => item.bk === 3 && window.VocabMeaningRecall.eligible(item, {language: 'en'})).length,
         arabic: rows.filter(item => item.bk === 3 && window.VocabMeaningRecall.eligible(item, {language: 'ar'})).length
@@ -584,7 +592,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     if (meaningCoverage.english < 100 || meaningCoverage.arabic < 100) throw new Error('Term 03 reviewed trilingual meaning coverage is unexpectedly low: ' + JSON.stringify(meaningCoverage));
     await page.locator('#learningMeaningLanguage').selectOption('ar');
     const arabicMeaning = await page.evaluate(() => {
-      const item = window.__getAllVocabRows().find(x => x.bk === 3 && window.VocabMeaningRecall.eligible(x, {language: 'ar'}));
+      const item = window.LEARNING_SCHOOL_DATA.rows.find(x => x.bk === 3 && window.VocabMeaningRecall.eligible(x, {language: 'ar'}));
       return item ? {id: item.id, answer: item.sem.arSynonyms?.[0] || item.sem.arMeaning} : null;
     });
     if (!arabicMeaning?.answer) throw new Error('No reviewed Arabic meaning was available for Term 03.');
@@ -593,7 +601,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     await page.waitForSelector('.learning-feedback.correct', { timeout: 10000 });
     await page.locator('#learningMeaningLanguage').selectOption('en');
     const englishMeaning = await page.evaluate(() => {
-      const item = window.__getAllVocabRows().find(x => x.bk === 3 && window.VocabMeaningRecall.eligible(x, {language: 'en'}));
+      const item = window.LEARNING_SCHOOL_DATA.rows.find(x => x.bk === 3 && window.VocabMeaningRecall.eligible(x, {language: 'en'}));
       return item ? {id: item.id, answer: item.sem.enSynonyms?.[0] || item.sem.enMeaning} : null;
     });
     if (!englishMeaning?.answer) throw new Error('No reviewed English meaning was available for Term 03.');
@@ -620,7 +628,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     const mistakeId = await page.locator('[data-practice-mistake]').first().getAttribute('data-practice-mistake');
     await page.locator('[data-practice-mistake]').first().click();
     await page.waitForSelector('.learning-question', { timeout: 10000 });
-    const mistakeAnswer = await page.evaluate(id => window.__getAllVocabRows().find(item => item.id === id)?.fa, mistakeId);
+    const mistakeAnswer = await page.evaluate(id => window.LEARNING_SCHOOL_DATA.rows.find(item => item.id === id)?.fa, mistakeId);
     if (!mistakeAnswer) throw new Error('The mistake notebook did not preserve its source item identity.');
     await page.locator('#learningAnswer').fill(mistakeAnswer);
     await page.locator('#learningCheck').click();

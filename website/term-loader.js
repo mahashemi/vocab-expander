@@ -11,7 +11,7 @@
     3: 2161
   });
 
-  const assetVersion = "20261128-learning-core-first";
+  const assetVersion = "20261128-static-learning-school-index";
   window.VOCAB_DATA_VERSION = assetVersion;
   const sharedSemanticScript = "semantic-meanings.js";
   const term01CoreScripts = [
@@ -107,6 +107,8 @@
   let coreTermsPromise = null;
   let learningSchoolPromise = null;
   let learningSemanticsPromise = null;
+  let learningDataPromise = null;
+  let learningIndexPromise = null;
   let term03SemanticsPromise = null;
   let sharedTermAdditionsPromise = null;
   let allTermCorePromise = null;
@@ -321,14 +323,88 @@
     return promise;
   }
 
+  async function ensureLearningSchoolIndex() {
+    if (window.LEARNING_SCHOOL_INDEX) return window.LEARNING_SCHOOL_INDEX;
+    if (!learningIndexPromise) {
+      learningIndexPromise = (async () => {
+        // A tiny no-store pointer keeps the content-hashed JSON assets fresh
+        // whenever GitHub Actions regenerates them from the current OCR sources.
+        const url = new URL("learning/data/learning-school-index.json?t=" + Date.now(), document.baseURI);
+        const response = await fetch(url.href, { cache: "no-store" });
+        if (!response.ok) throw new Error("Unable to load the Learning School data index (" + response.status + ")");
+        const index = await response.json();
+        if (index.schemaVersion !== 1 || typeof index.coreUrl !== "string" || typeof index.meaningsUrl !== "string") {
+          throw new Error("The Learning School data index has an unsupported schema");
+        }
+        window.LEARNING_SCHOOL_INDEX = index;
+        return index;
+      })().catch(error => {
+        learningIndexPromise = null;
+        throw error;
+      });
+    }
+    return learningIndexPromise;
+  }
+
+  async function fetchLearningSchoolJson(gzipUrl, plainUrl) {
+    if (gzipUrl && typeof DecompressionStream === "function") {
+      try {
+        const compressed = await fetch(new URL(gzipUrl, document.baseURI).href, { cache: "force-cache" });
+        if (compressed.ok) {
+          if ((compressed.headers.get("content-encoding") || "").toLowerCase().includes("gzip")) {
+            return compressed.json();
+          }
+          const bytes = await compressed.arrayBuffer();
+          const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+          return await new Response(stream).json();
+        }
+      } catch (error) {
+        // Older browsers or a misconfigured static MIME type can use the plain JSON fallback.
+      }
+    }
+    const response = await fetch(new URL(plainUrl, document.baseURI).href, { cache: "force-cache" });
+    if (!response.ok) throw new Error("Unable to load Learning School data (" + response.status + ")");
+    return response.json();
+  }
+
+  async function ensureLearningSchoolData() {
+    if (window.LEARNING_SCHOOL_DATA) return window.LEARNING_SCHOOL_DATA;
+    if (!learningDataPromise) {
+      learningDataPromise = (async () => {
+        const index = await ensureLearningSchoolIndex();
+        const data = await fetchLearningSchoolJson(index.coreGzipUrl, index.coreUrl);
+        if (data.schemaVersion !== 1 || !Array.isArray(data.rows) || !data.aliasIndex || !data.aliasIndex.valid) {
+          throw new Error("The precomputed Learning School data has an unsupported or incomplete schema");
+        }
+        window.LEARNING_SCHOOL_DATA = data;
+        if (window.performance && window.performance.mark) {
+          window.performance.mark("vocab-learning-school-data-ready");
+        }
+        return data;
+      })().catch(error => {
+        learningDataPromise = null;
+        throw error;
+      });
+    }
+    return learningDataPromise;
+  }
+
   async function ensureLearningSemantics() {
     if (window.LEARNING_SCHOOL_SEMANTICS_READY) return;
     if (!learningSemanticsPromise) {
       learningSemanticsPromise = (async () => {
-        // Imla and Skip-gram need only verified core vocabulary rows. Load the
-        // heavier semantic dictionaries only when the learner opens Meaning Recall.
-        await ensureAllTermCoreDataLoaded();
-        await Promise.all([ensureTermSemantics(1), ensureTermSemantics(2), ensureTerm03Semantics()]);
+        const data = await ensureLearningSchoolData();
+        const index = await ensureLearningSchoolIndex();
+        const payload = await fetchLearningSchoolJson(index.meaningsGzipUrl, index.meaningsUrl);
+        if (payload.schemaVersion !== 1 || !payload.byItemId) throw new Error("The trilingual Learning School data has an unsupported schema");
+        const aliases = data.aliasIndex.aliases || {};
+        const meanings = payload.byItemId;
+        for (const row of data.rows) {
+          const canonicalId = aliases[String(row.id)] ||
+            aliases["vocab:source:" + encodeURIComponent(String(row.id)) + ":" + encodeURIComponent(String(row.fa || ""))];
+          const itemMeanings = meanings[canonicalId];
+          if (itemMeanings) row.sem = itemMeanings;
+        }
         window.LEARNING_SCHOOL_SEMANTICS_READY = true;
         if (window.performance && window.performance.mark) {
           window.performance.mark("vocab-learning-school-semantics-ready");
@@ -347,9 +423,9 @@
         if (window.performance && window.performance.mark) {
           window.performance.mark("vocab-learning-school-start");
         }
-        // The school defaults to Imla. Do not block its first exercise on the
-        // optional trilingual semantic enrichment used by Meaning Recall.
-        await ensureAllTermCoreDataLoaded();
+        // The static core index is generated by GitHub Actions. The browser
+        // downloads one compact JSON asset instead of evaluating all term scripts.
+        await ensureLearningSchoolData();
         await loadScriptsInOrder(["learning/identity.js", "learning/manifest.js", "learning/mode-registry.js", "learning/imla.js", "learning/skip-gram.js", "learning/review-scheduler.js", "learning/meaning-recall.js", "learning/progress-summary.js", "learning/learning-school.js"], false);
         if (window.performance && window.performance.mark) {
           window.performance.mark("vocab-learning-school-core-ready");
@@ -363,6 +439,7 @@
   }
 
   window.ensureLearningSchool = ensureLearningSchool;
+  window.ensureLearningSchoolData = ensureLearningSchoolData;
   window.ensureLearningSemantics = ensureLearningSemantics;
   window.ensureAllTermCoreDataLoaded = ensureAllTermCoreDataLoaded;
   window.ensureTerm03Semantics = ensureTerm03Semantics;
