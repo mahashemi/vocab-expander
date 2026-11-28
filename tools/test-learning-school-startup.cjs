@@ -17,11 +17,30 @@ async function waitFor(page, expression, label, timeout = 60000) {
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'] });
   const page = await browser.newPage({ viewport: { width: 1365, height: 900 } });
   const errors = [];
+  const consoleErrors = [];
+  const failedRequests = [];
   page.on('pageerror', error => errors.push(String(error)));
+  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+  page.on('requestfailed', request => failedRequests.push({url: request.url(), error: request.failure()?.errorText || 'failed'}));
 
   try {
     await page.goto(base.toString(), { waitUntil: 'load', timeout: 120000 });
-    await page.waitForSelector('.learning-question #learningAnswer', { timeout: 90000 });
+    try {
+      await page.waitForSelector('.learning-question #learningAnswer', { timeout: 90000 });
+    } catch (error) {
+      const diagnostics = await page.evaluate(() => ({
+        url: location.href,
+        title: document.title,
+        body: (document.body?.innerText || '').slice(0, 1800),
+        hasSchoolData: !!window.LEARNING_SCHOOL_DATA,
+        rowCount: window.LEARNING_SCHOOL_DATA?.rows?.length || 0,
+        aliasIndexValid: window.LEARNING_SCHOOL_DATA?.aliasIndex?.valid,
+        loadedTerms: window.getLoadedTermNumbers?.() || [],
+        schoolLoader: typeof window.ensureLearningSchool,
+        marks: performance.getEntriesByType('mark').map(mark => mark.name).filter(name => name.includes('learning-school'))
+      }));
+      throw new Error('Learning School first exercise did not render: ' + JSON.stringify({ diagnostics, errors, consoleErrors, failedRequests }) + ' / ' + error.message);
+    }
 
     const startup = await page.evaluate(() => ({
       coreReady: performance.getEntriesByName('vocab-learning-school-core-ready')[0]?.startTime ?? null,
