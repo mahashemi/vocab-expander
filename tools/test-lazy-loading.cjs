@@ -575,7 +575,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     await page.locator('[data-mode="meaning-recall"]').click();
     await waitFor(page, 'window.TERM01_SEMANTICS_READY === true && window.TERM02_SEMANTICS_READY === true && window.TERM03_SEMANTICS_READY === true', 'trilingual semantic bundles load only when Meaning Recall is selected');
     const meaningCoverage = await page.evaluate(() => {
-      const rows = window.__getAllVocabRows();
+      const rows = window.LEARNING_SCHOOL_DATA.rows;
       return {
         english: rows.filter(item => item.bk === 3 && window.VocabMeaningRecall.eligible(item, {language: 'en'})).length,
         arabic: rows.filter(item => item.bk === 3 && window.VocabMeaningRecall.eligible(item, {language: 'ar'})).length
@@ -584,7 +584,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     if (meaningCoverage.english < 100 || meaningCoverage.arabic < 100) throw new Error('Term 03 reviewed trilingual meaning coverage is unexpectedly low: ' + JSON.stringify(meaningCoverage));
     await page.locator('#learningMeaningLanguage').selectOption('ar');
     const arabicMeaning = await page.evaluate(() => {
-      const item = window.__getAllVocabRows().find(x => x.bk === 3 && window.VocabMeaningRecall.eligible(x, {language: 'ar'}));
+      const item = window.LEARNING_SCHOOL_DATA.rows.find(x => x.bk === 3 && window.VocabMeaningRecall.eligible(x, {language: 'ar'}));
       return item ? {id: item.id, answer: item.sem.arSynonyms?.[0] || item.sem.arMeaning} : null;
     });
     if (!arabicMeaning?.answer) throw new Error('No reviewed Arabic meaning was available for Term 03.');
@@ -593,7 +593,7 @@ async function waitFor(page, expression, label, timeout = 120000) {
     await page.waitForSelector('.learning-feedback.correct', { timeout: 10000 });
     await page.locator('#learningMeaningLanguage').selectOption('en');
     const englishMeaning = await page.evaluate(() => {
-      const item = window.__getAllVocabRows().find(x => x.bk === 3 && window.VocabMeaningRecall.eligible(x, {language: 'en'}));
+      const item = window.LEARNING_SCHOOL_DATA.rows.find(x => x.bk === 3 && window.VocabMeaningRecall.eligible(x, {language: 'en'}));
       return item ? {id: item.id, answer: item.sem.enSynonyms?.[0] || item.sem.enMeaning} : null;
     });
     if (!englishMeaning?.answer) throw new Error('No reviewed English meaning was available for Term 03.');
