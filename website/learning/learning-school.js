@@ -148,7 +148,7 @@
      return;
     }
    }
-   if(nextMode==="meaning-recall"){rowSnapshot=null;identitySnapshot=null;canonicalItemIds=new Set();}
+   if(nextMode==="meaning-recall"){rowSnapshot=null;identitySnapshot=null;canonicalItemIds=new Set();reviewMapBuilt=false;}
    mode=nextMode;focusedLegacyId=null;makeQueue();render();
   });
   $("#learningNotebook").onclick=()=>{showMistakes=true;exercise()};
