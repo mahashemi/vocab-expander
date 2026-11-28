@@ -4,16 +4,17 @@
  const $=s=>document.querySelector(s),esc=s=>{const d=document.createElement("div");d.textContent=s??"";return d.innerHTML.replace(/"/g,"&quot;")};
  const read=()=>{try{const x=JSON.parse(localStorage.getItem(STORE)||"[]");return Array.isArray(x)?x:[]}catch(_){return[]}};
  const write=x=>{try{localStorage.setItem(STORE,JSON.stringify(x.slice(-MAX_EVENTS)))}catch(_){}};
- const items=()=>typeof window.__getAllVocabRows==="function"?window.__getAllVocabRows():[];
+ let rowSnapshot=null,canonicalItemIds=new Set(),reviewMapBuilt=false;
+ const items=()=>rowSnapshot||(rowSnapshot=typeof window.__getAllVocabRows==="function"?window.__getAllVocabRows():[]);
  const modes={imla:{...window.VocabImla,id:"imla"},"skip-gram":{...window.VocabSkipGram,id:"skip-gram"},"meaning-recall":{...window.VocabMeaningRecall,id:"meaning-recall"}};
  const modeRegistry=window.VocabLearningModeRegistry.create(Object.values(modes));
  window.VocabLearningSchoolModeIds=modeRegistry.list().map(item=>item.id);
  if(!modeRegistry.get("imla")||!modeRegistry.get("skip-gram")||!modeRegistry.get("meaning-recall"))throw new Error("The Learning School is missing a required independent learning mode.");
  let mode="imla",term="all",queueFilter="all",queue=[],index=0,current=null,prompt=null,hints=0,started=0,checked=false,identitySnapshot=null,reviewMap=new Map(),reviewCounts={new:0,due:0,weak:0},showMistakes=false,focusedLegacyId=null,meaningLanguage="en";
- function buildIdentity(){identitySnapshot=window.VocabLearningManifest.build(items())}
+ function buildIdentity(){if(identitySnapshot)return;identitySnapshot=window.VocabLearningManifest.build(items());canonicalItemIds=new Set(identitySnapshot.manifest.items.map(item=>item.itemId))}
  function canonicalItemId(legacyId,storedItemId,row){
   const priorId=String(storedItemId||"");
-  if(priorId.startsWith("vocab:canonical:")&&identitySnapshot?.manifest?.items.some(item=>item.itemId===priorId))return priorId;
+  if(priorId.startsWith("vocab:canonical:")&&canonicalItemIds.has(priorId))return priorId;
   if(priorId.startsWith("vocab:source:")){
    const prior=window.VocabLearningIdentity.resolveLegacyId(identitySnapshot?.aliasIndex,priorId);
    if(prior.status==="resolved")return prior.itemId;
@@ -31,7 +32,7 @@
  function history(){return read().map(event=>{const legacyId=event.legacyId||event.itemId;const itemId=canonicalItemId(legacyId,event.itemId);return {...event,legacyId,itemId}})}
  function reviewKey(itemId,modeId){return itemId+"|"+modeId}
  function progressModeId(){return mode==="meaning-recall"?"meaning-recall-"+meaningLanguage:mode}
- function buildReviewMap(){reviewMap=new Map();for(const event of history()){const key=reviewKey(event.itemId,event.modeId);if(!reviewMap.has(key))reviewMap.set(key,[]);reviewMap.get(key).push(event)}}
+ function buildReviewMap(){reviewMap=new Map();for(const event of history()){const key=reviewKey(event.itemId,event.modeId);if(!reviewMap.has(key))reviewMap.set(key,[]);reviewMap.get(key).push(event)}reviewMapBuilt=true}
  function reviewFor(item){return window.VocabReviewScheduler.evaluate(reviewMap.get(reviewKey(canonicalItemId(item.id,null,item),progressModeId()))||[])}
  function eligibleRows(){
   const selected=modeRegistry.get(mode);
@@ -51,7 +52,7 @@
  }
  function stats(){const h=history(),errors=new Map();for(const event of h)if(event.modeId==="imla")for(const type of event.errorTypes||[])errors.set(type,(errors.get(type)||0)+1);const spellingPatterns=[...errors].sort((a,b)=>b[1]-a[1]).slice(0,3);return {attempts:h.length,correct:h.filter(x=>x.correct).length,items:new Set(h.map(x=>x.itemId)).size,mistakes:notebookRows().length,spellingPatterns}}
  function makeQueue(){
-  buildIdentity();buildReviewMap();
+  buildIdentity();if(!reviewMapBuilt)buildReviewMap();
   const candidates=eligibleRows();reviewCounts={new:0,due:0,weak:0};
   const decorated=candidates.map(item=>({item,state:reviewFor(item)}));
   for(const x of decorated){if(x.state.isNew)reviewCounts.new++;if(x.state.due)reviewCounts.due++;if(x.state.weak)reviewCounts.weak++}
@@ -147,10 +148,12 @@
      return;
     }
    }
+   if(nextMode==="meaning-recall"){identitySnapshot=null;canonicalItemIds=new Set();}
    mode=nextMode;focusedLegacyId=null;makeQueue();render();
   });
   $("#learningNotebook").onclick=()=>{showMistakes=true;exercise()};
   exercise();
+  if(!window.__learningSchoolFirstExerciseMarked&&current&&window.performance&&window.performance.mark){window.__learningSchoolFirstExerciseMarked=true;window.performance.mark("vocab-learning-school-first-exercise")}
  }
  window.learningSchool=()=>{window.ensureSharedVocabularyModal?.();makeQueue();render()};
 })();
