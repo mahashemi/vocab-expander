@@ -137,7 +137,18 @@
   const languageSelect=$("#learningMeaningLanguage");if(languageSelect){languageSelect.value=meaningLanguage;languageSelect.onchange=e=>{meaningLanguage=e.target.value;focusedLegacyId=null;makeQueue();render()}}
   $("#learningTerm").onchange=e=>{term=e.target.value;focusedLegacyId=null;makeQueue();render()};
   $("#learningQueue").onchange=e=>{queueFilter=e.target.value;focusedLegacyId=null;showMistakes=false;makeQueue();render()};
-  root.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;focusedLegacyId=null;makeQueue();render()});
+  root.querySelectorAll("[data-mode]").forEach(b=>b.onclick=async()=>{
+   const nextMode=b.dataset.mode;
+   if(nextMode==="meaning-recall"&&typeof window.ensureLearningSemantics==="function"&&!window.TERM01_SEMANTICS_READY&&!window.TERM02_SEMANTICS_READY&&!window.TERM03_SEMANTICS_READY){
+    const root=$("#learningExercise");
+    if(root)root.innerHTML='<div class="panel" role="status">Loading verified trilingual meanings…</div>';
+    try{await window.ensureLearningSemantics()}catch(error){
+     if(root)root.innerHTML='<div class="panel" role="alert">Meanings could not be loaded. Please try again. <small>'+esc(error.message||error)+'</small></div>';
+     return;
+    }
+   }
+   mode=nextMode;focusedLegacyId=null;makeQueue();render();
+  });
   $("#learningNotebook").onclick=()=>{showMistakes=true;exercise()};
   exercise();
  }
