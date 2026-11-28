@@ -143,25 +143,33 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
 
     const payload = JSON.parse(serialized);
     payload.core.sourceCommit = process.env.GITHUB_SHA || null;
+    payload.first.sourceCommit = payload.core.sourceCommit;
     fs.mkdirSync(outputDir, { recursive: true });
     const coreText = JSON.stringify(payload.core);
+    const firstText = JSON.stringify(payload.first);
     const meaningsText = JSON.stringify(payload.meanings);
     const hash = value => crypto.createHash('sha256').update(value).digest('hex').slice(0, 16);
     const coreFile = 'learning-school-core.' + hash(coreText) + '.json';
+    const firstFile = 'learning-school-first.' + hash(firstText) + '.json';
     const meaningsFile = 'learning-school-meanings.' + hash(meaningsText) + '.json';
     const coreGzipFile = coreFile + '.gz';
+    const firstGzipFile = firstFile + '.gz';
     const meaningsGzipFile = meaningsFile + '.gz';
     for (const name of fs.readdirSync(outputDir)) {
-      if (/^learning-school-(?:core|meanings)\.[a-f0-9]{16}\.json(?:\.gz)?$/.test(name)) fs.unlinkSync(path.join(outputDir, name));
+      if (/^learning-school-(?:first|core|meanings)\.[a-f0-9]{16}\.json(?:\.gz)?$/.test(name)) fs.unlinkSync(path.join(outputDir, name));
     }
     fs.writeFileSync(path.join(outputDir, coreFile), coreText + '\n');
     fs.writeFileSync(path.join(outputDir, coreGzipFile), zlib.gzipSync(coreText));
+    fs.writeFileSync(path.join(outputDir, firstFile), firstText + '\n');
+    fs.writeFileSync(path.join(outputDir, firstGzipFile), zlib.gzipSync(firstText));
     fs.writeFileSync(path.join(outputDir, meaningsFile), meaningsText + '\n');
     fs.writeFileSync(path.join(outputDir, meaningsGzipFile), zlib.gzipSync(meaningsText));
     const index = {
       schemaVersion: 1,
       generatedAt: payload.core.generatedAt,
       sourceCommit: payload.core.sourceCommit,
+      firstUrl: 'learning/data/' + firstFile,
+      firstGzipUrl: 'learning/data/' + firstGzipFile,
       coreUrl: 'learning/data/' + coreFile,
       coreGzipUrl: 'learning/data/' + coreGzipFile,
       meaningsUrl: 'learning/data/' + meaningsFile,
@@ -178,8 +186,14 @@ const outputDir = path.resolve(__dirname, '..', 'website', 'learning', 'data');
       crossTermMerged: payload.core.stats.crossTermMerged,
       coreBytes: bytes(coreText),
       coreGzipBytes: gzipBytes(coreText),
+      quickStartRows: payload.first.rows.length,
+      quickStartItems: payload.first.quickStartItems,
+      quickStartBytes: bytes(firstText),
+      quickStartGzipBytes: gzipBytes(firstText),
       meaningsBytes: bytes(meaningsText),
       meaningsGzipBytes: gzipBytes(meaningsText),
+      firstFile,
+      firstGzipFile,
       coreFile,
       coreGzipFile,
       meaningsFile,
