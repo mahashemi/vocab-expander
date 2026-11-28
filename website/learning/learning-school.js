@@ -5,13 +5,13 @@
  const read=()=>{try{const x=JSON.parse(localStorage.getItem(STORE)||"[]");return Array.isArray(x)?x:[]}catch(_){return[]}};
  const write=x=>{try{localStorage.setItem(STORE,JSON.stringify(x.slice(-MAX_EVENTS)))}catch(_){}};
  let rowSnapshot=null,canonicalItemIds=new Set(),reviewMapBuilt=false;
- const items=()=>rowSnapshot||(rowSnapshot=typeof window.__getAllVocabRows==="function"?window.__getAllVocabRows():[]);
+ const items=()=>rowSnapshot||(rowSnapshot=Array.isArray(window.LEARNING_SCHOOL_DATA?.rows)?window.LEARNING_SCHOOL_DATA.rows:(typeof window.__getAllVocabRows==="function"?window.__getAllVocabRows():[]));
  const modes={imla:{...window.VocabImla,id:"imla"},"skip-gram":{...window.VocabSkipGram,id:"skip-gram"},"meaning-recall":{...window.VocabMeaningRecall,id:"meaning-recall"}};
  const modeRegistry=window.VocabLearningModeRegistry.create(Object.values(modes));
  window.VocabLearningSchoolModeIds=modeRegistry.list().map(item=>item.id);
  if(!modeRegistry.get("imla")||!modeRegistry.get("skip-gram")||!modeRegistry.get("meaning-recall"))throw new Error("The Learning School is missing a required independent learning mode.");
  let mode="imla",term="all",queueFilter="all",queue=[],index=0,current=null,prompt=null,hints=0,started=0,checked=false,identitySnapshot=null,reviewMap=new Map(),reviewCounts={new:0,due:0,weak:0},showMistakes=false,focusedLegacyId=null,meaningLanguage="en";
- function buildIdentity(){if(identitySnapshot)return;identitySnapshot=window.VocabLearningManifest.build(items());canonicalItemIds=new Set(identitySnapshot.manifest.items.map(item=>item.itemId))}
+ function buildIdentity(){if(identitySnapshot)return;const data=window.LEARNING_SCHOOL_DATA;identitySnapshot=data?.manifest&&data?.aliasIndex?{manifest:data.manifest,aliasIndex:data.aliasIndex,stats:data.stats||{}}:window.VocabLearningManifest.build(items());canonicalItemIds=new Set(identitySnapshot.manifest.items.map(item=>item.itemId))}
  function canonicalItemId(legacyId,storedItemId,row){
   const priorId=String(storedItemId||"");
   if(priorId.startsWith("vocab:canonical:")&&canonicalItemIds.has(priorId))return priorId;
@@ -115,7 +115,19 @@
   const direction=meaningMode&&meaningLanguage==="ar"?"rtl":"auto";
   root.innerHTML='<div class="panel learning-question"><div class="mut">'+(index+1)+' / '+queue.length+' · TERM 0'+current.bk+' · Chapter '+esc(current.ch)+' · '+state+' · '+instruction+'</div><h3 class="learning-meaning" '+(meaningMode?'dir="rtl" lang="fa"':"")+'>'+esc(meaning)+'</h3>'+(context?'<p class="mut">Context: '+esc(context)+'</p>':"")+(mode==="skip-gram"?'<div class="fa learning-mask" dir="rtl" lang="fa">'+esc(shown)+'</div>':"")+'<label for="learningAnswer">'+(meaningMode?(meaningLanguage==="en"?"English meaning":"المعنى بالعربية"):"Your Persian answer / پاسخ شما")+'</label><input id="learningAnswer" class="learning-answer" dir="'+direction+'" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="'+placeholder+'" '+(checked?"disabled":"")+'><div class="row"><button class="pri" id="learningCheck" '+(checked?"disabled":"")+'>Check answer</button><button id="learningHint" '+(checked?"disabled":"")+'>Hint · '+hints+'</button><button id="learningNext" '+(!checked?"disabled":"")+'>Next →</button><button type="button" id="learningVocabCard">Vocabulary card</button></div><div id="learningFeedback" aria-live="polite"></div></div>';
   const answer=$("#learningAnswer");answer.focus();answer.addEventListener("keydown",e=>{if(e.key==="Enter"&&!checked)check()});
-  $("#learningCheck").onclick=check;$("#learningNext").onclick=next;$("#learningHint").onclick=hint;$("#learningVocabCard").onclick=()=>window.openSharedVocabularyCard?.(current.id,$("#learningVocabCard"));
+  $("#learningCheck").onclick=check;$("#learningNext").onclick=next;$("#learningHint").onclick=hint;
+  $("#learningVocabCard").onclick=async()=>{
+   const button=$("#learningVocabCard"),targetTerm=Number(current?.bk);
+   try{
+    if(typeof window.ensureTermLoaded==="function")await window.ensureTermLoaded(targetTerm);
+    if(targetTerm===3&&typeof window.ensureTerm03Semantics==="function")await window.ensureTerm03Semantics();
+    else if(typeof window.ensureTermSemantics==="function")await window.ensureTermSemantics(targetTerm);
+    window.openSharedVocabularyCard?.(current.id,button);
+   }catch(error){
+    const feedback=$("#learningFeedback");
+    if(feedback)feedback.innerHTML='<div class="learning-feedback incorrect" role="alert">The vocabulary card could not be opened. Please try again.</div>';
+   }
+  };
  }
  function check(){
   if(checked||!current)return;
@@ -148,7 +160,7 @@
      return;
     }
    }
-   if(nextMode==="meaning-recall"){rowSnapshot=null;identitySnapshot=null;canonicalItemIds=new Set();reviewMapBuilt=false;}
+   if(nextMode==="meaning-recall"){reviewMapBuilt=false;}
    mode=nextMode;focusedLegacyId=null;makeQueue();render();
   });
   $("#learningNotebook").onclick=()=>{showMistakes=true;exercise()};
